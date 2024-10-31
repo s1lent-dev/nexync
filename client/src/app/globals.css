@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-main: #262524;
+  --bg-dark1: #111b21;
+  --bg-dark2: #101a20;
+  --bg-card1: #202c33;
+  --bg-card2: #222e35;
+  --font-main: #e9edef;
+  --font-dark: #8696a0;
+  --font-light: #8696a0;
+  --icon-1: #aebac1;
+  --icon-2: #d1d7db;
+  --primary: #00a884;
+  --font-1: 'SF Pro Text', Arial, Helvetica, sans-serif, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-2: Arial, Helvetica, sans-serif, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+@font-face {
+  font-family: 'SF Pro Text';
+  src: url(./fonts/SF-Pro-Text-Semibold.otf) format('trueType');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Segoe UI';
+  src: url(./fonts/Segoe\ UI.ttf) format('trueType');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--font-main);
+  background: var(--bg-main);
+  font-family: Arial, Helvetica, sans-serif, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1 h2 h3 h4 h5 h6 {
+  font-family: 'SF Pro Text', Arial, Helvetica, sans-serif, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px; /* Adjust width as needed */
+  scrollbar-width: thin; /* Thin scrollbar */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--bg-card2); /* Gray similar to WhatsApp */
+  border-radius: 8px; /* Rounded edges */
+  border: 2px solid transparent; /* Adds spacing */
+  background-clip: content-box; /* Ensures color doesn't bleed */
+}
