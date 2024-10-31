@@ -1,0 +1,2 @@
+# nexsync
+Scalable chat app
