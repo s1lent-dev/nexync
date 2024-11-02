@@ -8,6 +8,7 @@
   --bg-dark2: #101a20;
   --bg-card1: #202c33;
   --bg-card2: #222e35;
+  --bg-card-3: #172329;
   --font-main: #e9edef;
   --font-dark: #8696a0;
   --font-light: #8696a0;
@@ -16,6 +17,7 @@
   --primary: #00a884;
   --font-1: 'SF Pro Text', Arial, Helvetica, sans-serif, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   --font-2: Arial, Helvetica, sans-serif, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --error: #f15c6d;
 }
 
 @font-face {
