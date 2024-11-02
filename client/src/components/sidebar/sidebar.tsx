@@ -1,8 +1,14 @@
+"use client"
+
 import React from "react";
 import Image from "next/image";
 import SingleChat from "./singleChat"; // Import the SingleChat component
+import { useDispatch } from "react-redux";
+import { setNavigation } from "@/context/reducers/navigation";
 
 const Sidebar = () => {
+
+  const dispatch = useDispatch()
   return (
     <section className="flex flex-col p-4 w-full gap-6 h-full">
       {/* Header with title and icons */}
@@ -11,7 +17,7 @@ const Sidebar = () => {
           Chats
         </h2>
         <div className="flex flex-row gap-6">
-          <Image src="/new-chat.svg" width={25} height={25} alt="New Chat" />
+          <Image src="/new-chat.svg" width={25} height={25} alt="New Chat" onClick={() => dispatch(setNavigation("newchat"))}/>
           <Image src="/menu.svg" width={25} height={25} alt="Menu" />
         </div>
       </div>

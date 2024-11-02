@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/context/store';
 import Profile from '@/components/sidebar/profile';
 import Settings from '@/components/sidebar/settings';
+import NewChat from '@/components/sidebar/newChat';
 
 const Main = () => {
 
@@ -22,6 +23,7 @@ const Main = () => {
           {navigation === 'chat' && <Sidebar />}
           {navigation === 'profile' && <Profile />}
           {navigation === 'settings' && <Settings />}
+          {navigation === 'newchat' && <NewChat />}
         </div>
         {/* Chat area */}
         <div className="w-2/3 h-full bg-bg_card1">
