@@ -12,6 +12,7 @@ import { graphqlServer } from "./graphql/graphql.js";
 import { intializeGoogleOAuth } from './middlewares/verify.google.js';
 import { intializeGithubOAuth } from './middlewares/verify.github.js';
 import { ChatSocket } from './lib/socket/chat.socket.js';
+import authRouter from './routes/auth.routes.js';
 import { verifySocket } from './middlewares/verifySocket.middleware.js';
 import { ErrorMiddleware } from './middlewares/error.middleware.js';
 
@@ -47,6 +48,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Routes
+app.use('/auth', authRouter);
+
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello World');
 });

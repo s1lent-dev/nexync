@@ -6,7 +6,7 @@ const MessageStatus = z.enum(['PENDING', 'SENT', 'DELIVERED', 'READ']);
 
 // User schema validation
 const UserSchema = z.object({
-    userId: z.string().uuid(),
+    userId: z.string().uuid({ message: "Invalid user id" }),
     googleId: z.string().uuid().optional(),
     githubId: z.string().uuid().optional(),
     username: z.string().min(4).max(20),

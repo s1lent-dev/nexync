@@ -1,7 +1,7 @@
 import { User as IUser } from "../types/types.js";
 import passport from "passport";
 import GithubStrategy from "passport-github2";
-import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_REDIRECT_URL } from "../config/config.js";
+import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_CALLBACK_URL } from "../config/config.js";
 import { prisma } from "../lib/db/prisma.db.js";
 import { generatePassword, generateTokens, generateUsername, hashPassword } from "../utils/helper.util.js";
 
@@ -9,7 +9,7 @@ const intializeGithubOAuth = () => {
     passport.use(new GithubStrategy.Strategy({
         clientID: GITHUB_CLIENT_ID,
         clientSecret: GITHUB_CLIENT_SECRET,
-        callbackURL: GITHUB_REDIRECT_URL,
+        callbackURL: GITHUB_CALLBACK_URL,
       },
       async function(accessToken: string, refreshToken: string, profile: any, done: (error: any, user?: any) => void) {
         try {
