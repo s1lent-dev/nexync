@@ -2,13 +2,14 @@ import { Request, Response, NextFunction } from "express";
 
 interface User {
     userId: string;
-    firstName: string;
-    lastName: string;
+    googleId?: string | null;
+    githubId?: string | null;
     username: string;
     email: string;
     password: string;
-    avatarUrl: string;
-    bio: string;
+    avatarUrl?: string | null;
+    bio?: string | null;
+    refreshToken?: string | null;
 }
 enum MessageType {
     TEXT,

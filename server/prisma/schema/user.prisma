@@ -1,16 +1,17 @@
 model User {
-    userId    String    @id @default(uuid())
-    firstName String
-    lastName  String
-    username  String    @unique
-    email     String    @unique
-    password  String
-    avatarUrl String?
-    bio       String?
-    chats     UserChat[] 
-    messages  Message[]  @relation("UserSentMessages")
-    createdAt DateTime   @default(now())
-    updatedAt DateTime   @updatedAt
+    userId       String     @id @default(uuid())
+    googleId     String?    @unique
+    githubId     String?    @unique
+    username     String     @unique
+    email        String     @unique
+    password     String
+    avatarUrl    String?
+    bio          String?
+    refreshToken String?
+    chats        UserChat[]
+    messages     Message[]  @relation("UserSentMessages")
+    createdAt    DateTime   @default(now())
+    updatedAt    DateTime   @updatedAt
 
     @@index([username])
 }

@@ -28,8 +28,8 @@ class SocketService {
   private initSockets() {
     this.io.on("connection", (socket: Socket) => {
       const user = (socket as CustomSocket).request.user;
-      if (this.userSocketsIds.has(user.userId.toString())) {
-        console.log(`User ${user.userId} already has an active socket: ${this.userSocketsIds.get(user.userId.toString())}.`);
+      if (this.userSocketsIds.has(user.userId)) {
+        console.log(`User ${user.userId} already has an active socket: ${this.userSocketsIds.get(user.userId)}.`);
       } else {
         this.userSocketsIds.set(user.userId.toString(), socket.id)
       }
@@ -40,7 +40,7 @@ class SocketService {
       this.registerEvents(socket);
       socket.on("disconnect", () => {
         console.log(`Client disconnected: ${socket.id}`);
-        this.userSocketsIds.delete(user.userId.toString());
+        this.userSocketsIds.delete(user.userId);
       });
     });
   }
@@ -49,8 +49,8 @@ class SocketService {
     console.log("Base SocketService registerEvents called.");
   }
 
-  protected getSockets = (userIds: number[]) => {
-    const sockets = userIds.map((userId)=> this.userSocketsIds.get(userId.toString()));
+  protected getSockets = (userIds: string[]) => {
+    const sockets = userIds.map((userId)=> this.userSocketsIds.get(userId));
     return sockets;
   }
 
