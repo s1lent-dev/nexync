@@ -13,6 +13,7 @@ import { intializeGoogleOAuth } from './middlewares/verify.google.js';
 import { intializeGithubOAuth } from './middlewares/verify.github.js';
 import { ChatSocket } from './lib/socket/chat.socket.js';
 import authRouter from './routes/auth.routes.js';
+import userRouter from './routes/user.routes.js';
 import { verifySocket } from './middlewares/verifySocket.middleware.js';
 import { ErrorMiddleware } from './middlewares/error.middleware.js';
 
@@ -26,7 +27,7 @@ const io = socketService.getIo();
 app.use(cors({
     origin: ['http://localhost:3000', 'http://localhost:3001'],
     credentials: true, 
-  }));
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -49,15 +50,16 @@ app.use(passport.session());
 
 // Routes
 app.use('/auth', authRouter);
+app.use('/user', userRouter);
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello World');
 });
 app.get('*', (req: Request, res: Response) => {
-   res.status(404).json({
-       success: false,
-       message: 'Resource not found',
-   });
+    res.status(404).json({
+        success: false,
+        message: 'Resource not found',
+    });
 });
 
 // Socket Middlewares

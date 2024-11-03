@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import { ChatSchema, MessageSchema, UserChatSchema, UserSchema } from "../schemas/validation.schema";
-import { AsyncHandler } from "../utils/handlers.util";
+import { ChatSchema, MessageSchema, UserChatSchema, UserSchema } from "../schemas/validation.schema.js";
+import { AsyncHandler } from "../utils/handlers.util.js";
 
 const validateUser = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     UserSchema.parse(req.body);

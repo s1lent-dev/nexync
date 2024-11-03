@@ -1,7 +1,5 @@
 import dotenv from 'dotenv';
-
 dotenv.config();
-
 
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'DEVELOPMENT';
@@ -48,6 +46,11 @@ const MAIL_PORT = process.env.MAIL_PORT || 465;
 const MAIL_USER = process.env.MAIL_USER || '';
 const MAIL_PASS = process.env.MAIL_PASS || '';
 const MAIL_FROM = process.env.MAIL_FROM || 'no-reply@localhost';
+
+
+const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || '';
+const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || '';
+const AWS_REGION = process.env.AWS_REGION || 'ap-south-1';
 
 
 const HTTP_STATUS_OK = 200;
@@ -109,6 +112,9 @@ export {
   MAIL_USER,
   MAIL_PASS,
   MAIL_FROM,
+  AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY,
+  AWS_REGION,
   HTTP_STATUS_OK,
   HTTP_STATUS_CREATED,
   HTTP_STATUS_ACCEPTED,
