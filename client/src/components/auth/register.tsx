@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { useRouter } from "next/navigation";
+import { useRegister } from "@/utils/api";
 import { ArrowRight } from 'lucide-react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,7 +14,7 @@ import { z } from "zod";
 // Define the Zod schema for form validation
 const schema = z.object({
   username: z.string().min(1, "Username name is required"),
-  email: z.string().email("Invalid email address"),
+  email: z.string().email().regex(/^[a-zA-Z0-9._%+-]+@gmail\.com$/, { message: "Email must end with @gmail.com" }),
   password: z.string().min(6, "Password must be at least 6 characters"),
   confirmPassword: z.string().min(6, "Confirm Password is required"),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -21,6 +23,10 @@ const schema = z.object({
 });
 
 const Register = () => {
+
+  const { registerUser } = useRegister();
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -35,8 +41,16 @@ const Register = () => {
     }
   });
 
-  const onSubmit = (values: z.infer<typeof schema>) => {
-    console.log(values); // Handle form submission
+  const onSubmit = async (values: z.infer<typeof schema>) => {
+    try { 
+      const res = await registerUser(values);
+      console.log(res);
+      if (res?.statusCode === 201) {
+        router.push('/login');
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -63,6 +77,7 @@ const Register = () => {
               title="Sign in with Google"
               type="button"
               className="text-font_dark mb-6 flex w-full items-center justify-center rounded-sm border border-slate-500 bg-bg_card1 px-6 py-3 text-base outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary"
+              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`}
             >
               <Image
                 src="/google.webp"
@@ -77,6 +92,7 @@ const Register = () => {
               title="Sign in with Github"
               type="button"
               className="text-font_dark mb-6 flex w-full items-center justify-center rounded-sm border border-slate-500 bg-bg_card1 px-6 py-3 text-base outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary"
+              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/github`}
             >
               <Image
                 src="/github.webp"

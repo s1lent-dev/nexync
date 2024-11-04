@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ReduxProvider from "@/context/rootProvider";
+import { SocketProvider } from "@/context/helper/socket";
+import { AxiosProvider } from "@/context/helper/axios";
 
 export const metadata: Metadata = {
   title: "Nexync",
@@ -18,7 +20,9 @@ export default function RootLayout({
         className={`antialiased bg-bg_main text-font_main w-screen h-screen`}
       >
         <ReduxProvider>
-        {children}
+          <SocketProvider>
+            <AxiosProvider>{children}</AxiosProvider>
+          </SocketProvider>
         </ReduxProvider>
       </body>
     </html>

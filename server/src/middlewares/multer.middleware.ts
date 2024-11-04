@@ -1,23 +1,9 @@
 import multer from "multer";
 import { v4 as uuid } from "uuid";
 
-const routeToFolder = {
-    'users': './public/users',
-    'chats': './public/chats',
-}
-
-const getDestinationFolder = (url: string) => {
-    for (const route in routeToFolder) {
-        if (url.includes(route)) {
-            return routeToFolder[route as keyof typeof routeToFolder];
-        }
-    }
-    return './public/uploads';
-};
-
 const storage = multer.diskStorage({
     destination(req, file, callback) {
-        const destinationFolder = getDestinationFolder(req.originalUrl);
+        const destinationFolder = './public/uploads';
         callback(null, destinationFolder);
     },
     filename(req, file, callback) {

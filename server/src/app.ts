@@ -20,6 +20,8 @@ import { ErrorMiddleware } from './middlewares/error.middleware.js';
 // Server 
 const app = express();
 const server = createServer(app);
+
+// Socket
 const socketService = new ChatSocket(server);
 const io = socketService.getIo();
 
@@ -75,4 +77,4 @@ io.use((socket: any, next: any) => {
 app.use(ErrorMiddleware as any);
 
 // Export
-export { server };
+export { server, socketService };

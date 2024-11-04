@@ -19,8 +19,9 @@ const RegisterUser = AsyncHandler(async (req: Request, res: Response, next: Next
 });
 
 const LoginUser = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-    const { email, password } = req.body;
-    const user = await prisma.user.findFirst({ where: { email } });
+    const { usernameOrEmail, password } = req.body;
+    const isEmail = /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(usernameOrEmail);
+    const user = await prisma.user.findFirst({ where: isEmail ? { email: usernameOrEmail } : { username: usernameOrEmail} });
     if(!user) {
         return next(new ErrorHandler('Invalid credentials', HTTP_STATUS_BAD_REQUEST));
     }

@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
+import { useRouter } from "next/navigation";
+import { useLogin } from "@/utils/api";
 import { ArrowRight } from 'lucide-react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +18,9 @@ const schema = z.object({
 });
 
 const Login = () => {
+  
+  const { loginUser } = useLogin();
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -28,8 +33,16 @@ const Login = () => {
     }
   });
 
-  const onSubmit = (values: z.infer<typeof schema>) => {
-    console.log(values); // Handle form submission
+  const onSubmit = async (values: z.infer<typeof schema>) => {
+    try { 
+      const res = await loginUser(values);
+      console.log(res);
+      if (res?.statusCode === 202) {
+        router.push('/');
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -57,6 +70,7 @@ const Login = () => {
               title="Sign in with Google"
               type="button"
               className="text-font_dark flex w-full items-center justify-center rounded-sm border border-slate-500 bg-bg_card1 px-6 py-3 text-base outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary"
+              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`}
             >
               <Image
                 src="/google.webp"
@@ -71,6 +85,7 @@ const Login = () => {
               title="Sign in with Github"
               type="button"
               className="text-font_dark flex w-full items-center justify-center rounded-sm border border-slate-500 bg-bg_card1 px-6 py-3 text-base outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary"
+              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/github`}
             >
               <Image
                 src="/github.webp"
