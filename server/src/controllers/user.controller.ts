@@ -21,6 +21,19 @@ const getMe = AsyncHandler(
 
 const searchUsers = AsyncHandler(async(req: CustomRequest, res: Response, next: NextFunction) => {
     const { search } = req.query;
+    
+    const userId  = req.user?.userId;
+
+    const alreadyFollowing = await prisma.connection.findMany({
+        where: { followerId: userId },
+        include: { following: true }
+    });
+
+    const alreadyRequested = await prisma.connectionRequest.findMany({
+        where: { senderId: userId },
+        include: { receiver: true }
+    })
+
     let users = await prisma.user.findMany({
         where: {
             OR: [
@@ -39,8 +52,17 @@ const searchUsers = AsyncHandler(async(req: CustomRequest, res: Response, next: 
             ],
         },
     });
+    users = users.filter((user) => user.userId !== userId);
 
-    users = users.filter((user) => user.userId !== req.user?.userId);
+    users = users.map((user) => {
+        const following = alreadyFollowing.find((f) => f.followingId === user.userId);
+        const requested = alreadyRequested.find((r) => r.receiverId === user.userId);
+        return {
+            ...user,
+            isFollowing: !!following,
+            isRequested: !!requested,
+        };
+    });
     res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Users", users));
 });
 
@@ -121,8 +143,8 @@ const acceptConnectionRequest = AsyncHandler(
         });
         await prisma.connection.create({
             data: {
-                followerId: user?.userId as string,
-                followingId: userId,
+                followingId: user?.userId as string,
+                followerId: userId,
             },
         });
 
@@ -155,7 +177,7 @@ const getMyConnections = AsyncHandler(async(req: CustomRequest, res: Response, n
             followerId: user?.userId,
         },
         include: {
-            follower: true,
+            following: true,
         }
     });
     const followers = await prisma.connection.findMany({
@@ -163,7 +185,7 @@ const getMyConnections = AsyncHandler(async(req: CustomRequest, res: Response, n
             followingId: user?.userId,
         },
         include: {
-            following: true,
+            follower: true,
         }
     });
     res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Connections", { following, followers }));
@@ -195,4 +217,14 @@ const uploadAvatar = AsyncHandler(
     }
 );
 
-export { getMe, searchUsers, sendConnectionRequest, acceptConnectionRequest, getMyConnections, uploadAvatar };
+const updateBio = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { bio } = req.body;
+    const user = req.user;
+    await prisma.user.update({
+        where: { userId: user?.userId },
+        data: { bio },
+    });
+    res.json(new ResponseHandler(HTTP_STATUS_OK, "Bio updated successfully", {}));
+});
+
+export { getMe, searchUsers, sendConnectionRequest, acceptConnectionRequest, getMyConnections, uploadAvatar, updateBio };

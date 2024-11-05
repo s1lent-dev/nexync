@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../lib/db/prisma.db.js';
 import { AsyncHandler, ErrorHandler, ResponseHandler } from '../utils/handlers.util.js';
 import { CustomRequest, User } from '../types/types.js';
-import { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_CREATED, COOKIE_OPTIONS, HTTP_STATUS_OK, FRONTEND_URL, HTTP_STATUS_ACCEPTED } from '../config/config.js';
+import { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_CREATED, COOKIE_OPTIONS, HTTP_STATUS_OK, FRONTEND_URL, HTTP_STATUS_ACCEPTED, HTTP_STATUS_UNAUTHORIZED } from '../config/config.js';
 import { comparePassword, generateTokens, hashPassword } from '../utils/helper.util.js';
 
 // Controller
@@ -60,12 +60,21 @@ const LogoutUser = AsyncHandler(async (req: CustomRequest, res: Response, next: 
     res.clearCookie('accessToken', COOKIE_OPTIONS).clearCookie('refreshToken', COOKIE_OPTIONS).json(new ResponseHandler(HTTP_STATUS_OK, 'User logged out successfully', {}));
 });
 
+const refreshToken = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    if(!req.user) {
+        return next(new ErrorHandler('Unauthorized', HTTP_STATUS_UNAUTHORIZED));
+    }
+    const { accessToken, refreshToken } = await generateTokens(req.user);
+    res.status(HTTP_STATUS_OK).cookie('accessToken', accessToken, COOKIE_OPTIONS).cookie('refreshToken', refreshToken, COOKIE_OPTIONS).json(new ResponseHandler(HTTP_STATUS_OK, 'Token refreshed successfully', {}));
+});
+
 export {
     RegisterUser,
     LoginUser,
     LoginWithGoogle,
     LoginWithGithub,
-    LogoutUser
+    LogoutUser,
+    refreshToken
 }
 
 

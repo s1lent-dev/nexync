@@ -1,13 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import Image from "next/image";
+import { debounce } from "lodash";
 import { ArrowLeft } from "lucide-react";
 import SingleSuggestion from "./singleSuggestion";
 import { setNavigation } from "@/context/reducers/navigation";
+import { RootState } from "@/context/store";
+import { useSearchUsers } from "@/utils/api";
+import { resetSearchedUsers } from "@/context/reducers/user";
 
 const NewChat = () => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const searchedUsers = useSelector((state: RootState) => state.User.searchedUsers);
   const dispatch = useDispatch();
+  const { searchUsers } = useSearchUsers();
+
+  const debouncedFetchSuggestions = useCallback(debounce(async (query) => await searchUsers(query), 500), []);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value.trim(); 
+    setSearchQuery(query);
+    if (query) {
+        debouncedFetchSuggestions(query); 
+    } else {
+      dispatch(resetSearchedUsers());
+    }
+  }
 
   return (
     <section className="flex flex-col p-4 w-full gap-6 h-full flex-grow overflow-y-scroll custom-scrollbar scrollbar-thin">
@@ -23,7 +42,7 @@ const NewChat = () => {
           type="text"
           placeholder="Search..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => handleSearch(e)}
           className="w-10/12 bg-transparent placeholder:text-font_light placeholder:font-thin placeholder:font-segoe ml-2 focus:outline-none"
         />
       </div>
@@ -34,9 +53,15 @@ const NewChat = () => {
             Search Results
           </h2>
           <div className="pr-2 space-y-2">
-            {[...Array(5)].map((_, index) => (
-              <SingleSuggestion key={index} />
-            ))}
+            {searchedUsers.length === 0 ? (
+              <h4 className="font-sfpro text-font_dark text-lg font-thin text-center">
+                No results found
+              </h4>
+            ) : (
+              searchedUsers.map((user) => (
+                <SingleSuggestion key={user.userId} user={user} />
+              ))
+            )}
           </div>
         </div>
       ) : (
@@ -63,7 +88,7 @@ const NewChat = () => {
             </h2>
             <div className="pr-2 space-y-2">
               {[...Array(15)].map((_, index) => (
-                <SingleSuggestion key={index} />
+                <div key={index}>test</div>
               ))}
             </div>
           </div>

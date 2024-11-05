@@ -18,10 +18,6 @@ const comparePassword = async (password: string, hashedPassword: string) => {
 const generateTokens = async (user: User) => {
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
-    await prisma.user.update({
-        where: { userId: user.userId },
-        data: { refreshToken },
-    })
     return { accessToken, refreshToken };
 }
 const generateAccessToken = (user: User) => {

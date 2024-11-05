@@ -1,4 +1,14 @@
-interface INavigationItem {
+type IUser = {
+    userId: string;
+    username: string;
+    email: string;
+    avatarUrl: string;
+    bio: string;
+    isFollowing: boolean;
+    isRequested: boolean;
+}
+
+type INavigationItem =  {
     title: string;
 }
 
@@ -14,4 +24,4 @@ type ILoginForm = {
     password: string;
 }
 
-export type { INavigationItem, IRegsitrationForm, ILoginForm };
+export type { INavigationItem, IRegsitrationForm, ILoginForm, IUser };

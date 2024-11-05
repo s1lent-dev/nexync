@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { RegisterUser, LoginUser, LoginWithGoogle, LoginWithGithub, LogoutUser } from "../controllers/auth.controller.js";
+import { RegisterUser, LoginUser, LoginWithGoogle, LoginWithGithub, LogoutUser, refreshToken } from "../controllers/auth.controller.js";
 import { validateUser } from "../middlewares/validate.middleware.js";
 import passport from "passport";
+import { verifyRefreshToken } from "../middlewares/verify.middleware.js";
 
 const authRouter = Router();
 
@@ -13,5 +14,6 @@ authRouter.route('/github/callback').get(passport.authenticate("github", { sessi
 authRouter.route('/register').post(validateUser, RegisterUser);
 authRouter.route('/login').post(LoginUser);
 authRouter.route('/logout').get(LogoutUser);
+authRouter.route('/refresh-token').post(verifyRefreshToken, refreshToken);
 
 export default authRouter;

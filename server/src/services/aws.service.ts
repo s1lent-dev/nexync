@@ -36,7 +36,7 @@ const getSignedUrlFromS3 = async (key: string) => {
             Bucket: "nexync",
             Key: key,
         });
-        const url = await getSignedUrl(s3Client, command);
+        const url = await getSignedUrl(s3Client, command, { expiresIn: 604800});
         return url;
     } catch(err) {
         console.error(err);
@@ -44,4 +44,4 @@ const getSignedUrlFromS3 = async (key: string) => {
     }
 }
 
-export { uploadToS3 };
+export { uploadToS3, getSignedUrlFromS3 };
