@@ -1,26 +1,30 @@
+enum chatType {
+    PRIVATE
+    GROUP
+}
+
 model Chat {
     chatId     String     @id @default(uuid())
     name       String?
-    isGroup    Boolean    @default(false)
-    users      UserChat[] 
+    chatType   chatType   @default(PRIVATE)
+    users      UserChat[]
     messages   Message[]  @relation("ChatMessages")
     createdAt  DateTime   @default(now())
     updatedAt  DateTime   @updatedAt
     lastActive DateTime?
 
-    @@index([isGroup])
+    @@index([chatType])
 }
 
 model UserChat {
-    id            String   @id @default(uuid())
+    id            String    @id @default(uuid())
     userId        String
     chatId        String
-    chat          Chat     @relation(fields: [chatId], references: [chatId])
-    user          User     @relation(fields: [userId], references: [userId])
-    joinedAt      DateTime @default(now())
-    isAdmin       Boolean  @default(false) 
-    lastSeenAt    DateTime? 
-    notifications Boolean   @default(true) 
+    chat          Chat      @relation(fields: [chatId], references: [chatId])
+    user          User      @relation(fields: [userId], references: [userId])
+    joinedAt      DateTime  @default(now())
+    isAdmin       Boolean   @default(false)
+    lastSeenAt    DateTime?
 
     @@unique([userId, chatId])
 }

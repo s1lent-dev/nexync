@@ -26,7 +26,7 @@ class ChatSocket extends SocketService {
         });
     }
 
-    protected async emitEvents(req: Request, event: string, userIds: string[], data: any) {
+    public async emitEvents(event: string, userIds: string[], data: any) {
         const socketMembers = this.getSockets(userIds) as string[];
         this.io.to(socketMembers).emit(event, data);
     }
