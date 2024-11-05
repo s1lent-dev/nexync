@@ -3,7 +3,7 @@ import Image from "next/image";
 import { IUser } from "@/types/types";
 import { useSendConnectionRequest } from "@/utils/api";
 
-const SingleSuggestion = ({ user }: { user: IUser }) => {
+const SingleSuggestion = ({ user, handleConnectionSent }: { user: IUser, handleConnectionSent: () => void }) => {
   const { sendConnectionRequest } = useSendConnectionRequest();
 
   const renderButton = () => {
@@ -13,7 +13,7 @@ const SingleSuggestion = ({ user }: { user: IUser }) => {
           title="Connect"
           type="button"
           className="text-font_main flex items-center justify-center rounded-md bg-primary px-3 py-1 text-base outline-none transition-all duration-300"
-          onClick={() => sendConnectionRequest(user.userId)}
+          onClick={async() => await sendConnectionRequest(user.userId) && handleConnectionSent()}
         >
           Connect
         </button>

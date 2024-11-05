@@ -1,5 +1,7 @@
 import React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useLogout } from "@/utils/api";
 
 const SeetingsData = [
     {
@@ -33,6 +35,13 @@ const SeetingsData = [
 ]
 
 const Settings = () => {
+
+  const { logout } = useLogout();
+  const router = useRouter();
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  }
   return (
     <section className="flex flex-col p-4 w-full gap-4 h-full">
       <h2 className="font-sfpro text-font_main text-xl font-bold antialiased">
@@ -66,7 +75,7 @@ const Settings = () => {
       </div>
       <div className="w-full flex flex-col gap-2">
             {SeetingsData.map((data, index) => (
-                <div key={index} className={`flex flex-row items-center gap-6 p-4 relative ${data.title === "Logout" ? 'hover:bg-red-400 hover:bg-opacity-20': 'hover:bg-bg_card2' } cursor-pointer`}>
+                <div key={index} className={`flex flex-row items-center gap-6 p-4 relative ${data.title === "Logout" ? 'hover:bg-red-400 hover:bg-opacity-20': 'hover:bg-bg_card2' } cursor-pointer`} onClick={data.title === 'Logout' ? handleLogout : undefined}>
                     { data.title === "Logout" ? (
                         <>
                         <Image src={data.url

@@ -24,6 +24,14 @@ const NewChat = () => {
     if (query) {
         debouncedFetchSuggestions(query); 
     } else {
+        dispatch(resetSearchedUsers());
+    }
+  }
+
+  const handleConnectionSent = () => {
+    if (searchQuery) {
+      debouncedFetchSuggestions(searchQuery);
+    } else {
       dispatch(resetSearchedUsers());
     }
   }
@@ -59,7 +67,7 @@ const NewChat = () => {
               </h4>
             ) : (
               searchedUsers.map((user) => (
-                <SingleSuggestion key={user.userId} user={user} />
+                <SingleSuggestion key={user.userId} user={user} handleConnectionSent={handleConnectionSent} />
               ))
             )}
           </div>

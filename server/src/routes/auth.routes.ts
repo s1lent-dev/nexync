@@ -2,7 +2,7 @@ import { Router } from "express";
 import { RegisterUser, LoginUser, LoginWithGoogle, LoginWithGithub, LogoutUser, refreshToken } from "../controllers/auth.controller.js";
 import { validateUser } from "../middlewares/validate.middleware.js";
 import passport from "passport";
-import { verifyRefreshToken } from "../middlewares/verify.middleware.js";
+import { verifyRefreshToken, verifyToken } from "../middlewares/verify.middleware.js";
 
 const authRouter = Router();
 
@@ -13,7 +13,7 @@ authRouter.route('/google/callback').get(passport.authenticate("google", { sessi
 authRouter.route('/github/callback').get(passport.authenticate("github", { session: false }), LoginWithGithub);
 authRouter.route('/register').post(validateUser, RegisterUser);
 authRouter.route('/login').post(LoginUser);
-authRouter.route('/logout').get(LogoutUser);
+authRouter.route('/logout').get(verifyToken, LogoutUser);
 authRouter.route('/refresh-token').post(verifyRefreshToken, refreshToken);
 
 export default authRouter;

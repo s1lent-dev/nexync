@@ -9,6 +9,8 @@ const user: IUser = {
     email: "",
     avatarUrl: "",
     bio: "",
+    isFollowing: false,
+    isRequested: false,
 }
 
 const searchedUsers: IUser[] = [];
@@ -28,11 +30,22 @@ const UserSlice = createSlice({
     setSearchedUsers(state, action: PayloadAction<IUser[]>) {
         state.searchedUsers = action.payload;
     },
+    resetUser(state) {
+        state.user = {
+            userId: "",
+            username: "",
+            email: "",
+            avatarUrl: "",
+            bio: "",
+            isFollowing: false,
+            isRequested: false,
+        }
+    },
     resetSearchedUsers(state) {
         state.searchedUsers = [];
     }
   },
 });
 
-export const { setUser, setSearchedUsers, resetSearchedUsers } = UserSlice.actions;
+export const { setUser, setSearchedUsers, resetUser, resetSearchedUsers } = UserSlice.actions;
 export { UserSlice };

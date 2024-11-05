@@ -1,6 +1,6 @@
 'use client';
 import { useAxios } from "@/context/helper/axios";
-import { setSearchedUsers, setUser } from "@/context/reducers/user";
+import { resetUser, setSearchedUsers, setUser } from "@/context/reducers/user";
 import { IRegsitrationForm, ILoginForm } from "@/types/types";
 import { AxiosError } from "axios";
 import { useDispatch } from "react-redux";
@@ -46,6 +46,29 @@ const useLogin = () => {
         }
     }
     return { loginUser, state };
+}
+
+const useLogout = () => {
+    const { axios, state, dispatch } = useAxios();
+    const reduxDispatch = useDispatch();
+    const logout = async () => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.get('/auth/logout');
+            dispatch({ type: 'REQUEST_SUCCESS'});
+            reduxDispatch(resetUser());
+            return res.data.data;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { logout, state };
 }
 
 const useGetMe = () => {
@@ -140,4 +163,4 @@ const useUploadAvatar = () => {
     }
     return { uploadAvatar, state };
 }
-export { useRegister, useLogin, useGetMe , useSearchUsers, useSendConnectionRequest, useUploadAvatar };
+export { useRegister, useLogin, useLogout, useGetMe , useSearchUsers, useSendConnectionRequest, useUploadAvatar };
