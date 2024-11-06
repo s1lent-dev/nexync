@@ -265,4 +265,28 @@ const useUploadAvatar = () => {
     }
     return { uploadAvatar, state };
 }
-export { useRegister, useLogin, useLogout, useGetMe, useGetConnections, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useUploadAvatar };
+
+
+const useUpdateBio = () => {
+    const { axios, state, dispatch } = useAxios();
+    const updateBio = async (bio: string) => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.put('/user/update-bio', {bio});
+            dispatch({ type: 'REQUEST_SUCCESS'});
+            return res.data.data;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { updateBio, state };
+}
+
+
+export { useRegister, useLogin, useLogout, useGetMe, useGetConnections, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useUploadAvatar, useUpdateBio };

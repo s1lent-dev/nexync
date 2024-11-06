@@ -254,6 +254,7 @@ const uploadAvatar = AsyncHandler(
 
 const updateBio = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { bio } = req.body;
+    console.log('Bio:', bio)
     const user = req.user;
     await prisma.user.update({
         where: { userId: user?.userId },
@@ -261,5 +262,6 @@ const updateBio = AsyncHandler(async (req: CustomRequest, res: Response, next: N
     });
     res.json(new ResponseHandler(HTTP_STATUS_OK, "Bio updated successfully", {}));
 });
+
 
 export { getMe, searchUsers, sendConnectionRequest, acceptConnectionRequest, getMyConnections, getSuggestions, getConnectionRequests, uploadAvatar, updateBio };
