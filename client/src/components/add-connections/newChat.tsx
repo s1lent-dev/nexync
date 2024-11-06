@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import Image from "next/image";
@@ -7,14 +7,16 @@ import { ArrowLeft } from "lucide-react";
 import SingleSuggestion from "./singleSuggestion";
 import { setNavigation } from "@/context/reducers/navigation";
 import { RootState } from "@/context/store";
-import { useSearchUsers } from "@/utils/api";
+import { useGetSuggestions, useSearchUsers } from "@/utils/api";
 import { resetSearchedUsers } from "@/context/reducers/user";
 
 const NewChat = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const searchedUsers = useSelector((state: RootState) => state.User.searchedUsers);
+  const suggestions = useSelector((state: RootState) => state.User.suggestions);
   const dispatch = useDispatch();
   const { searchUsers } = useSearchUsers();
+  const { getSuggestions } = useGetSuggestions();
 
   const debouncedFetchSuggestions = useCallback(debounce(async (query) => await searchUsers(query), 500), []);
 
@@ -34,7 +36,12 @@ const NewChat = () => {
     } else {
       dispatch(resetSearchedUsers());
     }
+    getSuggestions();
   }
+
+  useEffect(() => {
+    getSuggestions();
+  }, [])
 
   return (
     <section className="flex flex-col p-4 w-full gap-6 h-full flex-grow overflow-y-scroll custom-scrollbar scrollbar-thin">
@@ -95,8 +102,8 @@ const NewChat = () => {
               Suggestions
             </h2>
             <div className="pr-2 space-y-2">
-              {[...Array(15)].map((_, index) => (
-                <div key={index}>test</div>
+              {suggestions.map((user) => (
+                <SingleSuggestion key={user.userId} user={user} handleConnectionSent={handleConnectionSent} />
               ))}
             </div>
           </div>

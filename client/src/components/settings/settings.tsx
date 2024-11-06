@@ -2,6 +2,8 @@ import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLogout } from "@/utils/api";
+import { useSelector } from "react-redux";
+import { RootState } from "@/context/store";
 
 const SeetingsData = [
     {
@@ -35,7 +37,8 @@ const SeetingsData = [
 ]
 
 const Settings = () => {
-
+  
+  const user = useSelector((state: RootState ) => state.User.user);
   const { logout } = useLogout();
   const router = useRouter();
   const handleLogout = async () => {
@@ -57,7 +60,7 @@ const Settings = () => {
       </div>
       <div className="w-full flex flex-row items-center justify-between p-2 gap-4 hover:bg-bg_card2 cursor-pointer">
         <Image
-          src="/pfp.jpg"
+          src={user.avatarUrl || "/pfp.jpg"}
           width={80}
           height={80}
           alt="desc"
@@ -65,11 +68,10 @@ const Settings = () => {
         />
         <div className="flex flex-col w-full max-w-xs">
           <h4 className="text-lg font-semibold text-font_main">
-            Paresh Deshpande
+            {user.username}
           </h4>
           <p className="text-sm text-font_dark overflow-hidden whitespace-nowrap text-ellipsis w-5/6">
-            Sometimes your friends can let you down, but once in a while, they
-            are the only reason that you are standing up!
+            {user.bio}
           </p>
         </div>
       </div>

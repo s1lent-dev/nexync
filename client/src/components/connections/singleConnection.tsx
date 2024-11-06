@@ -1,20 +1,21 @@
 import React from "react";
 import Image from "next/image";
 import { Phone } from "lucide-react";
+import { IUser } from "@/types/types";
 
-const SingleConnection = () => {
+const SingleConnection = ({user} : {user:IUser}) => {
     return (
         <div className="flex items-center p-3 hover:bg-bg_card2 cursor-pointer relative">
             <Image
-                src={"/pfp.jpg"}
+                src={ user.avatarUrl || "/pfp.jpg"}
                 width={50}
                 height={50}
                 alt="Profile"
                 className="rounded-full"
             />
             <div className="ml-4 flex flex-col flex-grow justify-between">
-                <h4 className="font-light tracking-wide text-font_main">username</h4>
-                <p className="text-sm text-gray-600 truncate">bio</p>
+                <h4 className="font-light tracking-wide text-font_main">{user.username}</h4>
+                <p className="text-sm text-gray-600 truncate">{user.bio}</p>
             </div>
             <div className="flex flex-row gap-5">
                 <Phone size={30} strokeWidth={1} className="text-green-600" />

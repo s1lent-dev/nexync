@@ -1,19 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/context/store';
-import { useGetMe, useUploadAvatar } from '@/utils/api';
+import { useUploadAvatar } from '@/utils/api';
 import { Camera } from 'lucide-react';
 
 const Profile = () => {
   const [isHovered, setIsHovered] = useState(false);
   const user = useSelector((state: RootState) => state.User.user);
-  const { getMe } = useGetMe();
   const { uploadAvatar } = useUploadAvatar();
 
-  useEffect(() => {
-    getMe();
-  }, []);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

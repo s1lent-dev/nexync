@@ -1,63 +1,43 @@
-import React, { useState } from 'react';
-import Image from 'next/image';
-import Profile from './profile';
+"use client"
+
+import React from "react";
+import Image from "next/image";
+import SingleChat from "./singleChat"; // Import the SingleChat component
+import { useDispatch } from "react-redux";
+import { setNavigation } from "@/context/reducers/navigation";
 
 const Chat = () => {
-  // State to manage sidebar visibility
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
 
-  // Function to handle sidebar close action
-  const handleSidebarClose = () => {
-    setSidebarOpen(false);
-  };
-
+  const dispatch = useDispatch()
   return (
-    <section className="flex h-full w-full">
-      {/* Main Chat Section */}
-      <div className={`flex flex-col h-full ${isSidebarOpen ? 'w-1/2' : 'w-full'} transition-width duration-300`}>
-        {/* Navbar */}
-        <nav className="flex justify-between items-center px-4 py-2 bg-bg_card1">
-          {/* User Info */}
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setSidebarOpen(true)}>
-            <Image src='/pfp.jpg' width={40} height={40} alt='desc' className="rounded-full cursor-pointer" />
-            <div>
-              <h3 className="font-semibold text-font_main">Username</h3>
-              <p className="text-sm text-primary">Online</p>
-            </div>
-          </div>
-          {/* Icons */}
-          <div className="flex gap-6">
-            <Image src='/delete.svg' width={27.5} height={27.5} alt='delete' className="cursor-pointer" />
-            <Image src='/search.svg' width={27.5} height={27.5} alt='search' className="cursor-pointer" />
-            <Image src='/menu.svg' width={27.5} height={27.5} alt='menu' className="cursor-pointer" />
-          </div>
-        </nav>
-
-        {/* Messages Section */}
-        <article className="flex-grow overflow-y-scroll p-4 bg-bg_dark2 custom-scrollbar space-y-4">
-          {/* Placeholder for messages */}
-          <p className="text-center text-gray-400">No messages yet</p>
-        </article>
-
-        {/* Footer */}
-        <footer className="flex items-center gap-3 p-3 bg-bg_card1">
-          <Image src='/emojis.svg' width={25} height={25} alt='emojis' className="cursor-pointer" />
-          <Image src='/attach.svg' width={30} height={30} alt='attach' className="cursor-pointer" />
-          <input
-            type='text'
-            placeholder='Type a message'
-            className="flex-grow placeholder:text-slate-50 px-4 py-2 rounded-lg bg-slate-600 opacity-30 focus:outline-none"
-          />
-          <Image src='/mic.svg' width={25} height={25} alt='mic' className="cursor-pointer" />
-        </footer>
+    <section className="flex flex-col p-4 w-full gap-6 h-full">
+      {/* Header with title and icons */}
+      <div className="flex flex-row justify-between">
+        <h2 className="font-sfpro text-font_main text-xl font-bold antialiased">
+          Chats
+        </h2>
+        <div className="flex flex-row gap-6">
+          <Image src="/new-chat.svg" width={25} height={25} alt="New Chat" onClick={() => dispatch(setNavigation("newchat"))}/>
+          <Image src="/menu.svg" width={25} height={25} alt="Menu" />
+        </div>
       </div>
 
-      {/* Profile Sidebar */}
-      {isSidebarOpen && (
-        <div className="flex flex-col h-full w-1/2 bg-bg_dark1">
-          <Profile onClose={handleSidebarClose} />
-        </div>
-      )}
+      {/* Search Input */}
+      <div className="w-full bg-bg_card1 p-1 rounded-lg flex items-center">
+        <Image src="/search.svg" width={25} height={25} alt="Search Icon" />
+        <input
+          type="text"
+          placeholder="Search..."
+          className="w-10/12 bg-transparent placeholder:text-font_light placeholder:font-thin placeholder:font-segoe ml-2 focus:outline-none"
+        />
+      </div>
+
+      {/* Chat List with scrollable div */}
+      <div className="flex-grow overflow-y-scroll custom-scrollbar scrollbar-thin pr-2 space-y-2">
+        {[...Array(15)].map((_, index) => (
+          <SingleChat key={index} />
+        ))}
+      </div>
     </section>
   );
 };

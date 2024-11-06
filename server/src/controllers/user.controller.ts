@@ -120,7 +120,7 @@ const acceptConnectionRequest = AsyncHandler(
                 new ErrorHandler("Request not found", HTTP_STATUS_BAD_REQUEST)
             );
         }
-        if (status === "reject") {
+        if (status === "rejected") {
             await prisma.connectionRequest.delete({
                 where: {
                     requestId: request.requestId,
@@ -191,6 +191,41 @@ const getMyConnections = AsyncHandler(async(req: CustomRequest, res: Response, n
     res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Connections", { following, followers }));
 });
 
+const getSuggestions = AsyncHandler(async(req: CustomRequest, res: Response, next: NextFunction) => {
+    const user = req.user;
+
+    const alreadyFollowingIds = await prisma.connection.findMany({
+        where: { followerId: user?.userId },
+        select: { followingId: true },
+    }).then((connections) => connections.map((c) => c.followingId));
+
+    const alreadyRequestedIds = await prisma.connectionRequest.findMany({
+        where: { senderId: user?.userId },
+        select: { receiverId: true },
+    }).then((requests) => requests.map((r) => r.receiverId));
+
+    const suggestions = await prisma.user.findMany({
+        where: {
+            userId: {
+                notIn: [...alreadyFollowingIds, ...alreadyRequestedIds, user?.userId!],
+            },
+        },
+        take: 4,
+    });
+
+    res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Suggestions", suggestions));
+});
+
+
+const getConnectionRequests = AsyncHandler(async(req: CustomRequest, res: Response, next: NextFunction) => {
+    const user = req.user;
+    const requests = await prisma.connectionRequest.findMany({
+        where: { receiverId: user?.userId },
+        include: { sender: true }
+    });
+    res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Requests", requests));
+});
+
 const uploadAvatar = AsyncHandler(
     async (req: CustomRequest, res: Response, next: NextFunction) => {
         const filePath = req.file?.path;
@@ -227,4 +262,4 @@ const updateBio = AsyncHandler(async (req: CustomRequest, res: Response, next: N
     res.json(new ResponseHandler(HTTP_STATUS_OK, "Bio updated successfully", {}));
 });
 
-export { getMe, searchUsers, sendConnectionRequest, acceptConnectionRequest, getMyConnections, uploadAvatar, updateBio };
+export { getMe, searchUsers, sendConnectionRequest, acceptConnectionRequest, getMyConnections, getSuggestions, getConnectionRequests, uploadAvatar, updateBio };
