@@ -6,10 +6,12 @@ import Sidebar from "@/components/sidebar/sidebar";
 import Chat from "@/components/chat/chat";
 import { useSelector } from "react-redux";
 import { RootState } from "@/context/store";
-import Profile from "@/components/sidebar/profile";
-import Settings from "@/components/sidebar/settings";
-import NewChat from "@/components/sidebar/newChat";
+import Profile from "@/components/settings/profile";
+import Settings from "@/components/settings/settings";
+import NewChat from "@/components/search/newChat";
 import { motion } from "framer-motion";
+import Connections from "@/components/connections/connections";
+import ConnectionRequest from "@/components/connections/connectionRequest";
 
 const Main = () => {
   const navigation = useSelector((state: RootState) => state.navigation.title);
@@ -34,6 +36,8 @@ const Main = () => {
           {navigation === "profile" && <Profile />}
           {navigation === "settings" && <Settings />}
           {navigation === "newchat" && <NewChat />}
+          {navigation === "connections" && <Connections />}
+          {navigation === "connection-requests" && <ConnectionRequest />}
         </div>
         {/* Chat area */}
         <div className="w-2/3 h-full bg-bg_card1">

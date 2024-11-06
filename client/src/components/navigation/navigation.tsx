@@ -13,7 +13,7 @@ const Navigation = () => {
         <Image src='/chat.svg' width={25} height={25} alt='desc' className='cursor-pointer' onClick={() => dispatch(setNavigation('chat'))}/>
         <Image src='/status.svg' width={25} height={25} alt='desc' className='cursor-pointer'/>
         <Image src='/channel.svg' width={25} height={25} alt='desc' className='cursor-pointer'/>
-        <Image src='/community.svg' width={25} height={25} alt='desc' className='cursor-pointer'/>
+        <Image src='/community.svg' width={25} height={25} alt='desc' className='cursor-pointer' onClick={() => dispatch(setNavigation('connections'))}/>
         <Image src='/archive.svg' width={25} height={25} alt='desc' className='cursor-pointer'/>
         <Image src='/meta.png' width={25} height={25} alt='desc' className='cursor-pointer'/>
       </div>
