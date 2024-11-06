@@ -54,7 +54,7 @@ const ChatSection = () => {
 
       {/* Profile Sidebar */}
       {isSidebarOpen && (
-        <div className="flex flex-col h-full w-1/2 bg-bg_dark1">
+        <div className="flex flex-col h-full w-1/2 bg-bg_dark1 ">
           <Profile onClose={handleSidebarClose} />
         </div>
       )}
