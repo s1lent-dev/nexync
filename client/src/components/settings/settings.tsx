@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useLogout } from "@/utils/api";
 import { useSelector } from "react-redux";
 import { RootState } from "@/context/store";
+import { useToast } from "@/context/toast/toast";
 
 const SeetingsData = [
     {
@@ -39,6 +40,7 @@ const SeetingsData = [
 const Settings = () => {
   
   const user = useSelector((state: RootState ) => state.User.user);
+  const { showSuccessToast } = useToast();
   const { logout } = useLogout();
   const router = useRouter();
   const handleLogout = async () => {
@@ -77,7 +79,12 @@ const Settings = () => {
       </div>
       <div className="w-full flex flex-col gap-2">
             {SeetingsData.map((data, index) => (
-                <div key={index} className={`flex flex-row items-center gap-6 p-4 relative ${data.title === "Logout" ? 'hover:bg-red-400 hover:bg-opacity-20': 'hover:bg-bg_card2' } cursor-pointer`} onClick={data.title === 'Logout' ? handleLogout : undefined}>
+                <div key={index} className={`flex flex-row items-center gap-6 p-4 relative ${data.title === "Logout" ? 'hover:bg-red-400 hover:bg-opacity-20': 'hover:bg-bg_card2' } cursor-pointer`} onClick={() => {
+                    if(data.title === "Logout") {
+                        handleLogout();
+                        showSuccessToast("Logged out successfully");
+                    }
+                }}>
                     { data.title === "Logout" ? (
                         <>
                         <Image src={data.url

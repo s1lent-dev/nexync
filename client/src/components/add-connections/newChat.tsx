@@ -30,7 +30,7 @@ const NewChat = () => {
     }
   }
 
-  const handleConnectionSent = () => {
+  const handleConnectionSent = async () => {
     if (searchQuery) {
       debouncedFetchSuggestions(searchQuery);
     } else {

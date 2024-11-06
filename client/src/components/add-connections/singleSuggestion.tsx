@@ -2,18 +2,30 @@ import React from "react";
 import Image from "next/image";
 import { IUser } from "@/types/types";
 import { useSendConnectionRequest } from "@/utils/api";
+import { useToast } from "@/context/toast/toast";
 
 const SingleSuggestion = ({ user, handleConnectionSent }: { user: IUser, handleConnectionSent: () => void }) => {
+
+  const { showSuccessToast } = useToast();
   const { sendConnectionRequest } = useSendConnectionRequest();
 
   const renderButton = () => {
+
+    const handleConnectClick = async () => {
+      const requestSent = await sendConnectionRequest(user.userId);
+      if (requestSent) {
+        showSuccessToast("Connection request sent");
+        await handleConnectionSent();
+      }
+    };
+
     if (!user.isFollowing && !user.isRequested) {
       return (
         <button
           title="Connect"
           type="button"
           className="text-font_main flex items-center justify-center rounded-md bg-primary px-3 py-1 text-base outline-none transition-all duration-300"
-          onClick={async() => await sendConnectionRequest(user.userId) && handleConnectionSent()}
+          onClick={handleConnectClick}
         >
           Connect
         </button>

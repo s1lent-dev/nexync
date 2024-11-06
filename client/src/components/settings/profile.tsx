@@ -4,8 +4,11 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/context/store';
 import { useUploadAvatar } from '@/utils/api';
 import { Camera } from 'lucide-react';
+import { useToast } from '@/context/toast/toast';
 
 const Profile = () => {
+
+  const { showSuccessToast } = useToast();
   const [isHovered, setIsHovered] = useState(false);
   const user = useSelector((state: RootState) => state.User.user);
   const { uploadAvatar } = useUploadAvatar();
@@ -17,6 +20,7 @@ const Profile = () => {
       const formData = new FormData();
       formData.append('photo', file);
       uploadAvatar(formData);
+      showSuccessToast('Profile picture updated');
     }
   };
 

@@ -3,6 +3,7 @@ import "./globals.css";
 import ReduxProvider from "@/context/rootProvider";
 import { SocketProvider } from "@/context/helper/socket";
 import { AxiosProvider } from "@/context/helper/axios";
+import { ToastProvider } from "@/context/toast/toast";
 
 export const metadata: Metadata = {
   title: "Nexync",
@@ -21,7 +22,11 @@ export default function RootLayout({
       >
         <ReduxProvider>
           <SocketProvider>
-            <AxiosProvider>{children}</AxiosProvider>
+            <AxiosProvider>
+              <ToastProvider>
+                {children}
+              </ToastProvider>
+            </AxiosProvider>
           </SocketProvider>
         </ReduxProvider>
       </body>

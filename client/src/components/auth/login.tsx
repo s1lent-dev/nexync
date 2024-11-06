@@ -10,6 +10,7 @@ import { ArrowRight } from 'lucide-react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useToast } from "@/context/toast/toast";
 
 // Define the Zod schema for form validation
 const schema = z.object({
@@ -19,6 +20,7 @@ const schema = z.object({
 
 const Login = () => {
   
+  const { showSuccessToast, showErrorToast } = useToast();
   const { loginUser } = useLogin();
   const router = useRouter();
   const {
@@ -38,7 +40,10 @@ const Login = () => {
       const res = await loginUser(values);
       console.log(res);
       if (res?.statusCode === 202) {
+        showSuccessToast("Login successful");
         router.push('/');
+      } else {
+        showErrorToast(res.message);
       }
     } catch (err) {
       console.error(err);

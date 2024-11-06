@@ -3,12 +3,13 @@ import Image from "next/image";
 import { CircleCheck, CircleX } from "lucide-react";
 import { IUser } from "@/types/types";
 import { useAcceptConnectionRequest } from "@/utils/api";
+import { useToast } from "@/context/toast/toast";
 
 
 const SingleRequest = ({user, handleRequestAction}: {user: IUser, handleRequestAction: () => void}) => {
 
   const { acceptConnectionRequest } = useAcceptConnectionRequest();
-
+  const { showSuccessToast, showErrorToast } = useToast();
   const handleRequest = async (status: string) => {
     await acceptConnectionRequest(user.userId, status);
     handleRequestAction();
@@ -32,13 +33,19 @@ const SingleRequest = ({user, handleRequestAction}: {user: IUser, handleRequestA
           size={40}
           strokeWidth={1}
           className="text-red-600 hover:fill-red-500 hover:opacity-75 rounded-full"
-          onClick={() => handleRequest("rejected")}
+          onClick={async () => {
+            await handleRequest("rejected");
+            showErrorToast("Connection request rejected");
+          }}
         />
         <CircleCheck
           size={40}
           strokeWidth={1}
           className="text-green-600 hover:fill-green-500 hover:opacity-75 rounded-full"
-          onClick={() => handleRequest("accepted")}
+          onClick={async () => {
+            await handleRequest("accepted");
+            showSuccessToast("Connection request accepted");
+          }}
         />
       </div>
       <span className="absolute bottom-0 left-14 right-0 h-[2px] bg-bg_card2" />
