@@ -263,7 +263,8 @@ const getConnectionRequests = AsyncHandler(async(req: CustomRequest, res: Respon
         where: { receiverId: user?.userId },
         include: { sender: true }
     });
-    res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Requests", requests));
+    const requestsSenders = requests.map((request) => request.sender);
+    res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Requests", requestsSenders));
 });
 
 const uploadAvatar = AsyncHandler(

@@ -13,7 +13,7 @@ const Profile = () => {
   const [isEditingBio, setIsEditingBio] = useState(false);
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
-  const user = useSelector((state: RootState) => state.User.user);
+  const user = useSelector((state: RootState) => state.user.me);
   const { uploadAvatar } = useUploadAvatar();
   const { updateBio } = useUpdateBio();
   const { getMe } = useGetMe();

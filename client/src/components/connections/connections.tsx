@@ -10,15 +10,15 @@ import SingleConnection from "./singleConnection";
 import { useGetConnectionRequests, useGetConnections } from "@/utils/api";
 import { RootState } from "@/context/store";
 import ConnectionProfile from "./connectionProfile";
-import { IUser } from "@/types/types";
+import { IConnection } from "@/types/types";
 
 const Connections = () => {
-  const connectionRequests = useSelector((state: RootState) => state.User.connectionRequests);
-  const followers = useSelector((state: RootState) => state.User.followers);
-  const following = useSelector((state: RootState) => state.User.following);
+  const connectionRequests = useSelector((state: RootState) => state.connection.connectionRequests);
+  const followers = useSelector((state: RootState) => state.connection.followers);
+  const following = useSelector((state: RootState) => state.connection.following);
   const [isSidebar, setIsSidebar] = useState<boolean>(false);
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
-  const [selectedUser, setSelectedUser] = useState<IUser | null>(null); 
+  const [selectedUser, setSelectedUser] = useState<IConnection | null>(null); 
   const { getConnections } = useGetConnections();
   const { getConnectionRequests } = useGetConnectionRequests();
   const dispatch = useDispatch();

@@ -10,7 +10,7 @@ import { RootState } from "@/context/store";
 
 const Chat = () => {
   
-  const connections = useSelector((state: RootState) => state.User.connections);
+  const connections = useSelector((state: RootState) => state.connection.connections);
   const dispatch = useDispatch();
   const { getConnectedUsers } = useGetConnectedUsers();
 

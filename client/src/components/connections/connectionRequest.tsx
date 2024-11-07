@@ -8,7 +8,7 @@ import { RootState } from '@/context/store';
 
 const ConnectionRequest = () => {
 
-  const connectionRequests = useSelector((state: RootState) => state.User.connectionRequests);
+  const connectionRequests = useSelector((state: RootState) => state.connection.connectionRequests);
   const { getConnectionRequests } = useGetConnectionRequests();
   const dispatch = useDispatch();
 

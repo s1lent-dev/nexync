@@ -8,12 +8,12 @@ import SingleSuggestion from "./singleSuggestion";
 import { setNavigation } from "@/context/reducers/navigation";
 import { RootState } from "@/context/store";
 import { useGetSuggestions, useSearchUsers } from "@/utils/api";
-import { resetSearchedUsers } from "@/context/reducers/user";
+import { resetSearchedUsers } from "@/context/reducers/newConnection";
 
 const NewChat = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const searchedUsers = useSelector((state: RootState) => state.User.searchedUsers);
-  const suggestions = useSelector((state: RootState) => state.User.suggestions);
+  const searchedUsers = useSelector((state: RootState) => state["new-connection"].searchedUsers);
+  const suggestions = useSelector((state: RootState) => state["new-connection"].suggestedUsers);
   const dispatch = useDispatch();
   const { searchUsers } = useSearchUsers();
   const { getSuggestions } = useGetSuggestions();

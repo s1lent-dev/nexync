@@ -26,6 +26,7 @@ const config: Config = {
         icon_1: "var(--icon-1)",
         icon_2: "var(--icon-2)",
         primary: "var(--primary)",
+        chat: "var(--chat)",
         error: "var(--error)"
       },
     },

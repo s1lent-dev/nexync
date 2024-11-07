@@ -39,7 +39,7 @@ const SeetingsData = [
 
 const Settings = () => {
   
-  const user = useSelector((state: RootState ) => state.User.user);
+  const user = useSelector((state: RootState ) => state.user.me);
   const { showSuccessToast } = useToast();
   const { logout } = useLogout();
   const router = useRouter();

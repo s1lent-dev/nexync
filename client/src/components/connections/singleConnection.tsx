@@ -1,9 +1,15 @@
 import React from "react";
 import Image from "next/image";
 import { CircleChevronRight } from "lucide-react";
-import { IUser } from "@/types/types";
+import { IConnection } from "@/types/types";
 
-const SingleConnection = ({user, setIsSidebar, setSelectedUser} : {user:IUser, setIsSidebar: (status: boolean) => void, setSelectedUser: (user: IUser) => void}) => {
+interface SingleConnectionProps {
+    user: IConnection;
+    setIsSidebar: (status: boolean) => void;
+    setSelectedUser: (user: IConnection) => void;
+}
+
+const SingleConnection: React.FC<SingleConnectionProps> = ({user, setIsSidebar, setSelectedUser}) => {
 
     const handleClick = () => {
         setSelectedUser(user);

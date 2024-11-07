@@ -1,12 +1,16 @@
 import React from "react";
 import Image from "next/image";
 import { CircleCheck, CircleX } from "lucide-react";
-import { IUser } from "@/types/types";
+import { IConnectionRequests } from "@/types/types";
 import { useAcceptConnectionRequest } from "@/utils/api";
 import { useToast } from "@/context/toast/toast";
 
+interface SingleRequestProps {
+  user: IConnectionRequests;
+  handleRequestAction: () => void;
+}
 
-const SingleRequest = ({user, handleRequestAction}: {user: IUser, handleRequestAction: () => void}) => {
+const SingleRequest: React.FC<SingleRequestProps> = ({user, handleRequestAction}) => {
 
   const { acceptConnectionRequest } = useAcceptConnectionRequest();
   const { showSuccessToast, showErrorToast } = useToast();

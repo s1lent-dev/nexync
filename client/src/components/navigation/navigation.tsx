@@ -7,7 +7,7 @@ import { RootState } from '@/context/store'
 
 const Navigation = () => {
   
-  const me = useSelector((state: RootState) => state.User.user);
+  const me = useSelector((state: RootState) => state.user.me);
   const dispatch = useDispatch()
 
   return (

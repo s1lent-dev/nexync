@@ -1,20 +1,62 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Profile from './profile';
+import { SendHorizontal } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/context/store';
+import { useSocket } from '@/context/helper/socket';
+import { useSendMessage, useSocketMessages } from '@/utils/api';
+import { IMessage } from '@/types/types';
 
 const ChatSection = () => {
-  // State to manage sidebar visibility
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const user = useSelector((state: RootState) => state.User.selectedUser);
-
-  // Function to handle sidebar close action
+  // const [messages, setMessages] = useState<{ [userId: string]: { text: string; senderId: string }[] }>({});
+  const [inputValue, setInputValue] = useState("");
+  const user = useSelector((state: RootState) => state.user.selectedUser);
+  const me = useSelector((state: RootState) => state.user.me);
+  const userMessages = useSelector((state: RootState) => state.chat.chats[user.userId]);
+  const { sendMessage } = useSendMessage();
+  const { chats } = useSocketMessages();
+  // const socket = useSocket();
+  
   const handleSidebarClose = () => {
     setSidebarOpen(false);
   };
 
-  // Render message if no user is selected
+  // useEffect(() => {
+  //   if (!socket) return;
+
+  //   socket.on("messages", ({ memberIds, message }) => {
+  //     console.log("Message received: ", message);
+  //     const senderId = memberIds[0] === me.userId ? me.userId : memberIds[0];
+  //     const userKey = me.userId === memberIds[0] ? memberIds[1] : memberIds[0];
+  //     setMessages((prev) => ({
+  //       ...prev,
+  //       [userKey]: [...(prev[userKey] || []), { text: message, senderId }],
+  //     }));
+      
+  //   });
+
+  //   console.log("Socket connected: ", socket.id);
+
+  //   return () => {
+  //     socket.off("messages");
+  //   };
+  // }, [socket, me.userId]);
+
+  const handleSendMessage = async () => {
+    if (!inputValue) return;
+    if (!user.userId) return;
+    const message: IMessage = {
+      senderId: me.userId,
+      memberIds: [me.userId, user.userId],
+      content: inputValue,
+      createdAt: new Date(),
+    };
+    await sendMessage(message);
+    setInputValue("");
+  };
+
   if (!user.userId) {
     return (
       <section className="flex flex-col items-center justify-center h-full w-full bg-bg_card2">
@@ -23,9 +65,8 @@ const ChatSection = () => {
         <p className="font-segoe font-thin text-font_dark text-sm text-center max-w-sm mx-auto leading-4 mt-6 tracking-wide">
           Where connections spark, and conversations flow. Scalable, seamless, and always in sync !
         </p>
-
       </section>
-    )
+    );
   }
 
   return (
@@ -53,7 +94,43 @@ const ChatSection = () => {
         {/* Messages Section */}
         <article className="flex-grow overflow-y-scroll p-4 bg-bg_dark2 custom-scrollbar space-y-4">
           {/* Placeholder for messages */}
-          <p className="text-center text-gray-400">No messages yet</p>
+          {/* {(!messages[user.userId] || messages[user.userId].length === 0) ? (
+            <p className="text-center text-gray-400">No messages yet</p>
+          ) : (
+            messages[user.userId]?.map((message, index) => (
+              <div
+                key={index}
+                className={`flex ${message.senderId === me.userId ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`p-2 rounded-lg max-w-xs break-words ${
+                    message.senderId === me.userId ? 'bg-chat text-font_main' : 'bg-bg_card2 text-font_main'
+                  }`}
+                >
+                  {message.text}
+                </div>
+              </div>
+            ))
+          )} */}
+
+          {(userMessages && userMessages.length === 0) ? (
+            <p className="text-center text-gray-400">No messages yet</p>
+          ) : (
+            userMessages && userMessages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex ${message.senderId === me.userId ? 'justify-end' : 'justify-start'}`}
+              >
+                <div
+                  className={`p-2 rounded-lg max-w-xs break-words ${
+                    message.senderId === me.userId ? 'bg-chat text-font_main' : 'bg-bg_card2 text-font_main'
+                  }`}
+                >
+                  {message.content}
+                </div>
+              </div>
+            ))
+          )}
         </article>
 
         {/* Footer */}
@@ -64,8 +141,16 @@ const ChatSection = () => {
             type='text'
             placeholder='Type a message'
             className="flex-grow placeholder:text-slate-50 px-4 py-2 rounded-lg bg-slate-600 opacity-30 focus:outline-none"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
           />
-          <Image src='/mic.svg' width={25} height={25} alt='mic' className="cursor-pointer" />
+          <button
+            type='button'
+            title='Send Message'
+            onClick={handleSendMessage}
+          >
+            <SendHorizontal size={25} className="cursor-pointer text-primary" />
+          </button>
         </footer>
       </div>
 

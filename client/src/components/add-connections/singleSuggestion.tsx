@@ -1,10 +1,15 @@
 import React from "react";
 import Image from "next/image";
-import { IUser } from "@/types/types";
+import { IConnection } from "@/types/types";
 import { useSendConnectionRequest } from "@/utils/api";
 import { useToast } from "@/context/toast/toast";
 
-const SingleSuggestion = ({ user, handleConnectionSent }: { user: IUser, handleConnectionSent: () => void }) => {
+interface SingleSuggestionProps {
+  user: IConnection;
+  handleConnectionSent: () => void;
+}
+
+const SingleSuggestion: React.FC<SingleSuggestionProps> = ({user, handleConnectionSent}) => {
 
   const { showSuccessToast } = useToast();
   const { sendConnectionRequest } = useSendConnectionRequest();

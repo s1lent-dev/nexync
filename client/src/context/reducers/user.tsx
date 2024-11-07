@@ -3,86 +3,69 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IUser } from "@/types/types";
 
-const user: IUser = {
+const me: IUser = {
     userId: "",
+    googleId: "",
+    githubId: "",
     username: "",
     email: "",
+    password: "",
     avatarUrl: "",
     bio: "",
-    isFollowing: false,
-    isRequested: false,
 }
+
 const selectedUser: IUser = {
     userId: "",
+    googleId: "",
+    githubId: "",
     username: "",
     email: "",
+    password: "",
     avatarUrl: "",
     bio: "",
-    isFollowing: false,
-    isRequested: false,
-};
-const connections: IUser[] = [];
-const followers: IUser[] = [];
-const following: IUser[] = [];
-const searchedUsers: IUser[] = [];
-const suggestions: IUser[] = [];
-const connectionRequests: IUser[] = [];
+}
 
 const initialState = {
-    user: user,
+    me: me,
     selectedUser: selectedUser,
-    connections: connections,
-    followers: followers,
-    following: following,
-    searchedUsers: searchedUsers,
-    suggestions: suggestions,
-    connectionRequests: connectionRequests,
 };
 
 const UserSlice = createSlice({
-  name: "User",
-  initialState,
-  reducers: {
-    setUser(state, action: PayloadAction<IUser>) {
-        state.user = action.payload;
-    },
-    resetUser(state) {
-        state.user = {
-            userId: "",
-            username: "",
-            email: "",
-            avatarUrl: "",
-            bio: "",
-            isFollowing: false,
-            isRequested: false,
+    name: "user",
+    initialState,
+    reducers: {
+        setMe(state, action: PayloadAction<IUser>) {
+            state.me = action.payload;
+        },
+        resetMe(state) {
+            state.me = {
+                userId: "",
+                googleId: "",
+                githubId: "",
+                username: "",
+                email: "",
+                password: "",
+                avatarUrl: "",
+                bio: "",
+            }
+        },
+        setSelectedUser(state, action: PayloadAction<IUser>) {
+            state.selectedUser = action.payload;
+        },
+        resetSelectedUser(state) {
+            state.selectedUser = {
+                userId: "",
+                googleId: "",
+                githubId: "",
+                username: "",
+                email: "",
+                password: "",
+                avatarUrl: "",
+                bio: "",
+            }
         }
     },
-    setSelectedUser(state, action: PayloadAction<IUser>) {
-        state.selectedUser = action.payload;
-    },
-    setConnections(state, action: PayloadAction<IUser[]>) {
-        state.connections = action.payload;
-    },
-    setFollowers(state, action: PayloadAction<IUser[]>) {
-        state.followers = action.payload;
-    },
-    setFollowing(state, action: PayloadAction<IUser[]>) {
-        state.following = action.payload;
-    },
-    setSuggestions(state, action: PayloadAction<IUser[]>) {
-        state.suggestions = action.payload;
-    },
-    setSearchedUsers(state, action: PayloadAction<IUser[]>) {
-        state.searchedUsers = action.payload;
-    },
-    resetSearchedUsers(state) {
-        state.searchedUsers = [];
-    },
-    setConnectionRequests(state, action: PayloadAction<IUser[]>) {
-        state.connectionRequests = action.payload;
-    }
-  },
 });
 
-export const { setUser, setSearchedUsers, resetUser, resetSearchedUsers, setSelectedUser, setFollowers, setFollowing, setSuggestions, setConnectionRequests, setConnections } = UserSlice.actions;
+export const { setMe, resetMe, setSelectedUser, resetSelectedUser } = UserSlice.actions;
 export { UserSlice };

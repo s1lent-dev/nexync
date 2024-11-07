@@ -49,8 +49,8 @@ class SocketService {
     console.log("Base SocketService registerEvents called.");
   }
 
-  protected getSockets = (userIds: string[]) => {
-    const sockets = userIds.map((userId)=> this.userSocketsIds.get(userId));
+  protected getSockets = (memberIds: string[]) => {
+    const sockets = memberIds.map((userId)=> this.userSocketsIds.get(userId));
     return sockets;
   }
 

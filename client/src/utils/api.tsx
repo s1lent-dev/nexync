@@ -1,9 +1,15 @@
 'use client';
 import { useAxios } from "@/context/helper/axios";
-import { resetUser, setConnectionRequests, setConnections, setFollowers, setFollowing, setSearchedUsers, setSuggestions, setUser } from "@/context/reducers/user";
-import { IRegsitrationForm, ILoginForm } from "@/types/types";
+import { resetMe, setMe } from "@/context/reducers/user";
+import { setConnections, setFollowers, setFollowing, setConnectionRequests } from "@/context/reducers/connections";
+import { setSearchedUsers, setSuggestedUsers } from "@/context/reducers/newConnection";
+import { IRegsitrationForm, ILoginForm, IMessage } from "@/types/types";
 import { AxiosError } from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useSocket } from "@/context/helper/socket";
+import { RootState } from "@/context/store";
+import { useEffect } from "react";
+import { setChats } from "@/context/reducers/chats";
 
 
 const useRegister = () => {
@@ -12,7 +18,7 @@ const useRegister = () => {
         dispatch({ type: 'REQUEST_START' });
         try {
             const res = await axios.post('/auth/register', data);
-            dispatch({ type: 'REQUEST_SUCCESS'});
+            dispatch({ type: 'REQUEST_SUCCESS' });
             return res.data;
         } catch (err) {
             if (err instanceof AxiosError) {
@@ -33,7 +39,7 @@ const useLogin = () => {
         dispatch({ type: 'REQUEST_START' });
         try {
             const res = await axios.post('/auth/login', data);
-            dispatch({ type: 'REQUEST_SUCCESS'});
+            dispatch({ type: 'REQUEST_SUCCESS' });
             return res.data;
         } catch (err) {
             if (err instanceof AxiosError) {
@@ -55,8 +61,8 @@ const useLogout = () => {
         dispatch({ type: 'REQUEST_START' });
         try {
             const res = await axios.get('/auth/logout');
-            dispatch({ type: 'REQUEST_SUCCESS'});
-            reduxDispatch(resetUser());
+            dispatch({ type: 'REQUEST_SUCCESS' });
+            reduxDispatch(resetMe());
             return res.data.data;
         } catch (err) {
             if (err instanceof AxiosError) {
@@ -78,8 +84,8 @@ const useGetMe = () => {
         dispatch({ type: 'REQUEST_START' });
         try {
             const res = await axios.get('/user/me');
-            dispatch({ type: 'REQUEST_SUCCESS'});
-            reduxDispatch(setUser(res.data.data));
+            dispatch({ type: 'REQUEST_SUCCESS' });
+            reduxDispatch(setMe(res.data.data));
             return res.data.data;
         } catch (err) {
             if (err instanceof AxiosError) {
@@ -102,7 +108,7 @@ const useGetConnections = () => {
         dispatch({ type: 'REQUEST_START' });
         try {
             const res = await axios.get('/user/get-connections');
-            dispatch({ type: 'REQUEST_SUCCESS'});
+            dispatch({ type: 'REQUEST_SUCCESS' });
             console.log(res.data.data);
             const followers = res.data.data.followersData;
             const following = res.data.data.followingData;
@@ -130,7 +136,7 @@ const useGetConnectedUsers = () => {
         dispatch({ type: 'REQUEST_START' });
         try {
             const res = await axios.get('/user/get-connected-users');
-            dispatch({ type: 'REQUEST_SUCCESS'});
+            dispatch({ type: 'REQUEST_SUCCESS' });
             console.log(res.data.data.connections);
             reduxDispatch(setConnections(res.data.data.connections));
             return res.data.data.connections;
@@ -156,7 +162,7 @@ const useSearchUsers = () => {
         try {
             console.log(query);
             const res = await axios.post(`/user/search?search=${encodeURIComponent(query)}`);
-            dispatch({ type: 'REQUEST_SUCCESS'});
+            dispatch({ type: 'REQUEST_SUCCESS' });
             console.log(res.data.data);
             reduxDispatch(setSearchedUsers(res.data.data));
             return res.data.data;
@@ -180,9 +186,9 @@ const useGetSuggestions = () => {
         dispatch({ type: 'REQUEST_START' });
         try {
             const res = await axios.get('/user/get-suggestions');
-            dispatch({ type: 'REQUEST_SUCCESS'});
+            dispatch({ type: 'REQUEST_SUCCESS' });
             console.log(res.data.data);
-            reduxDispatch(setSuggestions(res.data.data));
+            reduxDispatch(setSuggestedUsers(res.data.data));
             return res.data.data;
         } catch (err) {
             if (err instanceof AxiosError) {
@@ -205,10 +211,9 @@ const useGetConnectionRequests = () => {
         dispatch({ type: 'REQUEST_START' });
         try {
             const res = await axios.get('/user/get-requests');
-            dispatch({ type: 'REQUEST_SUCCESS'});
+            dispatch({ type: 'REQUEST_SUCCESS' });
             const requests = res.data.data;
-            const requestsWithSender = requests.map((request: any) => request.sender);
-            reduxDispatch(setConnectionRequests(requestsWithSender));    
+            reduxDispatch(setConnectionRequests(requests));
             console.log(res.data.data);
             return res.data.data;
         } catch (err) {
@@ -231,7 +236,7 @@ const useSendConnectionRequest = () => {
         dispatch({ type: 'REQUEST_START' });
         try {
             const res = await axios.post(`/user/send-request/${userId}`);
-            dispatch({ type: 'REQUEST_SUCCESS'});
+            dispatch({ type: 'REQUEST_SUCCESS' });
             console.log(res.data.data);
             return res.data.data;
         } catch (err) {
@@ -253,7 +258,7 @@ const useAcceptConnectionRequest = () => {
         dispatch({ type: 'REQUEST_START' });
         try {
             const res = await axios.post(`/user/accept-request/${userId}/${status}`);
-            dispatch({ type: 'REQUEST_SUCCESS'});
+            dispatch({ type: 'REQUEST_SUCCESS' });
             return res.data.data;
         } catch (err) {
             if (err instanceof AxiosError) {
@@ -274,7 +279,7 @@ const useUploadAvatar = () => {
         dispatch({ type: 'REQUEST_START' });
         try {
             const res = await axios.put('/user/upload-avatar', data);
-            dispatch({ type: 'REQUEST_SUCCESS'});
+            dispatch({ type: 'REQUEST_SUCCESS' });
             return res.data.data;
         } catch (err) {
             if (err instanceof AxiosError) {
@@ -295,8 +300,8 @@ const useUpdateBio = () => {
     const updateBio = async (bio: string) => {
         dispatch({ type: 'REQUEST_START' });
         try {
-            const res = await axios.put('/user/update-bio', {bio});
-            dispatch({ type: 'REQUEST_SUCCESS'});
+            const res = await axios.put('/user/update-bio', { bio });
+            dispatch({ type: 'REQUEST_SUCCESS' });
             return res.data.data;
         } catch (err) {
             if (err instanceof AxiosError) {
@@ -312,4 +317,44 @@ const useUpdateBio = () => {
 }
 
 
-export { useRegister, useLogin, useLogout, useGetMe, useGetConnections, useGetConnectedUsers, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useUploadAvatar, useUpdateBio };
+
+
+
+// Sockets
+
+const useSendMessage = () => {
+    const socket = useSocket();
+    const sendMessage = async (message: IMessage) => {
+        socket?.emit('messages', message);
+    }
+    return { sendMessage };
+}
+
+const useSocketMessages = () => {
+
+    const reduxDispatch = useDispatch();
+    const socket = useSocket();
+    const me = useSelector((state: RootState) => state.user.me);
+
+    useEffect(() => {
+        if (!socket) return;
+        const handleNewMessage = ({senderId, memberIds, content, createdAt} : IMessage) => {
+            console.log(senderId, memberIds, content, createdAt);
+            console.log("Message received: ", content);
+            const userKey = me.userId === memberIds[0] ? memberIds[1] : memberIds[0];
+            reduxDispatch(setChats({userId: userKey, messages: [{senderId, memberIds, content, createdAt}] }));
+        }
+
+        socket.on("messages", handleNewMessage);
+        console.log("Socket connected: ", socket.id);
+
+        return () => {
+            socket.off("messages", handleNewMessage);
+        };
+    })
+
+    const chats = useSelector((state: RootState) => state.chat.chats);
+    return { chats };
+}
+
+export { useRegister, useLogin, useLogout, useGetMe, useGetConnections, useGetConnectedUsers, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useUploadAvatar, useUpdateBio, useSendMessage, useSocketMessages };
