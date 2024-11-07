@@ -10,6 +10,7 @@ const config: Config = {
     fontFamily: {
       sfpro: "var(--font-1)",
       segoe: "var(--font-2)",
+      geist: "var(--font-3)",
     },
     extend: {
       colors: {

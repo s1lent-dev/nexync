@@ -1,14 +1,23 @@
 "use client"
 
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import SingleChat from "./singleChat"; // Import the SingleChat component
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setNavigation } from "@/context/reducers/navigation";
+import { useGetConnectedUsers } from "@/utils/api";
+import { RootState } from "@/context/store";
 
 const Chat = () => {
+  
+  const connections = useSelector((state: RootState) => state.User.connections);
+  const dispatch = useDispatch();
+  const { getConnectedUsers } = useGetConnectedUsers();
 
-  const dispatch = useDispatch()
+  useEffect(() => {
+    getConnectedUsers();
+  }, []);
+
   return (
     <section className="flex flex-col p-4 w-full gap-6 h-full">
       {/* Header with title and icons */}
@@ -34,9 +43,13 @@ const Chat = () => {
 
       {/* Chat List with scrollable div */}
       <div className="flex-grow overflow-y-scroll custom-scrollbar scrollbar-thin pr-2 space-y-2">
-        {[...Array(15)].map((_, index) => (
-          <SingleChat key={index} />
-        ))}
+        {connections.length > 0 ? (
+          connections.map((connection) => (
+            <SingleChat key={connection.userId} connection={connection} />
+          ))
+        ) : (
+          <p className="text-font_dark text-center">No chats found</p>
+        )}
       </div>
     </section>
   );

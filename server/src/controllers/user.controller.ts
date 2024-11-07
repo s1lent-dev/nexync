@@ -188,7 +188,47 @@ const getMyConnections = AsyncHandler(async(req: CustomRequest, res: Response, n
             follower: true,
         }
     });
-    res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Connections", { following, followers }));
+
+    const followingData = following.map((f) => f.following);
+    const followersData = followers.map((f) => f.follower);
+
+    res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Connections", { followingData, followersData }));
+});
+
+const getConnectedUsers = AsyncHandler(async(req: CustomRequest, res: Response, next: NextFunction) => {
+    const user = req.user;
+    const following = await prisma.connection.findMany({
+        where: {
+            followerId: user?.userId,
+        },
+        include: {
+            following: true,
+        }
+    });
+    const followers = await prisma.connection.findMany({
+        where: {
+            followingId: user?.userId,
+        },
+        include: {
+            follower: true,
+        }
+    });
+
+    const followingData = following.map((f) => f.following);
+    const followersData = followers.map((f) => f.follower);
+
+    const connectionsMap = new Map();
+    
+    followingData.forEach((connection) => connectionsMap.set(connection.userId, connection));
+    followersData.forEach((connection) => {
+        if (!connectionsMap.has(connection.userId)) {
+            connectionsMap.set(connection.userId, connection);
+        }
+    });
+
+    const connections = Array.from(connectionsMap.values());
+
+    res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Connections", { connections }));
 });
 
 const getSuggestions = AsyncHandler(async(req: CustomRequest, res: Response, next: NextFunction) => {
@@ -264,4 +304,4 @@ const updateBio = AsyncHandler(async (req: CustomRequest, res: Response, next: N
 });
 
 
-export { getMe, searchUsers, sendConnectionRequest, acceptConnectionRequest, getMyConnections, getSuggestions, getConnectionRequests, uploadAvatar, updateBio };
+export { getMe, searchUsers, sendConnectionRequest, acceptConnectionRequest, getMyConnections, getConnectedUsers, getSuggestions, getConnectionRequests, uploadAvatar, updateBio };

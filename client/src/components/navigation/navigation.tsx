@@ -1,10 +1,13 @@
 "use client"
 import React from 'react'
 import Image from 'next/image'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setNavigation } from '@/context/reducers/navigation'
-const Navigation = () => {
+import { RootState } from '@/context/store'
 
+const Navigation = () => {
+  
+  const me = useSelector((state: RootState) => state.User.user);
   const dispatch = useDispatch()
 
   return (
@@ -19,7 +22,7 @@ const Navigation = () => {
       </div>
       <div className='flex flex-col gap-6'>
         <Image src='/settings.svg' width={30} height={30} alt='desc' className='cursor-pointer' onClick={() => dispatch(setNavigation('settings'))} />
-        <Image src='/pfp.jpg' width={35} height={35} style={{borderRadius: '50%', color: 'white'}} alt='desc' className='cursor-pointer' onClick={() => dispatch(setNavigation('profile'))} />
+        <Image src={me.avatarUrl || '/pfp.jpg'} width={35} height={35} style={{borderRadius: '50%', color: 'white'}} alt='desc' className='cursor-pointer' onClick={() => dispatch(setNavigation('profile'))} />
       </div>
     </aside>
   )

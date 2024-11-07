@@ -1,6 +1,6 @@
 'use client';
 import { useAxios } from "@/context/helper/axios";
-import { resetUser, setConnectionRequests, setFollowers, setFollowing, setSearchedUsers, setSuggestions, setUser } from "@/context/reducers/user";
+import { resetUser, setConnectionRequests, setConnections, setFollowers, setFollowing, setSearchedUsers, setSuggestions, setUser } from "@/context/reducers/user";
 import { IRegsitrationForm, ILoginForm } from "@/types/types";
 import { AxiosError } from "axios";
 import { useDispatch } from "react-redux";
@@ -104,12 +104,10 @@ const useGetConnections = () => {
             const res = await axios.get('/user/get-connections');
             dispatch({ type: 'REQUEST_SUCCESS'});
             console.log(res.data.data);
-            const followers = res.data.data.followers;
-            const following = res.data.data.following;
-            const followersData = followers.map((follower: any) => follower.follower);
-            const followingData = following.map((follow: any) => follow.following);
-            reduxDispatch(setFollowers(followersData));
-            reduxDispatch(setFollowing(followingData));
+            const followers = res.data.data.followersData;
+            const following = res.data.data.followingData;
+            reduxDispatch(setFollowers(followers));
+            reduxDispatch(setFollowing(following));
             return res.data.data;
         } catch (err) {
             if (err instanceof AxiosError) {
@@ -122,6 +120,31 @@ const useGetConnections = () => {
         }
     }
     return { getConnections, state };
+}
+
+
+const useGetConnectedUsers = () => {
+    const { axios, state, dispatch } = useAxios();
+    const reduxDispatch = useDispatch();
+    const getConnectedUsers = async () => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.get('/user/get-connected-users');
+            dispatch({ type: 'REQUEST_SUCCESS'});
+            console.log(res.data.data.connections);
+            reduxDispatch(setConnections(res.data.data.connections));
+            return res.data.data.connections;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { getConnectedUsers, state };
 }
 
 
@@ -289,4 +312,4 @@ const useUpdateBio = () => {
 }
 
 
-export { useRegister, useLogin, useLogout, useGetMe, useGetConnections, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useUploadAvatar, useUpdateBio };
+export { useRegister, useLogin, useLogout, useGetMe, useGetConnections, useGetConnectedUsers, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useUploadAvatar, useUpdateBio };

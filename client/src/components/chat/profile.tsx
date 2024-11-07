@@ -2,12 +2,14 @@ import React from "react";
 import { X } from "lucide-react";
 import Image from "next/image";
 import { ChevronRight, Heart, Ban, ThumbsDown, Trash2 } from "lucide-react";
+import { IUser } from "@/types/types";
 
 interface ProfileProps {
   onClose: () => void;
+  user: IUser;
 }
 
-const Profile: React.FC<ProfileProps> = ({ onClose }) => {
+const Profile: React.FC<ProfileProps> = ({ onClose, user }) => {
   return (
     <aside className="flex flex-col h-full w-full bg-bg_dark1 shadow-lg overflow-y-scroll custom-scrollbar">
       {/* Sticky Navbar */}
@@ -20,7 +22,7 @@ const Profile: React.FC<ProfileProps> = ({ onClose }) => {
       <div className="flex flex-col w-full items-center justify-center bg-bg_card3 p-5">
         <div className="flex items-center justify-center">
           <Image
-            src="/pfp.jpg"
+            src={user.avatarUrl || "/pfp.jpg"}
             width={200}
             height={200}
             alt="Profile picture"
@@ -28,10 +30,10 @@ const Profile: React.FC<ProfileProps> = ({ onClose }) => {
           />
         </div>
         <h2 className="mt-6 font-thin tracking-wider font-sfpro text-font_main text-xl antialiased">
-          Paresh Deshpande
+          {user.username}
         </h2>
         <span className="mt-1 font-thin font-segoe text-font_dark opacity-75 text-base antialiased">
-          deshpande.pxresh@gmail.com
+          {user.email}
         </span>
       </div>
 
@@ -40,8 +42,7 @@ const Profile: React.FC<ProfileProps> = ({ onClose }) => {
           About
         </h4>
         <p className="ml-3 font-segoe font-thin tracking-wide">
-          Sometimes your friends can let you down but once in a while they are
-          the only reason that you are standing up!
+          {user.bio || "No bio available"}
         </p>
       </div>
 

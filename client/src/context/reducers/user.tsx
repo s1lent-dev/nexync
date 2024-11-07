@@ -21,6 +21,7 @@ const selectedUser: IUser = {
     isFollowing: false,
     isRequested: false,
 };
+const connections: IUser[] = [];
 const followers: IUser[] = [];
 const following: IUser[] = [];
 const searchedUsers: IUser[] = [];
@@ -30,6 +31,7 @@ const connectionRequests: IUser[] = [];
 const initialState = {
     user: user,
     selectedUser: selectedUser,
+    connections: connections,
     followers: followers,
     following: following,
     searchedUsers: searchedUsers,
@@ -58,6 +60,9 @@ const UserSlice = createSlice({
     setSelectedUser(state, action: PayloadAction<IUser>) {
         state.selectedUser = action.payload;
     },
+    setConnections(state, action: PayloadAction<IUser[]>) {
+        state.connections = action.payload;
+    },
     setFollowers(state, action: PayloadAction<IUser[]>) {
         state.followers = action.payload;
     },
@@ -79,5 +84,5 @@ const UserSlice = createSlice({
   },
 });
 
-export const { setUser, setSearchedUsers, resetUser, resetSearchedUsers, setSelectedUser, setFollowers, setFollowing, setSuggestions, setConnectionRequests } = UserSlice.actions;
+export const { setUser, setSearchedUsers, resetUser, resetSearchedUsers, setSelectedUser, setFollowers, setFollowing, setSuggestions, setConnectionRequests, setConnections } = UserSlice.actions;
 export { UserSlice };

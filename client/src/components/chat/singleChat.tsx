@@ -3,20 +3,29 @@
 import React, { useState } from 'react'
 import Image from 'next/image'
 import { ChevronDown } from 'lucide-react'
+import { IUser } from '@/types/types'
+import { useDispatch } from 'react-redux'
+import { setSelectedUser } from '@/context/reducers/user'
 
-const SingleChat = () => {
+interface SingleChatProps {
+  connection: IUser;
+}
+
+const SingleChat: React.FC<SingleChatProps> = ({connection}) => {
   const [isHovered, setIsHovered] = useState(false);
+  const dispatch = useDispatch();
 
   return (
     <div 
       className='flex items-center p-3 hover:bg-bg_card2 cursor-pointer relative'
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={() => dispatch(setSelectedUser(connection))}
     >
-      <Image src='/pfp.jpg' width={50} height={50} alt='desc' className="rounded-full" />
+      <Image src={connection.avatarUrl || '/pfp.jpg'} width={50} height={50} alt='desc' className="rounded-full" />
       <div className='ml-4 flex flex-col flex-grow justify-between'>
         <div className='flex justify-between'>
-          <h4 className='font-light tracking-wide text-font_main'>Username</h4>
+          <h4 className='font-light tracking-wide text-font_main'>{connection.username}</h4>
           <span className='text-xs text-gray-500'>10:30 AM</span>
         </div>
         <div className='flex justify-between items-center'>

@@ -17,6 +17,7 @@
   --primary: #00a884;
   --font-1: 'SF Pro Text', Arial, Helvetica, sans-serif, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   --font-2: Arial, Helvetica, sans-serif, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-3: 'Geist Mono', Arial, Helvetica, sans-serif, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   --error: #f15c6d;
 }
 
@@ -31,6 +32,13 @@
   font-family: 'Segoe UI';
   src: url(./fonts/Segoe\ UI.ttf) format('trueType');
   font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  src: url(./fonts/GeistMonoNerdFont-Thin.otf) format('trueType');
+  font-weight: thin;
   font-style: normal;
 }
 
