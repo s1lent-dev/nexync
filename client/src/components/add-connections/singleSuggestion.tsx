@@ -9,7 +9,7 @@ interface SingleSuggestionProps {
   handleConnectionSent: () => void;
 }
 
-const SingleSuggestion: React.FC<SingleSuggestionProps> = ({user, handleConnectionSent}) => {
+const SingleSuggestion: React.FC<SingleSuggestionProps> = ({ user, handleConnectionSent }) => {
 
   const { showSuccessToast } = useToast();
   const { sendConnectionRequest } = useSendConnectionRequest();
@@ -41,7 +41,7 @@ const SingleSuggestion: React.FC<SingleSuggestionProps> = ({user, handleConnecti
           title="Chat"
           type="button"
           className="text-font_main flex items-center justify-center rounded-md bg-primary px-3 py-1 text-base outline-none transition-all duration-300"
-          onClick={() => {/* Logic to initiate chat */}}
+          onClick={() => {/* Logic to initiate chat */ }}
         >
           Chat
         </button>
@@ -62,13 +62,15 @@ const SingleSuggestion: React.FC<SingleSuggestionProps> = ({user, handleConnecti
 
   return (
     <div className="flex items-center p-3 hover:bg-bg_card2 cursor-pointer relative">
-      <Image
-        src={user.avatarUrl || '/pfp.jpg'}
-        width={50}
-        height={50}
-        alt="Profile"
-        className="rounded-full"
-      />
+      <div className="w-[50px] h-[50px] rounded-full overflow-hidden">
+        <Image
+          src={user.avatarUrl || "/pfp.jpg"}
+          width={50}
+          height={50}
+          alt="desc"
+          className="object-cover w-fit h-fit rounded-full"
+        />
+      </div>
       <div className="ml-4 flex flex-col flex-grow justify-between">
         <h4 className="font-light tracking-wide text-font_main">{user.username}</h4>
         <p className="text-sm text-gray-600 truncate">

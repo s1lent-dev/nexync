@@ -61,10 +61,18 @@ const ChatSection = () => {
         <nav className="flex justify-between items-center px-4 py-2 bg-bg_card1">
           {/* User Info */}
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => setSidebarOpen(true)}>
-            <Image src={user.avatarUrl || '/pfp.jpg'} width={40} height={40} alt='desc' className="rounded-full cursor-pointer" />
+          <div className="w-[40px] h-[40px] rounded-full overflow-hidden">
+                <Image
+                    src={user.avatarUrl || "/pfp.jpg"}
+                    width={40}
+                    height={40}
+                    alt="desc"
+                    className="object-cover w-fit h-fit rounded-full cursor-pointer"
+                />
+            </div>
             <div>
               <h3 className="font-semibold text-font_main">{user.username}</h3>
-              <p className="text-sm text-primary">Online</p>
+              <p className="text-sm text-primary">online</p>
             </div>
           </div>
           {/* Icons */}

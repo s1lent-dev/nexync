@@ -11,18 +11,26 @@ interface SingleChatProps {
   connection: IUser;
 }
 
-const SingleChat: React.FC<SingleChatProps> = ({connection}) => {
+const SingleChat: React.FC<SingleChatProps> = ({ connection }) => {
   const [isHovered, setIsHovered] = useState(false);
   const dispatch = useDispatch();
 
   return (
-    <div 
+    <div
       className='flex items-center p-3 hover:bg-bg_card2 cursor-pointer relative'
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => dispatch(setSelectedUser(connection))}
     >
-      <Image src={connection.avatarUrl || '/pfp.jpg'} width={50} height={50} alt='desc' className="rounded-full" />
+      <div className="w-[50px] h-[50px] rounded-full overflow-hidden">
+        <Image
+          src={connection.avatarUrl || "/pfp.jpg"}
+          width={80}
+          height={80}
+          alt="desc"
+          className="object-cover w-fit h-fit rounded-full"
+        />
+      </div>
       <div className='ml-4 flex flex-col flex-grow justify-between'>
         <div className='flex justify-between'>
           <h4 className='font-light tracking-wide text-font_main'>{connection.username}</h4>

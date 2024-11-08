@@ -10,7 +10,7 @@ interface SingleRequestProps {
   handleRequestAction: () => void;
 }
 
-const SingleRequest: React.FC<SingleRequestProps> = ({user, handleRequestAction}) => {
+const SingleRequest: React.FC<SingleRequestProps> = ({ user, handleRequestAction }) => {
 
   const { acceptConnectionRequest } = useAcceptConnectionRequest();
   const { showSuccessToast, showErrorToast } = useToast();
@@ -21,13 +21,15 @@ const SingleRequest: React.FC<SingleRequestProps> = ({user, handleRequestAction}
 
   return (
     <div className="flex items-center p-3 hover:bg-bg_card2 cursor-pointer relative">
-      <Image
-        src={user.avatarUrl || "/pfp.jpg"}
-        width={50}
-        height={50}
-        alt="Profile"
-        className="rounded-full"
-      />
+      <div className="w-[50px] h-[50px] rounded-full overflow-hidden">
+        <Image
+          src={user.avatarUrl || "/pfp.jpg"}
+          width={80}
+          height={80}
+          alt="desc"
+          className="object-cover w-fit h-fit rounded-full"
+        />
+      </div>
       <div className="ml-4 flex flex-col flex-grow justify-between">
         <h4 className="font-light tracking-wide text-font_main">{user.username}</h4>
         <p className="text-sm text-gray-600 truncate">10 days ago</p>

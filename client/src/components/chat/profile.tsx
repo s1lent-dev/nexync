@@ -20,13 +20,13 @@ const Profile: React.FC<ProfileProps> = ({ onClose, user }) => {
 
       {/* Profile content */}
       <div className="flex flex-col w-full items-center justify-center bg-bg_card3 p-5">
-        <div className="flex items-center justify-center">
+        <div className="w-[200px] h-[200px] rounded-full overflow-hidden">
           <Image
             src={user.avatarUrl || "/pfp.jpg"}
             width={200}
             height={200}
-            alt="Profile picture"
-            className="rounded-full"
+            alt="desc"
+            className="object-cover w-fit h-fit rounded-full"
           />
         </div>
         <h2 className="mt-6 font-thin tracking-wider font-sfpro text-font_main text-xl antialiased">

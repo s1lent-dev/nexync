@@ -61,13 +61,15 @@ const Settings = () => {
         />
       </div>
       <div className="w-full flex flex-row items-center justify-between p-2 gap-4 hover:bg-bg_card2 cursor-pointer">
-        <Image
+      <div className="w-[50px] h-[50px] rounded-full overflow-hidden">
+      <Image
           src={user.avatarUrl || "/pfp.jpg"}
           width={80}
           height={80}
           alt="desc"
-          className="rounded-full"
+          className="object-cover w-fit h-fit rounded-full"
         />
+          </div>
         <div className="flex flex-col w-full max-w-xs">
           <h4 className="text-lg font-semibold text-font_main">
             {user.username}

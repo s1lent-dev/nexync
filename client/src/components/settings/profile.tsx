@@ -18,18 +18,18 @@ const Profile = () => {
   const { updateBio } = useUpdateBio();
   const { getMe } = useGetMe();
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const formData = new FormData();
       formData.append('photo', file);
       uploadAvatar(formData);
       showSuccessToast('Profile picture updated');
+      await getMe();
     }
   };
 
   const handleUsernameSave = () => {
-    // Call API or update Redux state with new username
     setIsEditingUsername(false);
   };
 
@@ -48,13 +48,15 @@ const Profile = () => {
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <Image
-            src={user.avatarUrl || '/pfp.jpg'}
-            width={200}
-            height={200}
-            alt='Profile Picture'
-            className={`rounded-full transition-opacity duration-300 ${isHovered ? 'opacity-50 blur-sm' : 'opacity-100'}`}
-          />
+          <div className="w-[200px] h-[200px] rounded-full overflow-hidden">
+            <Image
+              src={user.avatarUrl || '/pfp.jpg'}
+              width={200}
+              height={200}
+              alt="Profile Picture"
+              className={`object-cover w-full h-full transition-opacity duration-300 ${isHovered ? 'opacity-50 blur-sm' : 'opacity-100'}`}
+            />
+          </div>
           {isHovered && (
             <label
               htmlFor="file-upload"

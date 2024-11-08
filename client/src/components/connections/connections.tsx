@@ -13,6 +13,7 @@ import ConnectionProfile from "./connectionProfile";
 import { IConnection } from "@/types/types";
 
 const Connections = () => {
+  
   const connectionRequests = useSelector((state: RootState) => state.connection.connectionRequests);
   const followers = useSelector((state: RootState) => state.connection.followers);
   const following = useSelector((state: RootState) => state.connection.following);
@@ -89,7 +90,7 @@ const Connections = () => {
             </span>
           </div>
 
-          {/* Chat List with scrollable div */}
+          {/* Chat List */}
           <div className="flex-grow overflow-y-scroll custom-scrollbar scrollbar-thin pr-2 space-y-2">
             {isFollowing ? (
               following.map((user) => (
@@ -97,7 +98,7 @@ const Connections = () => {
                   key={user.userId}
                   user={user}
                   setIsSidebar={setIsSidebar}
-                  setSelectedUser={setSelectedUser} // Pass setSelectedUser
+                  setSelectedUser={setSelectedUser} 
                 />
               ))
             ) : (
@@ -106,7 +107,7 @@ const Connections = () => {
                   key={user.userId}
                   user={user}
                   setIsSidebar={setIsSidebar}
-                  setSelectedUser={setSelectedUser} // Pass setSelectedUser
+                  setSelectedUser={setSelectedUser} 
                 />
               ))
             )}

@@ -13,7 +13,7 @@ const ConnectionProfile: React.FC<ProfileProps> = ({ onClose, user }) => {
   return (
     <aside className="flex flex-col h-full w-full bg-bg_dark1 shadow-lg overflow-y-scroll custom-scrollbar">
       {/* Sticky Navbar */}
-      <nav className="flex items-center gap-5 w-full p-5 bg-bg_card3 shadow sticky top-0 left-0 z-10">
+      <nav className="flex items-center gap-5 p-5 bg-bg_card3 shadow sticky top-0 left-0 w-full z-10">
         <X className="text-font_dark cursor-pointer" onClick={onClose} />
         <h4 className="text-base tracking-wide text-font_main">Friend Info</h4>
       </nav>
@@ -21,13 +21,15 @@ const ConnectionProfile: React.FC<ProfileProps> = ({ onClose, user }) => {
       {/* Profile content */}
       <div className="flex flex-col w-full items-center justify-center bg-bg_card3 p-5">
         <div className="flex items-center justify-center">
-          <Image
-            src={user.avatarUrl || "/pfp.jpg"}
-            width={200}
-            height={200}
-            alt="Profile picture"
-            className="rounded-full"
-          />
+          <div className="w-[200px] h-[200px] rounded-full overflow-hidden">
+                <Image
+                    src={user.avatarUrl || "/pfp.jpg"}
+                    width={200}
+                    height={200}
+                    alt="desc"
+                    className="object-cover w-fit h-fit rounded-full"
+                />
+            </div>
         </div>
         <h2 className="mt-6 font-thin tracking-wider font-sfpro text-font_main text-xl antialiased">
           {user.username}

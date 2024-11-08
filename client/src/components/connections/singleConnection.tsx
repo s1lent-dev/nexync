@@ -9,7 +9,7 @@ interface SingleConnectionProps {
     setSelectedUser: (user: IConnection) => void;
 }
 
-const SingleConnection: React.FC<SingleConnectionProps> = ({user, setIsSidebar, setSelectedUser}) => {
+const SingleConnection: React.FC<SingleConnectionProps> = ({ user, setIsSidebar, setSelectedUser }) => {
 
     const handleClick = () => {
         setSelectedUser(user);
@@ -17,13 +17,15 @@ const SingleConnection: React.FC<SingleConnectionProps> = ({user, setIsSidebar, 
     }
     return (
         <div className="flex items-center p-3 hover:bg-bg_card2 cursor-pointer relative" onClick={handleClick}>
-            <Image
-                src={ user.avatarUrl || "/pfp.jpg"}
-                width={50}
-                height={50}
-                alt="Profile"
-                className="rounded-full"
-            />
+            <div className="w-[50px] h-[50px] rounded-full overflow-hidden">
+                <Image
+                    src={user.avatarUrl || "/pfp.jpg"}
+                    width={50}
+                    height={50}
+                    alt="desc"
+                    className="object-cover w-fit h-fit rounded-full"
+                />
+            </div>
             <div className="ml-4 flex flex-col flex-grow justify-between">
                 <h4 className="font-light tracking-wide text-font_main">{user.username}</h4>
                 <p className="text-sm text-gray-600 truncate">followed by sdmrf and 22+ others</p>
