@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSocket } from "@/context/helper/socket";
 import { RootState } from "@/context/store";
 import { useEffect } from "react";
-import { setChats } from "@/context/reducers/chats";
+import { addMessage, setChats } from "@/context/reducers/chats";
 
 
 const useRegister = () => {
@@ -317,7 +317,29 @@ const useUpdateBio = () => {
 }
 
 
-
+const useGetChats = () => {
+    const { axios, state, dispatch } = useAxios();
+    const reduxDispatch = useDispatch();
+    const getChats = async (userId: string) => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.get(`/chat/get-chats/${userId}`);
+            console.log(res.data.data.messages);
+            reduxDispatch(setChats({ userId, messages: res.data.data.messages }));
+            dispatch({ type: 'REQUEST_SUCCESS' });
+            return res.data.data;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { getChats, state };
+}
 
 
 // Sockets
@@ -331,30 +353,26 @@ const useSendMessage = () => {
 }
 
 const useSocketMessages = () => {
-
     const reduxDispatch = useDispatch();
     const socket = useSocket();
     const me = useSelector((state: RootState) => state.user.me);
-
     useEffect(() => {
         if (!socket) return;
-        const handleNewMessage = ({senderId, memberIds, content, createdAt} : IMessage) => {
-            console.log(senderId, memberIds, content, createdAt);
-            console.log("Message received: ", content);
+        const handleNewMessage = ({ senderId, memberIds, content, createdAt }: IMessage) => {
             const userKey = me.userId === memberIds[0] ? memberIds[1] : memberIds[0];
-            reduxDispatch(setChats({userId: userKey, messages: [{senderId, memberIds, content, createdAt}] }));
-        }
-
+            reduxDispatch(addMessage({ userId: userKey, message: { senderId, memberIds, content, createdAt } }));
+        };
+        
         socket.on("messages", handleNewMessage);
         console.log("Socket connected: ", socket.id);
 
         return () => {
             socket.off("messages", handleNewMessage);
         };
-    })
+    }, [socket, me.userId, reduxDispatch]);
 
     const chats = useSelector((state: RootState) => state.chat.chats);
     return { chats };
-}
+};
 
-export { useRegister, useLogin, useLogout, useGetMe, useGetConnections, useGetConnectedUsers, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useUploadAvatar, useUpdateBio, useSendMessage, useSocketMessages };
+export { useRegister, useLogin, useLogout, useGetMe, useGetConnections, useGetConnectedUsers, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useUploadAvatar, useUpdateBio, useGetChats, useSendMessage, useSocketMessages };

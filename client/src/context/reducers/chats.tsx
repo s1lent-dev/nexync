@@ -15,10 +15,14 @@ const ChatSlice = createSlice({
     reducers: {
         setChats: (state, action: PayloadAction<{userId: string; messages: IMessage[]}>) => {
             const { userId, messages } = action.payload;
-            state.chats[userId] = [...(state.chats[userId] || []), ...messages];
+            state.chats[userId] = messages
         },
+        addMessage: (state, action: PayloadAction<{userId: string; message: IMessage}>) => {
+            const { userId, message } = action.payload;
+            state.chats[userId].push(message);
+        }
     },
 });
 
-export const { setChats } = ChatSlice.actions;
+export const { setChats, addMessage } = ChatSlice.actions;
 export { ChatSlice };

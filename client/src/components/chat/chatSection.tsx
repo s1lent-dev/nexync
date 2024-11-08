@@ -1,48 +1,32 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Profile from './profile';
 import { SendHorizontal } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/context/store';
-import { useSocket } from '@/context/helper/socket';
-import { useSendMessage, useSocketMessages } from '@/utils/api';
+import { useGetChats, useSendMessage, useSocketMessages } from '@/utils/api';
 import { IMessage } from '@/types/types';
 
 const ChatSection = () => {
+
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  // const [messages, setMessages] = useState<{ [userId: string]: { text: string; senderId: string }[] }>({});
   const [inputValue, setInputValue] = useState("");
   const user = useSelector((state: RootState) => state.user.selectedUser);
   const me = useSelector((state: RootState) => state.user.me);
   const userMessages = useSelector((state: RootState) => state.chat.chats[user.userId]);
   const { sendMessage } = useSendMessage();
-  const { chats } = useSocketMessages();
-  // const socket = useSocket();
+  useSocketMessages();
+  const { getChats } = useGetChats();
   
   const handleSidebarClose = () => {
     setSidebarOpen(false);
   };
 
-  // useEffect(() => {
-  //   if (!socket) return;
-
-  //   socket.on("messages", ({ memberIds, message }) => {
-  //     console.log("Message received: ", message);
-  //     const senderId = memberIds[0] === me.userId ? me.userId : memberIds[0];
-  //     const userKey = me.userId === memberIds[0] ? memberIds[1] : memberIds[0];
-  //     setMessages((prev) => ({
-  //       ...prev,
-  //       [userKey]: [...(prev[userKey] || []), { text: message, senderId }],
-  //     }));
-      
-  //   });
-
-  //   console.log("Socket connected: ", socket.id);
-
-  //   return () => {
-  //     socket.off("messages");
-  //   };
-  // }, [socket, me.userId]);
+  useEffect(() => {
+    if (user.userId) {
+      getChats(user.userId);
+    }
+  }, [user.userId]);
 
   const handleSendMessage = async () => {
     if (!inputValue) return;
@@ -93,26 +77,6 @@ const ChatSection = () => {
 
         {/* Messages Section */}
         <article className="flex-grow overflow-y-scroll p-4 bg-bg_dark2 custom-scrollbar space-y-4">
-          {/* Placeholder for messages */}
-          {/* {(!messages[user.userId] || messages[user.userId].length === 0) ? (
-            <p className="text-center text-gray-400">No messages yet</p>
-          ) : (
-            messages[user.userId]?.map((message, index) => (
-              <div
-                key={index}
-                className={`flex ${message.senderId === me.userId ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`p-2 rounded-lg max-w-xs break-words ${
-                    message.senderId === me.userId ? 'bg-chat text-font_main' : 'bg-bg_card2 text-font_main'
-                  }`}
-                >
-                  {message.text}
-                </div>
-              </div>
-            ))
-          )} */}
-
           {(userMessages && userMessages.length === 0) ? (
             <p className="text-center text-gray-400">No messages yet</p>
           ) : (
