@@ -3,23 +3,23 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLogin } from "@/utils/api";
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Eye, EyeClosed } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/context/toast/toast";
 
-// Define the Zod schema for form validation
 const schema = z.object({
   usernameOrEmail: z.string().min(1, "Username or email is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
 const Login = () => {
-  
+
+  const [showPassword, setShowPassword] = useState(false);
   const { showSuccessToast, showErrorToast } = useToast();
   const { loginUser } = useLogin();
   const router = useRouter();
@@ -36,7 +36,7 @@ const Login = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof schema>) => {
-    try { 
+    try {
       const res = await loginUser(values);
       console.log(res);
       if (res?.statusCode === 202) {
@@ -69,7 +69,7 @@ const Login = () => {
           <h2 className="mb-16 text-center text-3xl font-semibold text-font_main">
             Login to Your Account
           </h2>
-          
+
           <div className="flex items-center gap-8 mb-8">
             <button
               title="Sign in with Google"
@@ -113,7 +113,7 @@ const Login = () => {
 
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-12 flex flex-col gap-8">
-              <div className="flex gap-4 w-full"> {/* Change here for horizontal alignment */}
+              <div className="flex gap-4 w-full"> 
                 <div className="flex flex-col w-full">
                   <input
                     {...register("usernameOrEmail")}
@@ -124,13 +124,19 @@ const Login = () => {
                   {errors.usernameOrEmail && <p className="text-red-500 text-sm mt-1">{errors.usernameOrEmail.message}</p>}
                 </div>
 
-                <div className="flex flex-col w-full">
+                <div className="flex flex-col w-full relative">
                   <input
                     {...register("password")}
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="Password"
-                    className={`border-b border-bg_card2 bg-transparent pb-4 focus:border-primary focus:placeholder:text-font_main focus-visible:outline-none ${errors.password ? 'border-red-500' : ''}`}
+                    className={`border-b border-bg_card2 bg-transparent pb-4 pr-10 focus:border-primary focus:placeholder:text-font_main focus-visible:outline-none ${errors.password ? "border-red-500" : ""}`}
                   />
+                  <div
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-2 top-3 cursor-pointer text-gray-500"
+                  >
+                    {showPassword ? <EyeClosed size={20} /> : <Eye size={20} />}
+                  </div>
                   {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
                 </div>
               </div>

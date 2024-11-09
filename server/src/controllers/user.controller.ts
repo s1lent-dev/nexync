@@ -250,7 +250,6 @@ const getSuggestions = AsyncHandler(async(req: CustomRequest, res: Response, nex
                 notIn: [...alreadyFollowingIds, ...alreadyRequestedIds, user?.userId!],
             },
         },
-        take: 4,
     });
 
     res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Suggestions", suggestions));

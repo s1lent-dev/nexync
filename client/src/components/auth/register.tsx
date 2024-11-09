@@ -3,16 +3,15 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRegister } from "@/utils/api";
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Eye, EyeClosed } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/context/toast/toast";
 
-// Define the Zod schema for form validation
 const schema = z.object({
   username: z.string().min(1, "Username name is required"),
   email: z.string().email().regex(/^[a-zA-Z0-9._%+-]+@gmail\.com$/, { message: "Email must end with @gmail.com" }),
@@ -20,11 +19,13 @@ const schema = z.object({
   confirmPassword: z.string().min(6, "Confirm Password is required"),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
-  path: ["confirmPassword"], // This will mark confirmPassword as an error
+  path: ["confirmPassword"], 
 });
 
 const Register = () => {
-  
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { showSuccessToast, showErrorToast } = useToast();
   const { registerUser } = useRegister();
   const router = useRouter();
@@ -44,7 +45,7 @@ const Register = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof schema>) => {
-    try { 
+    try {
       const res = await registerUser(values);
       console.log(res);
       if (res?.statusCode === 201) {
@@ -142,23 +143,35 @@ const Register = () => {
             </div>
 
             <div className="mb-8 flex flex-col gap-8 lg:mb-12 lg:flex-row lg:justify-between lg:gap-14">
-              <div className="flex flex-col w-full lg:w-1/2">
+              <div className="flex flex-col w-full lg:w-1/2 relative">
                 <input
                   {...register("password")}
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Password"
-                  className={`border-b border-bg_card2 bg-transparent pb-4 focus:border-primary focus:placeholder:text-font_main focus-visible:outline-none ${errors.password ? 'border-red-500' : ''}`}
+                  className={`border-b border-bg_card2 bg-transparent pb-4 pr-10 focus:border-primary focus:placeholder:text-font_main focus-visible:outline-none ${errors.password ? "border-red-500" : ""}`}
                 />
+                <div
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-3 cursor-pointer text-gray-500"
+                >
+                  {showPassword ? <EyeClosed size={20} /> : <Eye size={20} />}
+                </div>
                 {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
               </div>
 
-              <div className="flex flex-col w-full lg:w-1/2">
+              <div className="flex flex-col w-full lg:w-1/2 relative">
                 <input
                   {...register("confirmPassword")}
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   placeholder="Confirm Password"
-                  className={`border-b border-bg_card2 bg-transparent pb-4 focus:border-primary focus:placeholder:text-font_main focus-visible:outline-none ${errors.confirmPassword ? 'border-red-500' : ''}`}
+                  className={`border-b border-bg_card2 bg-transparent pb-4 pr-10 focus:border-primary focus:placeholder:text-font_main focus-visible:outline-none ${errors.confirmPassword ? "border-red-500" : ""}`}
                 />
+                <div
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-2 top-3 cursor-pointer text-gray-500"
+                >
+                  {showConfirmPassword ? <EyeClosed size={20} /> : <Eye size={20} />}
+                </div>
                 {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>}
               </div>
             </div>

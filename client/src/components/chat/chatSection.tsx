@@ -113,7 +113,7 @@ const ChatSection = () => {
           <input
             type='text'
             placeholder='Type a message'
-            className="flex-grow placeholder:text-slate-50 px-4 py-2 rounded-lg bg-slate-600 opacity-30 focus:outline-none"
+            className="flex-grow placeholder:text-slate-400 px-4 py-2 rounded-lg bg-slate-600 bg-opacity-30 focus:outline-none"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
           />

@@ -7,39 +7,39 @@ import { RootState } from "@/context/store";
 import { useToast } from "@/context/toast/toast";
 
 const SeetingsData = [
-    {
-        url: "/account.svg",
-        title: "Account",
-    },
-    {
-        url: "/lock.svg",
-        title: "Privacy",
-    },
-    {
-        url: "/chat.svg",
-        title: "Chats",
-    },
-    {
-        url: "/noti.svg",
-        title: "Notifications",
-    },
-    {
-        url: "/shortcuts.svg",
-        title: "Keyboard Shortcuts",
-    },
-    {
-        url: "/help.svg",
-        title: "Help",
-    },
-    {
-        url: "/logout.svg",
-        title: "Logout",
-    }
+  {
+    url: "/account.svg",
+    title: "Account",
+  },
+  {
+    url: "/lock.svg",
+    title: "Privacy",
+  },
+  {
+    url: "/chat.svg",
+    title: "Chats",
+  },
+  {
+    url: "/noti.svg",
+    title: "Notifications",
+  },
+  {
+    url: "/shortcuts.svg",
+    title: "Keyboard Shortcuts",
+  },
+  {
+    url: "/help.svg",
+    title: "Help",
+  },
+  {
+    url: "/logout.svg",
+    title: "Logout",
+  }
 ]
 
 const Settings = () => {
-  
-  const user = useSelector((state: RootState ) => state.user.me);
+
+  const user = useSelector((state: RootState) => state.user.me);
   const { showSuccessToast } = useToast();
   const { logout } = useLogout();
   const router = useRouter();
@@ -61,15 +61,15 @@ const Settings = () => {
         />
       </div>
       <div className="w-full flex flex-row items-center justify-between p-2 gap-4 hover:bg-bg_card2 cursor-pointer">
-      <div className="w-[50px] h-[50px] rounded-full overflow-hidden">
-      <Image
-          src={user.avatarUrl || "/pfp.jpg"}
-          width={80}
-          height={80}
-          alt="desc"
-          className="object-cover w-fit h-fit rounded-full"
-        />
-          </div>
+        <div className="max-w[80px] max-h[80px] rounded-full overflow-hidden">
+          <Image
+            src={user.avatarUrl || "/pfp.jpg"}
+            width={80}
+            height={80}
+            objectFit="cover"
+            alt="desc"
+          />
+        </div>
         <div className="flex flex-col w-full max-w-xs">
           <h4 className="text-lg font-semibold text-font_main">
             {user.username}
@@ -80,32 +80,32 @@ const Settings = () => {
         </div>
       </div>
       <div className="w-full flex flex-col gap-2">
-            {SeetingsData.map((data, index) => (
-                <div key={index} className={`flex flex-row items-center gap-6 p-4 relative ${data.title === "Logout" ? 'hover:bg-red-400 hover:bg-opacity-20': 'hover:bg-bg_card2' } cursor-pointer`} onClick={() => {
-                    if(data.title === "Logout") {
-                        handleLogout();
-                        showSuccessToast("Logged out successfully");
-                    }
-                }}>
-                    { data.title === "Logout" ? (
-                        <>
-                        <Image src={data.url
-                        } width={25} height={25} alt="desc" />
-                        <span className="font-segoe font-light text-base text-red-400">{data.title}</span>
-                        </>
-                    ) : (
-                        <>
-                        <Image src={data.url
-                        } width={25} height={25} alt="desc" />
-                        <span className="font-segoe font-light text-base text-font_main">{data.title}</span>
-                        </>
-                    ) }
-                    
-                    <span className="absolute bottom-0 left-12 right-0 h-[2px] bg-bg_card2" />
-                </div>
-            ))}
-            
-        </div>
+        {SeetingsData.map((data, index) => (
+          <div key={index} className={`flex flex-row items-center gap-6 p-4 relative ${data.title === "Logout" ? 'hover:bg-red-400 hover:bg-opacity-20' : 'hover:bg-bg_card2'} cursor-pointer`} onClick={() => {
+            if (data.title === "Logout") {
+              handleLogout();
+              showSuccessToast("Logged out successfully");
+            }
+          }}>
+            {data.title === "Logout" ? (
+              <>
+                <Image src={data.url
+                } width={25} height={25} alt="desc" />
+                <span className="font-segoe font-light text-base text-red-400">{data.title}</span>
+              </>
+            ) : (
+              <>
+                <Image src={data.url
+                } width={25} height={25} alt="desc" />
+                <span className="font-segoe font-light text-base text-font_main">{data.title}</span>
+              </>
+            )}
+
+            <span className="absolute bottom-0 left-12 right-0 h-[2px] bg-bg_card2" />
+          </div>
+        ))}
+
+      </div>
     </section>
   );
 };

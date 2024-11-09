@@ -1,40 +1,81 @@
-"use client"
-import React from 'react'
-import Image from 'next/image'
-import { useDispatch, useSelector } from 'react-redux'
-import { setNavigation } from '@/context/reducers/navigation'
-import { RootState } from '@/context/store'
+"use client";
+import React from "react";
+import Image from "next/image";
+import { useDispatch, useSelector } from "react-redux";
+import { setNavigation } from "@/context/reducers/navigation";
+import { RootState } from "@/context/store";
 
 const Navigation = () => {
-  
   const me = useSelector((state: RootState) => state.user.me);
-  const dispatch = useDispatch()
+  const navigation = useSelector((state: RootState) => state.navigation.title);
+  const dispatch = useDispatch();
+
+  const navItems = [
+    { name: "chat", src: "/chat.svg" },
+    { name: "status", src: "/status.svg"},
+    { name: "channel", src: "/channel.svg" },
+    { name: "connections", src: "/community.svg"},
+    { name: "archive", src: "/archive.svg" },
+    { name: "meta", src: "/meta.png", size: 20 }, 
+  ];
 
   return (
-    <aside className='bg-bg_card1 h-full flex flex-col items-center justify-between p-4 shadow-sm shadow-font_light'>
-      <div className='flex flex-col gap-6'>
-        <Image src='/chat.svg' width={25} height={25} alt='desc' className='cursor-pointer' onClick={() => dispatch(setNavigation('chat'))}/>
-        <Image src='/status.svg' width={25} height={25} alt='desc' className='cursor-pointer'/>
-        <Image src='/channel.svg' width={25} height={25} alt='desc' className='cursor-pointer'/>
-        <Image src='/community.svg' width={25} height={25} alt='desc' className='cursor-pointer' onClick={() => dispatch(setNavigation('connections'))}/>
-        <Image src='/archive.svg' width={25} height={25} alt='desc' className='cursor-pointer'/>
-        <Image src='/meta.png' width={20} height={20} alt='desc' className='cursor-pointer'/>
-      </div>
-      <div className='flex flex-col gap-6'>
-        <Image src='/settings.svg' width={30} height={30} alt='desc' className='cursor-pointer' onClick={() => dispatch(setNavigation('settings'))} />
-        <div className="w-[25px] h-[25px] rounded-full overflow-hidden">
+    <aside className="bg-bg_card1 h-full w-30 flex flex-col items-center justify-between p-4 shadow-sm shadow-font_light">
+      <div className="flex flex-col gap-6">
+        {navItems.map((item) => (
+          <div
+            key={item.name}
+            className={`p-2 rounded-full ${
+              navigation === item.name ? "bg-white bg-opacity-10" : ""
+            }`}
+          >
             <Image
-              src={me.avatarUrl || '/pfp.jpg'}
+              src={item.src}
+              width={item.size || 25}
+              height={item.size || 25}
+              alt={item.name}
+              className="cursor-pointer"
+              onClick={() => dispatch(setNavigation(item.name))}
+            />
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-6">
+        <div
+          className={`p-1 rounded-full ${
+            navigation === "settings" ? "bg-white bg-opacity-10" : ""
+          }`}
+        >
+          <Image
+            src="/settings.svg"
+            width={30}
+            height={30}
+            alt="Settings"
+            className="cursor-pointer"
+            onClick={() => dispatch(setNavigation("settings"))}
+          />
+        </div>
+
+        <div
+          className={`p-1 rounded-full ${
+            navigation === "profile" ? "bg-white bg-opacity-10" : ""
+          }`}
+        >
+          <div className="w-[25px] h-[25px] rounded-full overflow-hidden cursor-pointer">
+            <Image
+              src={me.avatarUrl || "/pfp.jpg"}
               width={25}
               height={25}
               alt="Profile Picture"
-              className={`object-cover w-full h-full transition-opacity duration-300`}
+              className="object-cover w-full h-full transition-opacity duration-300"
               onClick={() => dispatch(setNavigation("profile"))}
             />
           </div>
+        </div>
       </div>
     </aside>
-  )
-}
+  );
+};
 
-export default Navigation
+export default Navigation;
