@@ -1,7 +1,7 @@
 "use client"
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IUser } from "@/types/types";
+import { IConnectionChat, IUser } from "@/types/types";
 
 const me: IUser = {
     userId: "",
@@ -14,7 +14,8 @@ const me: IUser = {
     bio: "",
 }
 
-const selectedUser: IUser = {
+const selectedUser: IConnectionChat = {
+    chatId: "",
     userId: "",
     googleId: "",
     githubId: "",
@@ -49,11 +50,12 @@ const UserSlice = createSlice({
                 bio: "",
             }
         },
-        setSelectedUser(state, action: PayloadAction<IUser>) {
+        setSelectedUser(state, action: PayloadAction<IConnectionChat>) {
             state.selectedUser = action.payload;
         },
         resetSelectedUser(state) {
             state.selectedUser = {
+                chatId: "",
                 userId: "",
                 googleId: "",
                 githubId: "",

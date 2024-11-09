@@ -5,6 +5,7 @@ import { prisma } from "../db/prisma.db.js";
 
 interface MessageEvent {
     senderId: string;
+    chatId: string;
     memberIds: string[];
     content: string;
     createdAt: Date | null;
@@ -18,18 +19,12 @@ class ChatSocket extends SocketService {
     protected async registerEvents(socket: Socket) {
         console.log("ChatSocket registerEvents called.");
 
-        socket.on("messages", async ({ senderId, memberIds, content, createdAt }: MessageEvent) => {
+        socket.on("messages", async ({ senderId, chatId, memberIds, content, createdAt }: MessageEvent) => {
             console.log(`Message from ${socket.id}: ${content}`);
-            console.log("Members: ", memberIds);
+            console.log("Members: ", chatId);
 
             const chat = await prisma.chat.findFirst({
-                where: {
-                    AND: memberIds.map(id => ({
-                        users: {
-                            some: { userId: id }
-                        }
-                    }))
-                }
+                where: { chatId}
             });           
 
             if (!chat) {
@@ -48,7 +43,7 @@ class ChatSocket extends SocketService {
 
             const socketMembers = this.getSockets(memberIds) as string[];
             console.log("SocketMembers: ", socketMembers);
-            this.io.to(socketMembers).emit("messages", { senderId, memberIds, content });
+            this.io.to(socketMembers).emit("messages", { senderId, chatId, memberIds, content });
         });
     }
 

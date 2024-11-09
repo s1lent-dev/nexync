@@ -3,12 +3,12 @@
 import React, { useState } from 'react'
 import Image from 'next/image'
 import { ChevronDown } from 'lucide-react'
-import { IUser } from '@/types/types'
+import { IConnectionChat } from '@/types/types'
 import { useDispatch } from 'react-redux'
 import { setSelectedUser } from '@/context/reducers/user'
 
 interface SingleChatProps {
-  connection: IUser;
+  connection: IConnectionChat;
 }
 
 const SingleChat: React.FC<SingleChatProps> = ({ connection }) => {

@@ -1,7 +1,7 @@
 'use client';
 import { useAxios } from "@/context/helper/axios";
-import { resetMe, setMe } from "@/context/reducers/user";
-import { setConnections, setFollowers, setFollowing, setConnectionRequests } from "@/context/reducers/connections";
+import { resetMe, resetSelectedUser, setMe } from "@/context/reducers/user";
+import { setConnections, setFollowers, setFollowing, setConnectionRequests, resetConnections } from "@/context/reducers/connections";
 import { setSearchedUsers, setSuggestedUsers } from "@/context/reducers/newConnection";
 import { IRegsitrationForm, ILoginForm, IMessage } from "@/types/types";
 import { AxiosError } from "axios";
@@ -9,7 +9,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSocket } from "@/context/helper/socket";
 import { RootState } from "@/context/store";
 import { useEffect } from "react";
-import { addMessage, setChats } from "@/context/reducers/chats";
+import { addMessage, resetChats, setChats, setConnectionChats } from "@/context/reducers/chats";
+import { setNavigation } from "@/context/reducers/navigation";
 
 
 const useRegister = () => {
@@ -63,6 +64,10 @@ const useLogout = () => {
             const res = await axios.get('/auth/logout');
             dispatch({ type: 'REQUEST_SUCCESS' });
             reduxDispatch(resetMe());
+            reduxDispatch(resetSelectedUser());
+            reduxDispatch(resetChats());
+            reduxDispatch(resetConnections());
+            reduxDispatch(setNavigation("chat"));
             return res.data.data;
         } catch (err) {
             if (err instanceof AxiosError) {
@@ -317,15 +322,40 @@ const useUpdateBio = () => {
 }
 
 
-const useGetChats = () => {
+const useGetAllConnectionChats = () => {
     const { axios, state, dispatch } = useAxios();
     const reduxDispatch = useDispatch();
-    const getChats = async (userId: string) => {
+    const getAllConnectionChats = async () => {
         dispatch({ type: 'REQUEST_START' });
         try {
-            const res = await axios.get(`/chat/get-chats/${userId}`);
+            const res = await axios.get('/chat/get-connections-chats');
+            dispatch({ type: 'REQUEST_SUCCESS' });
+            console.log(res.data.data);
+            reduxDispatch(setConnectionChats(res.data.data.connections));
+            return res.data.data;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { getAllConnectionChats, state };
+}
+
+
+const useGetMessages = () => {
+    const { axios, state, dispatch } = useAxios();
+    const reduxDispatch = useDispatch();
+    const getMessages = async (chatId: string) => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.get(`/chat/get-messages/${chatId}`);
             console.log(res.data.data.messages);
-            reduxDispatch(setChats({ userId, messages: res.data.data.messages }));
+            reduxDispatch(setChats({ chatId, messages: res.data.data.messages }));
             dispatch({ type: 'REQUEST_SUCCESS' });
             return res.data.data;
         } catch (err) {
@@ -338,7 +368,7 @@ const useGetChats = () => {
             }
         }
     }
-    return { getChats, state };
+    return { getMessages, state };
 }
 
 
@@ -358,9 +388,8 @@ const useSocketMessages = () => {
     const me = useSelector((state: RootState) => state.user.me);
     useEffect(() => {
         if (!socket) return;
-        const handleNewMessage = ({ senderId, memberIds, content, createdAt }: IMessage) => {
-            const userKey = me.userId === memberIds[0] ? memberIds[1] : memberIds[0];
-            reduxDispatch(addMessage({ userId: userKey, message: { senderId, memberIds, content, createdAt } }));
+        const handleNewMessage = ({ senderId, chatId, memberIds, content, createdAt }: IMessage) => {
+            reduxDispatch(addMessage({ chatId, message: { senderId, chatId, memberIds, content, createdAt } }));
         };
         
         socket.on("messages", handleNewMessage);
@@ -375,4 +404,4 @@ const useSocketMessages = () => {
     return { chats };
 };
 
-export { useRegister, useLogin, useLogout, useGetMe, useGetConnections, useGetConnectedUsers, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useUploadAvatar, useUpdateBio, useGetChats, useSendMessage, useSocketMessages };
+export { useRegister, useLogin, useLogout, useGetMe, useGetConnections, useGetConnectedUsers, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useUploadAvatar, useUpdateBio, useGetAllConnectionChats, useGetMessages, useSendMessage, useSocketMessages };

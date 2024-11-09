@@ -26,16 +26,28 @@ type IConnectionRequests = {
     bio: string;
 }
 
+type IConnectionChat = {
+    chatId: string;
+    userId: string;
+    googleId: string | null;
+    githubId: string | null;
+    username: string;
+    email: string;
+    password: string | null;
+    avatarUrl: string;
+    bio: string;
+}
 
 type IMessage = {
     senderId: string;
+    chatId: string;
     memberIds: string[];
     content: string;
     createdAt: Date | null;
 }
 
 type IChats = {
-    [userId: string]: IMessage[]
+    [chatId: string]: IMessage[]
 }
 
 type INavigationItem =  {
@@ -54,4 +66,4 @@ type ILoginForm = {
     password: string;
 }
 
-export type { INavigationItem, IRegsitrationForm, ILoginForm, IUser, IConnection, IConnectionRequests, IMessage, IChats };
+export type { INavigationItem, IRegsitrationForm, ILoginForm, IUser, IConnection, IConnectionChat, IConnectionRequests, IMessage, IChats };

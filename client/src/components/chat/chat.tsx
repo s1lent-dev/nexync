@@ -5,17 +5,17 @@ import Image from "next/image";
 import SingleChat from "./singleChat"; // Import the SingleChat component
 import { useDispatch, useSelector } from "react-redux";
 import { setNavigation } from "@/context/reducers/navigation";
-import { useGetConnectedUsers } from "@/utils/api";
+import { useGetAllConnectionChats } from "@/utils/api";
 import { RootState } from "@/context/store";
 
 const Chat = () => {
   
-  const connections = useSelector((state: RootState) => state.connection.connections);
+  const connections = useSelector((state: RootState) => state.chat.connectionChats);
   const dispatch = useDispatch();
-  const { getConnectedUsers } = useGetConnectedUsers();
+  const { getAllConnectionChats } = useGetAllConnectionChats();
 
   useEffect(() => {
-    getConnectedUsers();
+    getAllConnectionChats();
   }, []);
 
   return (

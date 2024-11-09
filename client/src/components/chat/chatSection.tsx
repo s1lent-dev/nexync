@@ -4,7 +4,7 @@ import Profile from './profile';
 import { SendHorizontal } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/context/store';
-import { useGetChats, useSendMessage, useSocketMessages } from '@/utils/api';
+import { useGetMessages, useSendMessage, useSocketMessages } from '@/utils/api';
 import { IMessage } from '@/types/types';
 
 const ChatSection = () => {
@@ -13,10 +13,10 @@ const ChatSection = () => {
   const [inputValue, setInputValue] = useState("");
   const user = useSelector((state: RootState) => state.user.selectedUser);
   const me = useSelector((state: RootState) => state.user.me);
-  const userMessages = useSelector((state: RootState) => state.chat.chats[user.userId]);
+  const userMessages = useSelector((state: RootState) => state.chat.chats[user.chatId]);
   const { sendMessage } = useSendMessage();
   useSocketMessages();
-  const { getChats } = useGetChats();
+  const { getMessages } = useGetMessages();
   
   const handleSidebarClose = () => {
     setSidebarOpen(false);
@@ -24,15 +24,16 @@ const ChatSection = () => {
 
   useEffect(() => {
     if (user.userId) {
-      getChats(user.userId);
+      getMessages(user.chatId);
     }
-  }, [user.userId]);
+  }, [user.chatId]);
 
   const handleSendMessage = async () => {
     if (!inputValue) return;
     if (!user.userId) return;
     const message: IMessage = {
       senderId: me.userId,
+      chatId: user.chatId,
       memberIds: [me.userId, user.userId],
       content: inputValue,
       createdAt: new Date(),

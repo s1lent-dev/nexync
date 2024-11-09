@@ -35,7 +35,7 @@ const Connections = () => {
   }, []);
 
   return (
-    <section className="flex flex-col p-4 w-full gap-6 h-full">
+    <section className={`flex flex-col w-full gap-6 h-full ${isSidebar ? 'p-0' : 'p-4'}`}>
       {isSidebar ? (
         <div className="flex flex-col h-full w-full bg-bg_dark1 overflow-y-scroll">
           {selectedUser && <ConnectionProfile user={selectedUser} onClose={handleSidebarClose} />}

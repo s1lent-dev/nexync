@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { verifyToken } from "../middlewares/verify.middleware.js";
-import { getChatsWithUser } from "../controllers/chat.controller.js";
+import { getMessages, getAllConnectionsChats } from "../controllers/chat.controller.js";
 
 const chatRouter = Router();
 
-chatRouter.route("/get-chats/:userId").get(verifyToken, getChatsWithUser);
+chatRouter.route("/get-connections-chats").get(verifyToken, getAllConnectionsChats);
+chatRouter.route("/get-messages/:chatId").get(verifyToken, getMessages);
 
 export default chatRouter;

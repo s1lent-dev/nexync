@@ -1,11 +1,13 @@
 "use client"
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IChats, IMessage } from "@/types/types";
+import { IChats, IMessage, IConnectionChat } from "@/types/types";
 
 const chats: IChats = {};
+const connectionChats: IConnectionChat[] = [];
 
 const initialState = {
+    connectionChats: connectionChats,
     chats: chats,
 };
 
@@ -13,16 +15,23 @@ const ChatSlice = createSlice({
     name: "chat",
     initialState,
     reducers: {
-        setChats: (state, action: PayloadAction<{userId: string; messages: IMessage[]}>) => {
-            const { userId, messages } = action.payload;
-            state.chats[userId] = messages
+        setConnectionChats: (state, action: PayloadAction<IConnectionChat[]>) => {
+            state.connectionChats = action.payload;
         },
-        addMessage: (state, action: PayloadAction<{userId: string; message: IMessage}>) => {
-            const { userId, message } = action.payload;
-            state.chats[userId].push(message);
+        setChats: (state, action: PayloadAction<{chatId: string; messages: IMessage[]}>) => {
+            const { chatId, messages } = action.payload;
+            state.chats[chatId] = messages
+        },
+        addMessage: (state, action: PayloadAction<{chatId: string; message: IMessage}>) => {
+            const { chatId, message } = action.payload;
+            state.chats[chatId].push(message);
+        },
+        resetChats: (state) => {
+            state.connectionChats = [];
+            state.chats = {};
         }
     },
 });
 
-export const { setChats, addMessage } = ChatSlice.actions;
+export const { setConnectionChats, setChats, resetChats, addMessage } = ChatSlice.actions;
 export { ChatSlice };

@@ -11,9 +11,9 @@ interface ProfileProps {
 
 const ConnectionProfile: React.FC<ProfileProps> = ({ onClose, user }) => {
   return (
-    <aside className="flex flex-col h-full w-full bg-bg_dark1 shadow-lg overflow-y-scroll custom-scrollbar">
+    <aside className="flex flex-col h-full w-full bg-bg_dark1 shadow-lg overflow-y-scroll custom-scrollbar relative">
       {/* Sticky Navbar */}
-      <nav className="flex items-center gap-5 p-5 bg-bg_card3 shadow sticky top-0 left-0 w-full z-10">
+      <nav className="flex items-center w-full gap-5 p-5 bg-bg_card3 shadow sticky z-10">
         <X className="text-font_dark cursor-pointer" onClick={onClose} />
         <h4 className="text-base tracking-wide text-font_main">Friend Info</h4>
       </nav>
