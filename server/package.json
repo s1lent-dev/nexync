@@ -8,7 +8,8 @@
     "start": "set NODE_ENV=PRODUCTION & node dist/server.js",
     "build": "npx tsc -p .",
     "dev": "npx nodemon dist/server.js",
-    "watch": "npx tsc -w"
+    "watch": "concurrently \"npx tsc -w\" \"npm run copy-templates\"",
+    "copy-templates": "copyfiles -u 2 src/templates/**/* dist/templates"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +31,7 @@
     "generate-password-ts": "^1.6.5",
     "graphql": "^16.9.0",
     "graphql-tag": "^2.12.6",
+    "handlebars": "^4.7.8",
     "ioredis": "^5.4.1",
     "jsonwebtoken": "^9.0.2",
     "kafkajs": "^2.2.4",
@@ -59,6 +61,8 @@
     "@types/passport-github2": "^1.2.9",
     "@types/passport-google-oauth20": "^2.0.16",
     "@types/socket.io": "^3.0.2",
+    "concurrently": "^9.1.0",
+    "copyfiles": "^2.4.1",
     "nodemon": "^3.1.7",
     "prisma": "^5.21.1",
     "ts-node": "^10.9.2",

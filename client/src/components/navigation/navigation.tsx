@@ -20,8 +20,8 @@ const Navigation = () => {
   ];
 
   return (
-    <aside className="bg-bg_card1 h-full w-30 flex flex-col items-center justify-between p-4 shadow-sm shadow-font_light">
-      <div className="flex flex-col gap-6">
+    <aside className="bg-bg_card1 h-full flex flex-col items-center justify-between p-4 shadow-sm shadow-font_light">
+      <div className="flex flex-col gap-4">
         {navItems.map((item) => (
           <div
             key={item.name}
@@ -31,8 +31,8 @@ const Navigation = () => {
           >
             <Image
               src={item.src}
-              width={item.size || 25}
-              height={item.size || 25}
+              width={item.size || 30}
+              height={item.size || 30}
               alt={item.name}
               className="cursor-pointer"
               onClick={() => dispatch(setNavigation(item.name))}
@@ -62,13 +62,13 @@ const Navigation = () => {
             navigation === "profile" ? "bg-white bg-opacity-10" : ""
           }`}
         >
-          <div className="w-[25px] h-[25px] rounded-full overflow-hidden cursor-pointer">
+          <div className="max-w-[25px] max-h-[25px] rounded-full overflow-hidden cursor-pointer">
             <Image
               src={me.avatarUrl || "/pfp.jpg"}
               width={25}
               height={25}
               alt="Profile Picture"
-              className="object-cover w-full h-full transition-opacity duration-300"
+              objectFit="cover"
               onClick={() => dispatch(setNavigation("profile"))}
             />
           </div>

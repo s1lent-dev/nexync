@@ -42,10 +42,10 @@ const RABBITMQ_PASS = process.env.RABBITMQ_PASS || 'guest';
 
 const MAIL_SERVICE = process.env.MAIL_SERVICE || 'gmail';
 const MAIL_HOST = process.env.MAIL_HOST || 'smtp.gmail.com';
-const MAIL_PORT = process.env.MAIL_PORT || 465;
+const MAIL_PORT = parseInt(process.env.MAIL_PORT || '465');
 const MAIL_USER = process.env.MAIL_USER || '';
 const MAIL_PASS = process.env.MAIL_PASS || '';
-const MAIL_FROM = process.env.MAIL_FROM || 'no-reply@localhost';
+const MAIL_FROM = process.env.MAIL_FROM || 'no-reply@nexync';
 
 
 const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID || '';

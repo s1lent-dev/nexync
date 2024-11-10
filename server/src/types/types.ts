@@ -55,6 +55,18 @@ interface UserChat {
     notifications: boolean;
 }
 
+enum MailType {
+    CONFIRMATION,
+    RESET_PASSWORD,
+    PASSWORD,
+    VERIFY_EMAIL
+}
+interface MailContent {
+    email: string;
+    contentType: MailType;
+    content: string;
+}
+
 type ControllerType = (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
 
 interface CustomRequest extends Request {
@@ -62,4 +74,4 @@ interface CustomRequest extends Request {
 }
 
 
-export { ControllerType, CustomRequest, User, Message, Chat, UserChat };
+export { ControllerType, CustomRequest, User, Message, Chat, UserChat, MailContent, MailType };
