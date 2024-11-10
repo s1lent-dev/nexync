@@ -1,6 +1,7 @@
 // Imports
 import { server } from './app.js';
 import { connectPostgresDB } from './lib/db/prisma.db.js';
+import { initVerificationCodeCleanup } from './lib/db/cron.db.js';
 import { PORT } from './config/config.js';
 
 // Server Listener
@@ -10,7 +11,7 @@ const initServer = async () => {
         server.listen(PORT, () => {
             console.log(`Server running on port ${PORT}`);
         });
-
+        await initVerificationCodeCleanup();
     } catch (err) {
         console.error(err);
     }

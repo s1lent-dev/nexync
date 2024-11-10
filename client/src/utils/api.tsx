@@ -12,13 +12,78 @@ import { useEffect } from "react";
 import { addMessage, resetChats, setChats, setConnectionChats } from "@/context/reducers/chats";
 import { setNavigation } from "@/context/reducers/navigation";
 
+const useCheckUsername = () => {
+    const { axios, state, dispatch } = useAxios();
+    const checkUsername = async (query: string) => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.post(`/auth/check-username?username=${encodeURIComponent(query)}`);
+            dispatch({ type: 'REQUEST_SUCCESS' });
+            console.log(res.data.message);
+            return res.data.message;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { checkUsername, state };
+}
+
+const useCheckEmail = () => {
+    const { axios, state, dispatch } = useAxios();
+    const checkEmail = async (query: string) => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.post(`/auth/check-email?email=${encodeURIComponent(query)}`);
+            dispatch({ type: 'REQUEST_SUCCESS' });
+            console.log(res.data.message);
+            return res.data.message;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { checkEmail, state };
+}
+
+const useVerifyEmail = () => {
+    const { axios, state, dispatch } = useAxios();
+    const verifyEmail = async (email: string) => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.post('/auth/verify-email', { email });
+            dispatch({ type: 'REQUEST_SUCCESS' });
+            return res.data;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { verifyEmail, state };
+}
+
 
 const useRegister = () => {
     const { axios, state, dispatch } = useAxios();
-    const registerUser = async (data: IRegsitrationForm) => {
+    const registerUser = async (data: IRegsitrationForm, query: string) => {
         dispatch({ type: 'REQUEST_START' });
         try {
-            const res = await axios.post('/auth/register', data);
+            const res = await axios.post(`/auth/register?code=${encodeURIComponent(query)}`, data);
             dispatch({ type: 'REQUEST_SUCCESS' });
             return res.data;
         } catch (err) {
@@ -404,4 +469,4 @@ const useSocketMessages = () => {
     return { chats };
 };
 
-export { useRegister, useLogin, useLogout, useGetMe, useGetConnections, useGetConnectedUsers, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useUploadAvatar, useUpdateBio, useGetAllConnectionChats, useGetMessages, useSendMessage, useSocketMessages };
+export { useCheckUsername, useCheckEmail, useVerifyEmail, useRegister, useLogin, useLogout, useGetMe, useGetConnections, useGetConnectedUsers, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useUploadAvatar, useUpdateBio, useGetAllConnectionChats, useGetMessages, useSendMessage, useSocketMessages };

@@ -3,36 +3,53 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useRegister } from "@/utils/api";
+import { useCheckEmail, useCheckUsername, useRegister, useVerifyEmail } from "@/utils/api";
 import { ArrowRight, Eye, EyeClosed } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/context/toast/toast";
+import { debounce } from "lodash";
 
-const schema = z.object({
-  username: z.string().min(1, "Username name is required"),
-  email: z.string().email().regex(/^[a-zA-Z0-9._%+-]+@gmail\.com$/, { message: "Email must end with @gmail.com" }),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  confirmPassword: z.string().min(6, "Confirm Password is required"),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"], 
-});
+const schema = z
+  .object({
+    username: z.string().min(6, "Username must be at least 6 characters"),
+    email: z
+      .string()
+      .email("Invalid email format")
+      .regex(/^[a-zA-Z0-9._%+-]+@gmail\.com$/, {
+        message: "Email must end with @gmail.com",
+      }),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string().min(6, "Confirm Password is required"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 const Register = () => {
 
+  const [code, setCode] = useState<string>('');
+  const [showVerifyEmail, setShowVerifyEmail] = useState<boolean>(false);
+  const [FormData, setFormData] = useState<z.infer<typeof schema> | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { showSuccessToast, showErrorToast } = useToast();
+  const { verifyEmail } = useVerifyEmail();
   const { registerUser } = useRegister();
+  const { checkUsername } = useCheckUsername();
+  const { checkEmail } = useCheckEmail();
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
+    setError,
+    clearErrors,
+    watch,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
@@ -44,15 +61,102 @@ const Register = () => {
     }
   });
 
+  const debouncedCheckUsername = useCallback(
+    debounce(async (username) => {
+      if (username.length >= 6) {
+        const res = await checkUsername(username);
+        setError("username", {
+          type: "manual",
+          message: res,
+        });
+      } else {
+        setError("username", {
+          type: "manual",
+          message: "Username must be at least 6 characters",
+        });
+      }
+    }, 500),
+    []
+  );
+
+  const debouncedCheckEmail = useCallback(
+    debounce(async (email) => {
+      const isValidEmail = /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(email);
+      if (isValidEmail) {
+        const res = await checkEmail(email);
+        setError("email", {
+          type: "manual",
+          message: res,
+        });
+      } else {
+        setError("email", {
+          type: "manual",
+          message: "Email must be a valid Gmail address ending with @gmail.com",
+        });
+      }
+    }, 500),
+    []
+  );
+
+  const username = watch("username");
+  const email = watch("email");
+  const password = watch("password");
+  const confirmPassword = watch("confirmPassword");
+
+  useEffect(() => {
+    if (username) {
+      debouncedCheckUsername(username);
+    } else {
+      clearErrors("username");
+    }
+  }, [username, debouncedCheckUsername, clearErrors]);
+
+  useEffect(() => {
+    if (email) {
+      debouncedCheckEmail(email);
+    } else {
+      clearErrors("email");
+    }
+  }, [email, debouncedCheckEmail, clearErrors]);
+
+  useEffect(() => {
+    if (!password) clearErrors("password");
+  }, [password, clearErrors]);
+
+  useEffect(() => {
+    if (!confirmPassword) clearErrors("confirmPassword");
+  }, [confirmPassword, clearErrors]);
+
   const onSubmit = async (values: z.infer<typeof schema>) => {
     try {
-      const res = await registerUser(values);
+      setFormData(values);
+      setShowVerifyEmail(true);
+      const res = await verifyEmail(values.email);
       console.log(res);
-      if (res?.statusCode === 201) {
-        showSuccessToast("Account created successfully. Please login to continue");
-        router.push('/login');
+      if (res?.statusCode === 200) {
+        showSuccessToast("Verfication code sent to your email");
       } else {
         showErrorToast(res.message);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
+  const onVerifyEmail = async (code: string) => {
+    try {
+      if (FormData) {
+        console.log(FormData);
+        const res = await registerUser(FormData, code);
+        if (res?.statusCode === 201) {
+          showSuccessToast("Account created successfully. Please login to continue");
+          router.push('/login');
+        } else {
+          showErrorToast(res.message);
+        }
+      } else {
+        showErrorToast("Form data is missing.");
       }
     } catch (err) {
       console.error(err);
@@ -63,7 +167,6 @@ const Register = () => {
     <section className="pb-12.5 pt-32.5 lg:pb-25 lg:pt-45 xl:pb-30 xl:pt-50">
       <div className="relative z-10 mx-auto max-w-screen-lg px-7.5 pb-7.5 pt-10 lg:px-15 lg:pt-15 xl:px-20 xl:pt-20">
         <div className="absolute inset-0 z-0 h-2/3 rounded-lg bg-gradient-to-t from-transparent to-bg_card1"></div>
-
         <motion.div
           variants={{
             hidden: { opacity: 0, y: -50 },
@@ -126,9 +229,17 @@ const Register = () => {
                   {...register("username")}
                   type="text"
                   placeholder="Username"
-                  className={`border-b border-bg_card2 bg-transparent pb-4 focus:border-primary focus:placeholder:text-font_main focus-visible:outline-none ${errors.username ? 'border-red-500' : ''}`}
+                  className={`border-b border-bg_card2 bg-transparent pb-4 focus:border-primary focus:placeholder:text-font_main focus-visible:outline-none ${errors.username?.message?.includes("already") ? "border-red-500" : ""
+                    }`}
                 />
-                {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username.message}</p>}
+                {errors.username && (
+                  <p
+                    className={`${errors.username.message?.includes("available") ? "text-green-500" : "text-red-500"
+                      } text-sm mt-1`}
+                  >
+                    {errors.username.message}
+                  </p>
+                )}
               </div>
 
               <div className="flex flex-col w-full lg:w-1/2">
@@ -136,9 +247,17 @@ const Register = () => {
                   {...register("email")}
                   type="email"
                   placeholder="Email address"
-                  className={`border-b border-bg_card2 bg-transparent pb-4 focus:border-primary focus:placeholder:text-font_main focus-visible:outline-none ${errors.email ? 'border-red-500' : ''}`}
+                  className={`border-b border-bg_card2 bg-transparent pb-4 focus:border-primary focus:placeholder:text-font_main focus-visible:outline-none ${errors.email?.message?.includes("already") ? "border-red-500" : ""
+                    }`}
                 />
-                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
+                {errors.email && (
+                  <p
+                    className={`${errors.email.message?.includes("available") ? "text-green-500" : "text-red-500"
+                      } text-sm mt-1`}
+                  >
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -176,16 +295,36 @@ const Register = () => {
               </div>
             </div>
 
-            <div className="flex flex-wrap w-full items-center justify-center">
-              <button
-                title="Create Account"
-                type="submit"
-                className="inline-flex items-center gap-3 rounded-full bg-bg_card2 px-6 py-3 font-medium text-font_main duration-300 ease-in-out hover:border-primary hover:text-primary"
-              >
-                Create Account
-                <ArrowRight size={24} />
-              </button>
-            </div>
+            {showVerifyEmail ? (
+              <div className="flex flex-row gap-8 w-full relative">
+                <input
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  type="text"
+                  placeholder="Verification Code"
+                  className={`border-b border-bg_card2 bg-transparent pb-4 pr-10 focus:border-primary focus:placeholder:text-font_main focus-visible:outline-none`} />
+                <button
+                  title="Verify"
+                  type="button"
+                  className="inline-flex items-center gap-3 rounded-full bg-bg_card2 px-6 py-3 font-medium text-font_main duration-300 ease-in-out hover:border-primary hover:text-primary"
+                  onClick={() => onVerifyEmail(code)}
+                >
+                  Verify
+                  <ArrowRight size={24} />
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-wrap w-full items-center justify-center">
+                <button
+                  title="Create Account"
+                  type="submit"
+                  className="inline-flex items-center gap-3 rounded-full bg-bg_card2 px-6 py-3 font-medium text-font_main duration-300 ease-in-out hover:border-primary hover:text-primary"
+                >
+                  Create Account
+                  <ArrowRight size={24} />
+                </button>
+              </div>
+            )}
 
             <div className="mt-12 border-t border-bg_card2 py-5 text-center">
               <p className="text-font_light text-base">

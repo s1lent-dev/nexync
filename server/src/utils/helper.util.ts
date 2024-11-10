@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import otp from 'otp-generator'
 import { JWT_EXPIRE, JWT_REFRESH_EXPIRE, JWT_SECRET } from "../config/config.js";
 import { generate } from "generate-password-ts";
 import bcrypt from "bcrypt";
@@ -54,4 +55,24 @@ const generateUsername = async () => {
     return { username };
 }
 
-export { hashPassword, comparePassword, generateTokens, generatePassword, generateUsername };
+const generateVerificationCode = async () => {
+    const code = otp.generate(6, {
+        digits: true,
+        upperCaseAlphabets: false,
+        lowerCaseAlphabets: false,
+        specialChars: false,
+    });
+    const hashedCode = await hashCode(code);
+    return { code, hashedCode };
+}
+
+const hashCode = async (code: string) => {
+    const salt = await bcrypt.genSalt(10);
+    return await bcrypt.hash(code, salt);
+}
+
+const compareCode = async (code: string, hashedCode: string) => {
+    return await comparePassword(code, hashedCode);
+}
+
+export { hashPassword, comparePassword, generateTokens, generatePassword, generateUsername, generateVerificationCode, compareCode };

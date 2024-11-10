@@ -2,14 +2,60 @@
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../lib/db/prisma.db.js';
 import { AsyncHandler, ErrorHandler, ResponseHandler } from '../utils/handlers.util.js';
-import { CustomRequest, User } from '../types/types.js';
+import { CustomRequest, MailType, User } from '../types/types.js';
 import { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_CREATED, COOKIE_OPTIONS, HTTP_STATUS_OK, FRONTEND_URL, HTTP_STATUS_ACCEPTED, HTTP_STATUS_UNAUTHORIZED } from '../config/config.js';
-import { comparePassword, generateTokens, hashPassword } from '../utils/helper.util.js';
+import { compareCode, comparePassword, generateTokens, generateVerificationCode, hashPassword } from '../utils/helper.util.js';
+import { sendMail } from '../services/mail.service.js';
 
-// Controller
+// Controllers
+const VerifyEmail = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const { email } = req.body;
+    const UserExists = await prisma.user.findFirst({ where: { email } });
+    if (UserExists) {
+        return next(new ErrorHandler('User already exists', HTTP_STATUS_BAD_REQUEST));
+    }
+    const { code, hashedCode } = await generateVerificationCode();
+    await prisma.verificationCode.create({ data: { email, code: hashedCode, expiresAt: new Date(Date.now() + 1000 * 60 * 2) } });
+    await sendMail({ email, contentType: MailType.VERIFY_EMAIL, content: code });
+    res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, 'Verification code sent successfully', {}));
+});
+
+const VerifyCode = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const { email } = req.body;
+    const { code } = req.query;
+    const verificationCode = await prisma.verificationCode.findFirst({ where: { email } });
+    if (!verificationCode) {
+        return next(new ErrorHandler('Invalid code', HTTP_STATUS_BAD_REQUEST));
+    }
+    const isMatch = await compareCode(code as string, verificationCode.code);
+    if (!isMatch) {
+        return next(new ErrorHandler('Verification code doesnt match !', HTTP_STATUS_BAD_REQUEST));
+    }
+    await prisma.verificationCode.delete({ where: { email } });
+    next();
+});
+
+const CheckUsername = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const { username } = req.query;
+    const user = await prisma.user.findFirst({ where: { username: username as string } });
+    if (user) {
+        return res.json(new ResponseHandler(HTTP_STATUS_BAD_REQUEST, 'Username already exists', {}));
+    }
+    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, 'Username is available', {}));
+});
+
+const CheckEmail = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const { email } = req.query;
+    const user = await prisma.user.findFirst({ where: { email: email as string } });
+    if (user) {
+        return res.json(new ResponseHandler(HTTP_STATUS_BAD_REQUEST, 'Email already exists', {}));
+    }
+    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, 'Email is available', {}));
+});
+
 const RegisterUser = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const { username, email, password } = req.body;
-    const UserExists = await prisma.user.findFirst({ where : { OR: [{ username }, { email }] } });
+    const UserExists = await prisma.user.findFirst({ where: { OR: [{ username }, { email }] } });
     if (UserExists) {
         return next(new ErrorHandler('User already exists', HTTP_STATUS_BAD_REQUEST));
     }
@@ -21,12 +67,12 @@ const RegisterUser = AsyncHandler(async (req: Request, res: Response, next: Next
 const LoginUser = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const { usernameOrEmail, password } = req.body;
     const isEmail = /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(usernameOrEmail);
-    const user = await prisma.user.findFirst({ where: isEmail ? { email: usernameOrEmail } : { username: usernameOrEmail} });
-    if(!user) {
+    const user = await prisma.user.findFirst({ where: isEmail ? { email: usernameOrEmail } : { username: usernameOrEmail } });
+    if (!user) {
         return next(new ErrorHandler('Invalid credentials', HTTP_STATUS_BAD_REQUEST));
     }
     const isMatch = await comparePassword(password, user.password);
-    if(!isMatch) {
+    if (!isMatch) {
         return next(new ErrorHandler('Invalid credentials', HTTP_STATUS_BAD_REQUEST));
     }
     const { accessToken, refreshToken } = await generateTokens(user);
@@ -54,14 +100,14 @@ const LoginWithGithub = AsyncHandler(async (req: Request, res: Response, next: N
 });
 
 const LogoutUser = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
-    if(!req.user) {
+    if (!req.user) {
         return next(new ErrorHandler('Unauthorized', HTTP_STATUS_BAD_REQUEST));
     }
     res.clearCookie('accessToken', COOKIE_OPTIONS).clearCookie('refreshToken', COOKIE_OPTIONS).json(new ResponseHandler(HTTP_STATUS_OK, 'User logged out successfully', {}));
 });
 
 const refreshToken = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
-    if(!req.user) {
+    if (!req.user) {
         return next(new ErrorHandler('Unauthorized', HTTP_STATUS_UNAUTHORIZED));
     }
     const { accessToken, refreshToken } = await generateTokens(req.user);
@@ -69,6 +115,10 @@ const refreshToken = AsyncHandler(async (req: CustomRequest, res: Response, next
 });
 
 export {
+    VerifyEmail,
+    VerifyCode,
+    CheckUsername,
+    CheckEmail,
     RegisterUser,
     LoginUser,
     LoginWithGoogle,

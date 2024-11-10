@@ -2,9 +2,6 @@ import { Router } from "express";
 import { verifyToken } from "../middlewares/verify.middleware.js";
 import { acceptConnectionRequest, getConnectedUsers, getConnectionRequests, getMe, getMyConnections, getSuggestions, searchUsers, sendConnectionRequest, updateBio, uploadAvatar } from "../controllers/user.controller.js";
 import { multerSingleUpload } from "../middlewares/multer.middleware.js";
-import { sendMail } from "../services/mail.service.js";
-import { MailType } from "../types/types.js";
-import { HTTP_STATUS_OK } from "../config/config.js";
 
 const userRouter = Router();
 

@@ -19,6 +19,16 @@ model User {
     @@index([username])
 }
 
+model verificationCode {
+    id        String   @id @default(uuid())
+    email     String   @unique
+    code      String
+    createdAt DateTime @default(now())
+    expiresAt DateTime
+
+    @@index([expiresAt])
+}
+
 model Connection {
     id          String   @id @default(uuid())
     followerId  String
