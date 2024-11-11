@@ -28,6 +28,14 @@ enum MessageStatus {
     READ
 }
 
+interface MessageEvent {
+    senderId: string;
+    chatId: string;
+    memberIds: string[];
+    content: string;
+    createdAt: Date | null;
+}
+
 interface Message {
     messageId: string;
     content: string;
@@ -74,4 +82,4 @@ interface CustomRequest extends Request {
 }
 
 
-export { ControllerType, CustomRequest, User, Message, Chat, UserChat, MailContent, MailType };
+export { ControllerType, CustomRequest, User, Message, MessageEvent, Chat, UserChat, MailContent, MailType };

@@ -2,14 +2,8 @@ import { SocketService } from "./socket.lib.js";
 import { Socket } from "socket.io";
 import { Server } from "http";
 import { prisma } from "../db/prisma.db.js";
-
-interface MessageEvent {
-    senderId: string;
-    chatId: string;
-    memberIds: string[];
-    content: string;
-    createdAt: Date | null;
-}
+import { MessageEvent } from "../../types/types.js";
+import { kafka, pubsub } from "../../app.js";
 
 class ChatSocket extends SocketService {
     constructor(server: Server) {
@@ -22,34 +16,17 @@ class ChatSocket extends SocketService {
         socket.on("messages", async ({ senderId, chatId, memberIds, content, createdAt }: MessageEvent) => {
             console.log(`Message from ${socket.id}: ${content}`);
             console.log("Members: ", chatId);
-
-            const chat = await prisma.chat.findFirst({
-                where: { chatId}
-            });           
-
-            if (!chat) {
-                console.log("Chat not found.");
-                return;
-            }
-
-            await prisma.message.create({
-                data: {
-                    content,
-                    senderId,
-                    chatId: chat.chatId,
-                    messageType: "TEXT",
-                }
-            });
-
-            const socketMembers = this.getSockets(memberIds) as string[];
-            console.log("SocketMembers: ", socketMembers);
-            this.io.to(socketMembers).emit("messages", { senderId, chatId, memberIds, content });
+            await kafka.publishMessage({ senderId, chatId, memberIds, content, createdAt });
+            await pubsub.publish("chats", JSON.stringify({ senderId, chatId, memberIds, content, createdAt }));
+            // const socketMembers = this.getSockets(memberIds) as string[];
+            // console.log("SocketMembers: ", socketMembers);
+            // this.io.to(socketMembers).emit("messages", { senderId, chatId, memberIds, content });
         });
     }
 
-    public async emitEvents(event: string, userIds: string[], data: any) {
-        const socketMembers = this.getSockets(userIds) as string[];
-        this.io.to(socketMembers).emit(event, data);
+    public async emitEvents(event: string, { senderId, chatId, memberIds, content, createdAt }: MessageEvent) {
+        const socketMembers = this.getSockets(memberIds) as string[];
+        this.io.to(socketMembers).emit(event, { senderId, chatId, memberIds, content, createdAt });
     }
 }
 

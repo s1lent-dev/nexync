@@ -3,9 +3,9 @@ import { prisma } from "./prisma.db.js";
 
 export const initVerificationCodeCleanup = async () => {
     cron.schedule("* * * * *", async () => {
-        console.log(
-            "Running scheduled cleanup task for expired verification codes"
-        );
+        // console.log(
+        //     "Running scheduled cleanup task for expired verification codes"
+        // );
         try {
             const deletedCodes = await prisma.verificationCode.deleteMany({
                 where: {
@@ -14,7 +14,7 @@ export const initVerificationCodeCleanup = async () => {
                     },
                 },
             });
-            console.log(`Deleted ${deletedCodes.count} expired verification codes`);
+            // console.log(`Deleted ${deletedCodes.count} expired verification codes`);
         } catch (error) {
             console.error("Error cleaning up expired verification codes: ", error);
         }

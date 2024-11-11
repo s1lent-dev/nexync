@@ -5,7 +5,7 @@ import { AsyncHandler, ErrorHandler, ResponseHandler } from '../utils/handlers.u
 import { CustomRequest, MailType, User } from '../types/types.js';
 import { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_CREATED, COOKIE_OPTIONS, HTTP_STATUS_OK, FRONTEND_URL, HTTP_STATUS_ACCEPTED, HTTP_STATUS_UNAUTHORIZED } from '../config/config.js';
 import { compareCode, comparePassword, generateResetPasswordToken, generateTokens, generateVerificationCode, hashPassword } from '../utils/helper.util.js';
-import { sendMail } from '../services/mail.service.js';
+import { emailQueue } from '../app.js';
 
 // Controllers
 const VerifyEmail = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
@@ -16,7 +16,7 @@ const VerifyEmail = AsyncHandler(async (req: Request, res: Response, next: NextF
     }
     const { code, hashedCode } = await generateVerificationCode();
     await prisma.verificationCode.create({ data: { email, code: hashedCode, expiresAt: new Date(Date.now() + 1000 * 60 * 2) } });
-    await sendMail({ email, contentType: MailType.VERIFY_EMAIL, content: code });
+    emailQueue.sendVerifyEmail({ email, contentType: MailType.VERIFY_EMAIL, content: code });
     res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, 'Verification code sent successfully', {}));
 });
 
@@ -122,7 +122,7 @@ const ForgotPassword = AsyncHandler(async (req: Request, res: Response, next: Ne
     }
     const token = await generateResetPasswordToken(user);
     const resetLink = `${FRONTEND_URL}/reset-password?token=${token}`;
-    await sendMail({ email, contentType: MailType.RESET_PASSWORD, content: resetLink });
+    emailQueue.sendPasswordResetEmail({ email, contentType: MailType.RESET_PASSWORD, content: resetLink });
     res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, 'Reset link sent successfully', {}));
 });
 

@@ -12,6 +12,10 @@ import { graphqlServer } from "./graphql/graphql.js";
 import { intializeGoogleOAuth } from './middlewares/verify.google.js';
 import { intializeGithubOAuth } from './middlewares/verify.github.js';
 import { ChatSocket } from './lib/socket/chat.socket.js';
+import { PubSubRedis } from './lib/redis/pubsub.redis.js';
+import { RedisCache } from './lib/redis/cache.redis.js';
+import { ChatKafkaService } from './lib/kafka/chat.kafka.js';
+import { EmailQueue } from './lib/rabbitmq/email.queue.js';
 import authRouter from './routes/auth.routes.js';
 import userRouter from './routes/user.routes.js';
 import chatRouter from './routes/chat.routes.js';
@@ -26,10 +30,24 @@ const server = createServer(app);
 const socketService = new ChatSocket(server);
 const io = socketService.getIo();
 
+// Services
+const pubsub = new PubSubRedis();
+const cache = new RedisCache();
+const kafka = new ChatKafkaService();
+const emailQueue = new EmailQueue();
+
+async function initServices() {
+    await kafka.consumeMessages();
+    await emailQueue.connect();
+    await emailQueue.initQueues();
+    await emailQueue.initConsumers();
+    await pubsub.subscribeChatsCallback();
+}
+
 // Middlewares
 app.use(cors({
     origin: ['http://localhost:3000', 'http://localhost:3001'],
-    credentials: true, 
+    credentials: true,
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -71,7 +89,7 @@ io.use((socket: any, next: any) => {
     cookieParser()(
         socket.request,
         socket.request.res,
-        async(err) => await verifySocket(err, socket, next)
+        async (err) => await verifySocket(err, socket, next)
     );
 })
 
@@ -79,4 +97,4 @@ io.use((socket: any, next: any) => {
 app.use(ErrorMiddleware as any);
 
 // Export
-export { server, socketService };
+export { server, initServices, socketService, pubsub, cache, kafka, emailQueue };

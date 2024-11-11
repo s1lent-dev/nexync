@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { parse } from 'handlebars';
 dotenv.config();
 
 const PORT = process.env.PORT || 3000;
@@ -23,19 +24,19 @@ const POSTGRES_URI = process.env.POSTGRES_URI || 'postgres://postgres:password@l
 
 
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
-const REDIS_PORT = process.env.REDIS_PORT || 6379;
+const REDIS_PORT = parseInt(process.env.REDIS_PORT || '6379');
 const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
 
 
 const KAFKA_CLIENT_ID = process.env.KAFKA_CLIENT_ID || 'kafka';
 const KAFKA_BROKER = process.env.KAFKA_BROKER || 'localhost:9092';
-const KAFKA_TOPIC = process.env.KAFKA_TOPIC || 'test';
-const KAFKA_GROUP_ID = process.env.KAFKA_GROUP_ID || 'test-group';
-const KAFKA_PARTITION = process.env.KAFKA_PARTITIONS || 0;
+const KAFKA_TOPIC = process.env.KAFKA_TOPIC || 'chat';
+const KAFKA_GROUP_ID = process.env.KAFKA_GROUP_ID || 'chat-group';
+const KAFKA_PARTITIONS = parseInt(process.env.KAFKA_PARTITIONS || '1');
 
 
 const RABBITMQ_HOST = process.env.RABBITMQ_HOST || 'localhost';
-const RABBITMQ_PORT = process.env.RABBITMQ_PORT || 5672;
+const RABBITMQ_PORT = parseInt(process.env.RABBITMQ_PORT || '5672');
 const RABBITMQ_USER = process.env.RABBITMQ_USER || 'guest';
 const RABBITMQ_PASS = process.env.RABBITMQ_PASS || 'guest';
 
@@ -101,7 +102,7 @@ export {
   KAFKA_BROKER,
   KAFKA_TOPIC,
   KAFKA_GROUP_ID,
-  KAFKA_PARTITION,
+  KAFKA_PARTITIONS,
   RABBITMQ_HOST,
   RABBITMQ_PORT,
   RABBITMQ_USER,
