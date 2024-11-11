@@ -4,7 +4,7 @@ import { prisma } from '../lib/db/prisma.db.js';
 import { AsyncHandler, ErrorHandler, ResponseHandler } from '../utils/handlers.util.js';
 import { CustomRequest, MailType, User } from '../types/types.js';
 import { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_CREATED, COOKIE_OPTIONS, HTTP_STATUS_OK, FRONTEND_URL, HTTP_STATUS_ACCEPTED, HTTP_STATUS_UNAUTHORIZED } from '../config/config.js';
-import { compareCode, comparePassword, generateTokens, generateVerificationCode, hashPassword } from '../utils/helper.util.js';
+import { compareCode, comparePassword, generateResetPasswordToken, generateTokens, generateVerificationCode, hashPassword } from '../utils/helper.util.js';
 import { sendMail } from '../services/mail.service.js';
 
 // Controllers
@@ -106,12 +106,32 @@ const LogoutUser = AsyncHandler(async (req: CustomRequest, res: Response, next: 
     res.clearCookie('accessToken', COOKIE_OPTIONS).clearCookie('refreshToken', COOKIE_OPTIONS).json(new ResponseHandler(HTTP_STATUS_OK, 'User logged out successfully', {}));
 });
 
-const refreshToken = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+const RefreshToken = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
         return next(new ErrorHandler('Unauthorized', HTTP_STATUS_UNAUTHORIZED));
     }
     const { accessToken, refreshToken } = await generateTokens(req.user);
     res.status(HTTP_STATUS_OK).cookie('accessToken', accessToken, COOKIE_OPTIONS).cookie('refreshToken', refreshToken, COOKIE_OPTIONS).json(new ResponseHandler(HTTP_STATUS_OK, 'Token refreshed successfully', {}));
+});
+
+const ForgotPassword = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const { email } = req.body;
+    const user = await prisma.user.findFirst({ where: { email } });
+    if (!user) {
+        return next(new ErrorHandler('User not found', HTTP_STATUS_BAD_REQUEST));
+    }
+    const token = await generateResetPasswordToken(user);
+    const resetLink = `${FRONTEND_URL}/reset-password?token=${token}`;
+    await sendMail({ email, contentType: MailType.RESET_PASSWORD, content: resetLink });
+    res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, 'Reset link sent successfully', {}));
+});
+
+const ResetPassword = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { password } = req.body;
+    const user = req.user as User;
+    const hashedPassword = await hashPassword(password);
+    await prisma.user.update({ where: { userId: user.userId }, data: { password: hashedPassword } });
+    res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, 'Password reset successfully', {}));
 });
 
 export {
@@ -124,7 +144,9 @@ export {
     LoginWithGoogle,
     LoginWithGithub,
     LogoutUser,
-    refreshToken
+    RefreshToken,
+    ForgotPassword,
+    ResetPassword
 }
 
 

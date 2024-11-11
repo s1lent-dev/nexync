@@ -39,4 +39,21 @@ const verifyRefreshToken = AsyncHandler(async (req: CustomRequest, res: Response
     });
 });
 
-export { verifyToken, verifyRefreshToken };
+
+const verifyResetPasswordToken = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const token = req.query.token as string;
+    if (!token) {
+        return next(new ErrorHandler("Access denied. No token provided.", HTTP_STATUS_UNAUTHORIZED));
+    }
+    jwt.verify(token, JWT_SECRET, async (err: VerifyErrors | null, decoded: any) => {
+        if (err) return next(new ErrorHandler("Unauthorized", HTTP_STATUS_UNAUTHORIZED));
+        const user = (await prisma.user.findUnique({ where: { userId: decoded.id } })) as unknown as IUser;
+        if (!user) {
+        return next(new ErrorHandler("User doesnt exist with given userId", HTTP_STATUS_UNAUTHORIZED));
+        }
+        req.user = user;
+        next();
+    });
+});
+
+export { verifyToken, verifyRefreshToken, verifyResetPasswordToken };

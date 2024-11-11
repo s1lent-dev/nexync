@@ -75,4 +75,10 @@ const compareCode = async (code: string, hashedCode: string) => {
     return await comparePassword(code, hashedCode);
 }
 
-export { hashPassword, comparePassword, generateTokens, generatePassword, generateUsername, generateVerificationCode, compareCode };
+const generateResetPasswordToken = async (user: User) => {
+    return jwt.sign({ id: user.userId }, JWT_SECRET, {
+        expiresIn: '10m',
+    });
+}
+
+export { hashPassword, comparePassword, generateTokens, generatePassword, generateUsername, generateVerificationCode, compareCode, generateResetPasswordToken };

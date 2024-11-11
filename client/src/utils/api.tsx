@@ -147,6 +147,52 @@ const useLogout = () => {
     return { logout, state };
 }
 
+
+const useForgotPassword = () => {
+    const { axios, state, dispatch } = useAxios();
+    const forgotPassword = async (email: string) => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.post('/auth/forgot-password', { email });
+            dispatch({ type: 'REQUEST_SUCCESS' });
+            console.log(res.data);
+            return res.data;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { forgotPassword, state };
+}
+
+
+const useResetPassword = () => {
+    const { axios, state, dispatch } = useAxios();
+    const resetPassword = async (password: string, token: string) => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.post(`/auth/reset-password?token=${encodeURIComponent(token)}`, { password });
+            dispatch({ type: 'REQUEST_SUCCESS' });
+            console.log(res.data);
+            return res.data;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { resetPassword, state };
+}
+
 const useGetMe = () => {
     const { axios, state, dispatch } = useAxios();
     const reduxDispatch = useDispatch();
@@ -469,4 +515,4 @@ const useSocketMessages = () => {
     return { chats };
 };
 
-export { useCheckUsername, useCheckEmail, useVerifyEmail, useRegister, useLogin, useLogout, useGetMe, useGetConnections, useGetConnectedUsers, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useUploadAvatar, useUpdateBio, useGetAllConnectionChats, useGetMessages, useSendMessage, useSocketMessages };
+export { useCheckUsername, useCheckEmail, useVerifyEmail, useRegister, useLogin, useLogout, useForgotPassword, useResetPassword, useGetMe, useGetConnections, useGetConnectedUsers, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useUploadAvatar, useUpdateBio, useGetAllConnectionChats, useGetMessages, useSendMessage, useSocketMessages };

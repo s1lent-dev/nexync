@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { RegisterUser, LoginUser, LoginWithGoogle, LoginWithGithub, LogoutUser, refreshToken, CheckUsername, CheckEmail, VerifyEmail, VerifyCode } from "../controllers/auth.controller.js";
+import { RegisterUser, LoginUser, LoginWithGoogle, LoginWithGithub, LogoutUser, RefreshToken, CheckUsername, CheckEmail, VerifyEmail, VerifyCode, ForgotPassword, ResetPassword } from "../controllers/auth.controller.js";
 import { validateUser } from "../middlewares/validate.middleware.js";
 import passport from "passport";
-import { verifyRefreshToken, verifyToken } from "../middlewares/verify.middleware.js";
+import { verifyRefreshToken, verifyResetPasswordToken, verifyToken } from "../middlewares/verify.middleware.js";
 
 const authRouter = Router();
 
@@ -17,6 +17,8 @@ authRouter.route('/verify-email').post(VerifyEmail);
 authRouter.route('/register').post(validateUser, VerifyCode, RegisterUser);
 authRouter.route('/login').post(LoginUser);
 authRouter.route('/logout').get(verifyToken, LogoutUser);
-authRouter.route('/refresh-token').post(verifyRefreshToken, refreshToken);
+authRouter.route('/refresh-token').post(verifyRefreshToken, RefreshToken);
+authRouter.route('/forgot-password').post(ForgotPassword);
+authRouter.route('/reset-password').post(verifyResetPasswordToken, ResetPassword);
 
 export default authRouter;
