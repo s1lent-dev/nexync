@@ -1,9 +1,10 @@
 import passport from "passport";
-import { User as IUser } from "../types/types.js";
+import { User as IUser, MailType } from "../types/types.js";
 import  GoogleStrategy from "passport-google-oauth20";
 import { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL } from "../config/config.js";
 import { prisma } from "../lib/db/prisma.db.js";
 import { generatePassword, generateTokens, generateUsername, hashPassword } from "../utils/helper.util.js";
+import { sendMail } from "../services/mail.service.js";
 
 
 const intializeGoogleOAuth = () => {
@@ -31,7 +32,7 @@ const intializeGoogleOAuth = () => {
                 googleId
               }
             });
-            // rabbitmq send email and password
+            await sendMail({email, contentType: MailType.PASSWORD, content: password});
           } else {
             user = await prisma.user.update({
               where: { email },

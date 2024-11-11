@@ -9,77 +9,78 @@ import React, {
 import { axiosReducer, initialState } from "./axiosReducers";
 import type { StateType, ActionType } from "./axiosReducers";
 import axios from "axios";
-import Cookies from "js-cookie";
 
-// Create an axios instance
 const axiosInstance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
   withCredentials: true,
 });
 
-// Function to get the access token from cookies
-const getAccessToken = () => {
-  return Cookies.get("accessToken");
-};
+const MAX_RETRY_COUNT = 3;
 
-// Axios interceptor to add authorization headers
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+const retryAttempts = new Map<string, number>();
 
-// Function to refresh the access token
 const refreshToken = async () => {
   try {
-    await axiosInstance.post("/auth/refresh-token", {
+    const response = await axiosInstance.post("/auth/refresh-token", {
       withCredentials: true,
     });
-    return Cookies.get("accessToken");
+    return response.data.accessToken;
   } catch (error) {
     console.error("Refresh token failed", error);
     throw error;
   }
 };
 
-// Axios interceptor to handle 401 errors and refresh tokens
+axiosInstance.interceptors.request.use(
+  (config) => {
+    if (config.headers.Authorization) {
+      config.headers.Authorization = `Bearer ${config.headers.Authorization}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        const newAccessToken = await refreshToken();
-        axiosInstance.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${newAccessToken}`;
-        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        return Promise.reject(refreshError);
+
+    if (error.response?.status === 401) {
+      if (!originalRequest._retry && retryAttempts.get(originalRequest.url) === undefined) {
+        const retryCount = retryAttempts.get(originalRequest.url) || 0;
+        if (retryCount < MAX_RETRY_COUNT) {
+          originalRequest._retry = true;
+          retryAttempts.set(originalRequest.url, retryCount + 1);
+          try {
+            const newAccessToken = await refreshToken();
+            axiosInstance.defaults.headers.common[
+              "Authorization"
+            ] = `Bearer ${newAccessToken}`;
+            originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+            return axiosInstance(originalRequest);
+          } catch (refreshError) {
+            retryAttempts.delete(originalRequest.url);
+            return Promise.reject(refreshError);
+          }
+        } else {
+          retryAttempts.delete(originalRequest.url);
+        }
       }
     }
     return Promise.reject(error);
   }
 );
 
-// Create context
 const AxiosContext = createContext<
   | {
-      axios: typeof axiosInstance;
-      state: StateType;
-      dispatch: React.Dispatch<ActionType>;
-    }
+    axios: typeof axiosInstance;
+    state: StateType;
+    dispatch: React.Dispatch<ActionType>;
+  }
   | undefined
 >(undefined);
 
-// AxiosProvider component
 const AxiosProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(axiosReducer, initialState);
 
@@ -90,7 +91,6 @@ const AxiosProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   );
 };
 
-// Custom hook to use AxiosContext
 const useAxios = () => {
   const context = useContext(AxiosContext);
   if (context === undefined) {
