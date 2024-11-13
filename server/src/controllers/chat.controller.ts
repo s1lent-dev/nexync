@@ -276,7 +276,13 @@ const GetMessages = AsyncHandler(async (req: CustomRequest, res: Response, next:
     const { chatId } = req.params;
     const chat = await prisma.chat.findFirst({
         where: { chatId},
-        include: { messages: true }
+        include: { 
+            messages: {
+                include: {
+                    sender: true
+                }
+            }
+        }
     })
 
     if (!chat) {
@@ -285,6 +291,7 @@ const GetMessages = AsyncHandler(async (req: CustomRequest, res: Response, next:
 
     const response = {
         messages: chat.messages.map((message) => ({
+            username: message.sender.username,
             senderId: message.senderId,
             chatId: message.chatId,
             content: message.content,

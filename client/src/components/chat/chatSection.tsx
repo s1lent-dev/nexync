@@ -32,6 +32,7 @@ const ChatSection = () => {
     if (!inputValue) return;
     if (!user.userId) return;
     const message: IMessage = {
+      username: me.username,
       senderId: me.userId,
       chatId: user.chatId,
       memberIds: [me.userId, user.userId],
@@ -95,11 +96,12 @@ const ChatSection = () => {
                 className={`flex ${message.senderId === me.userId ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`p-2 rounded-lg max-w-xs break-words ${
+                  className={`p-2 rounded-lg max-w-xs break-words flex flex-col ${
                     message.senderId === me.userId ? 'bg-chat text-font_main' : 'bg-bg_card2 text-font_main'
                   }`}
                 >
-                  {message.content}
+                  <span className='text-xs text-font_dark'>{message.username}</span>
+                  <span className='text-base'>{message.content}</span>
                 </div>
               </div>
             ))

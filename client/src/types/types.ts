@@ -44,6 +44,7 @@ type IConnectionChat = {
 }
 
 type IMessage = {
+    username: string;
     senderId: string;
     chatId: string;
     memberIds: string[];

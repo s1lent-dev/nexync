@@ -17,7 +17,7 @@ const GroupChatSection = () => {
   const { sendMessage } = useSendMessage();
   useSocketMessages();
   const { getMessages } = useGetMessages();
-  
+
   const handleSidebarClose = () => {
     setSidebarOpen(false);
   };
@@ -32,6 +32,7 @@ const GroupChatSection = () => {
     if (!inputValue) return;
     if (!group.chatId) return;
     const message: IMessage = {
+      username: me.username,
       senderId: me.userId,
       chatId: group.chatId,
       memberIds: group.members.map((member) => member.userId),
@@ -62,14 +63,14 @@ const GroupChatSection = () => {
         <nav className="flex justify-between items-center px-4 py-2 bg-bg_card1">
           {/* User Info */}
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => setSidebarOpen(true)}>
-          <div className="w-[40px] h-[40px] rounded-full overflow-hidden">
-                <Image
-                    src={group.avatarUrl || "/pfp.jpg"}
-                    width={40}
-                    height={40}
-                    alt="desc"
-                    className="object-cover w-fit h-fit rounded-full cursor-pointer"
-                />
+            <div className="w-[40px] h-[40px] rounded-full overflow-hidden">
+              <Image
+                src={group.avatarUrl || "/pfp.jpg"}
+                width={40}
+                height={40}
+                alt="desc"
+                className="object-cover w-fit h-fit rounded-full cursor-pointer"
+              />
             </div>
             <div>
               <h3 className="font-semibold text-font_main">{group.name}</h3>
@@ -97,11 +98,11 @@ const GroupChatSection = () => {
                 className={`flex ${message.senderId === me.userId ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`p-2 rounded-lg max-w-xs break-words ${
-                    message.senderId === me.userId ? 'bg-chat text-font_main' : 'bg-bg_card2 text-font_main'
-                  }`}
+                  className={`p-2 rounded-lg max-w-xs break-words flex flex-col ${message.senderId === me.userId ? 'bg-chat text-font_main' : 'bg-bg_card2 text-font_main'
+                    }`}
                 >
-                  {message.content}
+                  <span className='text-xs text-font_dark'>{message.username}</span>
+                  <span className='text-base'>{message.content}</span>
                 </div>
               </div>
             ))

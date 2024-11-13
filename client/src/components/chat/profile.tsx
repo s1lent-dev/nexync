@@ -2,11 +2,11 @@ import React from "react";
 import { X } from "lucide-react";
 import Image from "next/image";
 import { ChevronRight, Heart, Ban, ThumbsDown, Trash2 } from "lucide-react";
-import { IUser } from "@/types/types";
+import { IConnectionChat } from "@/types/types";
 
 interface ProfileProps {
   onClose: () => void;
-  user: IUser;
+  user: IConnectionChat;
 }
 
 const Profile: React.FC<ProfileProps> = ({ onClose, user }) => {
