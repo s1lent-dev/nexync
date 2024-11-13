@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { ChevronDown } from 'lucide-react'
 import { IConnectionChat } from '@/types/types'
 import { useDispatch } from 'react-redux'
-import { setSelectedUser } from '@/context/reducers/user'
+import { setSelectedConnectionChat } from '@/context/reducers/chats'
 
 interface SingleChatProps {
   connection: IConnectionChat;
@@ -20,7 +20,7 @@ const SingleChat: React.FC<SingleChatProps> = ({ connection }) => {
       className='flex items-center p-3 hover:bg-bg_card2 cursor-pointer relative'
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={() => dispatch(setSelectedUser(connection))}
+      onClick={() => dispatch(setSelectedConnectionChat(connection))}
     >
       <div className="w-[50px] h-[50px] rounded-full overflow-hidden">
         <Image

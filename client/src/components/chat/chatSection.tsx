@@ -11,7 +11,7 @@ const ChatSection = () => {
 
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const user = useSelector((state: RootState) => state.user.selectedUser);
+  const user = useSelector((state: RootState) => state.chat.selectedConnectionChat);
   const me = useSelector((state: RootState) => state.user.me);
   const userMessages = useSelector((state: RootState) => state.chat.chats[user.chatId]);
   const { sendMessage } = useSendMessage();
