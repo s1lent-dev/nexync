@@ -14,7 +14,7 @@ const Navigation = () => {
 
   const navItems = [
     { name: "chats", src: "/chat.svg", label: "Chats" },
-    { name: "newchat", src: "/status.svg", label: "NewChat" },
+    { name: "newchat", src: "/status.svg", label: "Newchat" },
     { name: "groups", src: "/channel.svg", label: "Groups" },
     { name: "connections", src: "/community.svg", label: "Connections" },
     { name: "meta", src: "/meta.png", size: 25, label: "Meta" },

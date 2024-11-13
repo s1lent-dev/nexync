@@ -148,7 +148,9 @@ const AddNewMemberToGroupChat = AsyncHandler(async (req: CustomRequest, res: Res
 
 
 const RemoveMemberFromGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
-    const { chatId, userId } = req.body;
+    const { chatId, memberId } = req.body;
+
+    console.log(chatId, memberId);
     const user = req.user;
     const chat = await prisma.chat.findFirst({
         where: { chatId, chatType: 'GROUP' }
@@ -166,10 +168,12 @@ const RemoveMemberFromGroupChat = AsyncHandler(async (req: CustomRequest, res: R
         return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "You are not an admin of this group chat.", {}));
     }
 
-    await prisma.userChat.deleteMany({
+    await prisma.userChat.delete({
         where: {
-            chatId,
-            userId
+            userId_chatId: {
+                chatId: chatId,
+                userId: memberId
+            }
         }
     });
 
@@ -188,10 +192,12 @@ const LeaveGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, ne
         return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Chat not found.", {}));
     }
 
-    await prisma.userChat.deleteMany({
+    await prisma.userChat.delete({
         where: {
-            chatId,
-            userId: user?.userId
+            userId_chatId: {
+                chatId: chatId,
+                userId: user?.userId as string
+            }
         }
     });
 
@@ -224,7 +230,7 @@ const GetConnectionChats = AsyncHandler(async (req: CustomRequest, res: Response
                 username: otherUser.user.username,
                 email: otherUser.user.email,
                 avatarUrl: otherUser.user.avatarUrl,
-                bio: otherUser.user.bio
+                bio: otherUser.user.bio,
             }))
     );
 
@@ -259,7 +265,8 @@ const GetGroupChats = AsyncHandler(async (req: CustomRequest, res: Response, nex
             username: u.user.username,
             email: u.user.email,
             avatarUrl: u.user.avatarUrl,
-            bio: u.user.bio
+            bio: u.user.bio,
+            isAdmin: u.isAdmin
         }))
     }));
     return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Groups found.", response));

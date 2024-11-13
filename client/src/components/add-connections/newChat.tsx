@@ -80,11 +80,11 @@ const NewChat = () => {
       ) : (
         <>
           <div className="flex flex-col w-full">
-            <div className="flex flex-row gap-4 items-center hover:bg-bg_card2 p-2 cursor-pointer relative">
+            <div className="flex flex-row gap-4 items-center hover:bg-bg_card2 p-2 cursor-pointer relative" onClick={() => dispatch(setNavigation("newgroup"))}>
               <div className="bg-primary w-12 h-12 flex items-center justify-center rounded-full">
                 <Image src="/group.svg" width={25} height={25} alt="Group" />
               </div>
-              <h4 className="font-segoe antialiased" onClick={() => dispatch(setNavigation("newgroup"))}>New Group</h4>
+              <h4 className="font-segoe antialiased" >New Group</h4>
               <span className="absolute bottom-0 left-14 right-0 h-[2px] bg-bg_card2" />
             </div>
             <div className="flex flex-row gap-4 items-center hover:bg-bg_card2 p-2 cursor-pointer relative">

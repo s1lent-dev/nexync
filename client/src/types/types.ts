@@ -4,6 +4,7 @@ type IUser = {
     email: string;
     avatarUrl: string;
     bio: string;
+    isAdmin: boolean | null;
 }
 
 type IConnection = {

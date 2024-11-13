@@ -113,7 +113,7 @@ const useAddMembersToGroupChat = () => {
         try {
             const res = await axios.post('/chat/add-members', { chatId, memberIds });
             dispatch({ type: 'REQUEST_SUCCESS' });
-            return res.data.data;
+            return res.data;
         } catch (err) {
             if (err instanceof AxiosError) {
                 dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
@@ -135,7 +135,7 @@ const useRemoveMemberFromGroupChat = () => {
         try {
             const res = await axios.delete('/chat/remove-member', { data: { chatId, memberId } });
             dispatch({ type: 'REQUEST_SUCCESS' });
-            return res.data.data;
+            return res.data;
         } catch (err) {
             if (err instanceof AxiosError) {
                 dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
@@ -157,7 +157,7 @@ const useLeaveGroupChat = () => {
         try {
             const res = await axios.delete('/chat/leave-group', { data: { chatId } });
             dispatch({ type: 'REQUEST_SUCCESS' });
-            return res.data.data;
+            return res.data;
         } catch (err) {
             if (err instanceof AxiosError) {
                 dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });

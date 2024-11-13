@@ -1,7 +1,13 @@
-import React, { useState } from "react";
-import { X, ChevronRight, ChevronDown, Heart, ThumbsDown, LogOut } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { X, ChevronRight, ChevronDown, Heart, Trash2, ThumbsDown, LogOut } from "lucide-react";
 import Image from "next/image";
 import { IGroupChat } from "@/types/types";
+import { useGetGroupChats, useLeaveGroupChat, useRemoveMemberFromGroupChat } from "@/hooks/chat";
+import { useToast } from "@/context/toast/toast";
+import { useSelector } from "react-redux";
+import { RootState } from "@/context/store";
+import { useGetAllConnections } from "@/hooks/user";
+import AddMembers from "./addMembers";
 
 interface ProfileProps {
     onClose: () => void;
@@ -9,9 +15,57 @@ interface ProfileProps {
 }
 
 const Profile: React.FC<ProfileProps> = ({ onClose, group }) => {
+    
+    const [showAddMembers, setShowAddMembers] = useState(false);
+    const me = useSelector((state: RootState) => state.user.me);
+    const connections = useSelector((state: RootState) => state.connection.connections);
     const [showAllMembers, setShowAllMembers] = useState(false);
-
+    const { getAllConnections } = useGetAllConnections();
+    const { leaveGroupChat } = useLeaveGroupChat();
+    const { removeMemberFromGroupChat } = useRemoveMemberFromGroupChat();
+    const { getGroupChats } = useGetGroupChats();
+    const { showSuccessToast, showErrorToast } = useToast();
     const toggleShowAllMembers = () => setShowAllMembers(!showAllMembers);
+
+    useEffect(() => {
+        getAllConnections();
+    }, []);
+
+    const isAdmin = group.members.some((member) => member.userId === me.userId && member.isAdmin);
+
+    const handleRemoveMember = async (memberId: string) => {
+        try {
+            const res = await removeMemberFromGroupChat(group.chatId, memberId);
+            if (res.statusCode === 200) {
+                showSuccessToast('Member removed successfully');
+                await getGroupChats();
+            } else {
+                showErrorToast('An error occurred while removing the member');
+            }
+        } catch (error) {
+            console.error(error);
+            showErrorToast('An error occurred');
+        }
+    };
+
+    const handleLeaveGroup = async () => {
+        try {
+            const res = await leaveGroupChat(group.chatId);
+            if (res.statusCode === 200) {
+                showSuccessToast('You have left the group successfully');
+                await getGroupChats();
+            } else {
+                showErrorToast('An error occurred while leaving the group');
+            }
+            onClose();
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const filteredConnections = connections.filter(
+        connection => !group.members.some(member => member.userId === connection.userId)
+    );
 
     return (
         <aside className="flex flex-col h-full w-full bg-bg_dark1 shadow-lg overflow-y-scroll custom-scrollbar">
@@ -41,6 +95,9 @@ const Profile: React.FC<ProfileProps> = ({ onClose, group }) => {
             </div>
 
             <div className="flex flex-col gap-3 w-full bg-bg_card3 p-5 mt-3">
+                <h4 className="font-segoe text-font_dark font-thin tracking-wide font-lg ml-3">
+                    Description
+                </h4>
                 <p className="ml-3 font-segoe font-thin tracking-wide">
                     {group.tagline || "No bio available"}
                 </p>
@@ -58,6 +115,24 @@ const Profile: React.FC<ProfileProps> = ({ onClose, group }) => {
                         </div>
                     </div>
                     <div className="w-full flex flex-col gap-4">
+                        {isAdmin && (
+                            <>
+                            <div className="flex flex-row gap-4 items-center hover:bg-bg_card2 p-2 cursor-pointer relative" onClick={() => setShowAddMembers(true)}>
+                                <div className="bg-primary w-12 h-12 flex items-center justify-center rounded-full">
+                                    <Image src="/useradd.svg" width={25} height={25} alt="Community" />
+                                </div>
+                                <h4 className="font-segoe antialiased">Add Members</h4>
+                                <span className="absolute bottom-0 left-14 right-0 h-[2px] bg-bg_card2" />
+                            </div>
+                            <div className="flex flex-row gap-4 items-center hover:bg-bg_card2 p-2 cursor-pointer relative">
+                                <div className="bg-primary w-12 h-12 flex items-center justify-center rounded-full">
+                                    <Image src="/link.svg" width={25} height={25} alt="Community" />
+                                </div>
+                                <h4 className="font-segoe antialiased">Send Invite link</h4>
+                                <span className="absolute bottom-0 left-14 right-0 h-[2px] bg-bg_card2" />
+                            </div>
+                            </>
+                        )}
                         {(showAllMembers ? group.members : group.members.slice(0, 1)).map((member, index) => (
                             <div
                                 key={index}
@@ -74,11 +149,19 @@ const Profile: React.FC<ProfileProps> = ({ onClose, group }) => {
                                 </div>
                                 <div className='ml-4 flex flex-col flex-grow justify-between'>
                                     <div className='flex justify-between'>
-                                        <h4 className='font-light tracking-wide text-font_main'>{member.username}</h4>
+                                        <h4 className='font-light tracking-wide text-font_main'>
+                                            {member.username} {member.isAdmin && <span className="text-xs text-primary ml-1">(Admin)</span>}
+                                        </h4>
                                         <span className='text-xs text-gray-500'>10:30 AM</span>
                                     </div>
                                     <div className='flex justify-between items-center'>
                                         <p className='text-sm text-gray-600 truncate'>{member.bio}</p>
+                                        {isAdmin && me.userId !== member.userId && (
+                                            <Trash2
+                                                className="text-error cursor-pointer"
+                                                onClick={() => handleRemoveMember(member.userId)}
+                                            />
+                                        )}
                                     </div>
                                 </div>
                                 <span className="absolute bottom-0 left-12 right-0 h-[2px] bg-bg_card2" />
@@ -101,7 +184,7 @@ const Profile: React.FC<ProfileProps> = ({ onClose, group }) => {
                 </div>
             </div>
 
-            {/* Media, links, and other sections go here */}
+            {/* Media, links, and other sections */}
             <div className="flex flex-col gap-6 w-full bg-bg_card3 p-5 mt-3">
                 <div className="flex flex-row items-center justify-between">
                     <h4 className="font-segoe text-font_dark font-thin tracking-wide font-lg ml-3">
@@ -133,7 +216,7 @@ const Profile: React.FC<ProfileProps> = ({ onClose, group }) => {
                     <Heart className="text-font_dark ml-4" />
                     <span className="font-segoe font-thin text-font_main tracking-wide">Add to favourites</span>
                 </div>
-                <div className="flex flex-row gap-6 p-4 hover:bg-bg_card2 w-full">
+                <div className="flex flex-row gap-6 p-4 hover:bg-bg_card2 w-full" onClick={handleLeaveGroup}>
                     <LogOut className="text-error ml-4" />
                     <span className="font-segoe font-thin text-error tracking-wide">Exit Group</span>
                 </div>
@@ -142,6 +225,7 @@ const Profile: React.FC<ProfileProps> = ({ onClose, group }) => {
                     <span className="font-segoe font-thin text-error tracking-wide">Report Group</span>
                 </div>
             </div>
+            {showAddMembers && <AddMembers connections={filteredConnections} setShowAddMembers={setShowAddMembers} group={group} />}
         </aside>
     );
 };
