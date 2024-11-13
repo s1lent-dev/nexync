@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useResetPassword } from "@/utils/api";
+import { useResetPassword } from "@/hooks/auth";
 import { ArrowRight, Eye, EyeClosed } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";

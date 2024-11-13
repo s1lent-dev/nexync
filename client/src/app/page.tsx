@@ -12,7 +12,10 @@ import Connections from "@/components/connections/connections";
 import ConnectionRequest from "@/components/connections/connectionRequest";
 import ChatSection from "@/components/chat/chatSection";
 import Chat from "@/components/chat/chat";
-import { useGetMe } from "@/utils/api";
+import { useGetMe } from "@/hooks/user";
+import GroupChat from "@/components/group/groupChat";
+import GroupChatSection from "@/components/group/groupChatSection";
+import NewGroup from "@/components/add-connections/newGroup";
 
 const Main = () => {
   const navigation = useSelector((state: RootState) => state.navigation.title);
@@ -39,16 +42,19 @@ const Main = () => {
         {/* Sidebar */}
         <div className="w-1/3 h-full bg-bg_dark1 flex flex-row border-r-2 border-r-bg_card2">
           <Navigation />
-          {navigation === "chat" && <Chat />}
+          {navigation === "chats" && <Chat />}
+          {navigation === "groups" && <GroupChat />}
           {navigation === "profile" && <Profile />}
           {navigation === "settings" && <Settings />}
           {navigation === "newchat" && <NewChat />}
+          {navigation === "newgroup" && <NewGroup />}
           {navigation === "connections" && <Connections />}
           {navigation === "connection-requests" && <ConnectionRequest />}
         </div>
         {/* Chat area */}
         <div className="w-2/3 h-full bg-bg_card1">
-          <ChatSection />
+          {navigation === "chats" && <ChatSection />}
+          {navigation === "groups" && <GroupChatSection />}
         </div>
       </div>
     </motion.main>

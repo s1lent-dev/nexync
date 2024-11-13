@@ -6,6 +6,8 @@ enum chatType {
 model Chat {
     chatId     String     @id @default(uuid())
     name       String?
+    avatarUrl  String?
+    tagline    String?
     chatType   chatType   @default(PRIVATE)
     users      UserChat[]
     messages   Message[]  @relation("ChatMessages")

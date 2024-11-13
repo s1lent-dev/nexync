@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useLogout } from "@/utils/api";
+import { useLogout } from "@/hooks/auth";
 import { useSelector } from "react-redux";
 import { RootState } from "@/context/store";
 import { useToast } from "@/context/toast/toast";

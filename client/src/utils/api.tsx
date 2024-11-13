@@ -1,7 +1,7 @@
 'use client';
 import { useAxios } from "@/context/helper/axios";
 import { resetMe, resetSelectedUser, setMe } from "@/context/reducers/user";
-import { setConnections, setFollowers, setFollowing, setConnectionRequests, resetConnections } from "@/context/reducers/connections";
+import { setFollowers, setFollowing, setConnectionRequests } from "@/context/reducers/connections";
 import { setSearchedUsers, setSuggestedUsers } from "@/context/reducers/newConnection";
 import { IRegsitrationForm, ILoginForm, IMessage } from "@/types/types";
 import { AxiosError } from "axios";
@@ -131,7 +131,6 @@ const useLogout = () => {
             reduxDispatch(resetMe());
             reduxDispatch(resetSelectedUser());
             reduxDispatch(resetChats());
-            reduxDispatch(resetConnections());
             reduxDispatch(setNavigation("chat"));
             return res.data.data;
         } catch (err) {
@@ -247,14 +246,12 @@ const useGetConnections = () => {
 
 const useGetConnectedUsers = () => {
     const { axios, state, dispatch } = useAxios();
-    const reduxDispatch = useDispatch();
     const getConnectedUsers = async () => {
         dispatch({ type: 'REQUEST_START' });
         try {
             const res = await axios.get('/user/get-connected-users');
             dispatch({ type: 'REQUEST_SUCCESS' });
             console.log(res.data.data.connections);
-            reduxDispatch(setConnections(res.data.data.connections));
             return res.data.data.connections;
         } catch (err) {
             if (err instanceof AxiosError) {

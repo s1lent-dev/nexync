@@ -31,14 +31,8 @@ const ConnectionSlice = createSlice({
         setConnectionRequests(state, action: PayloadAction<IConnectionRequests[]>) {
             state.connectionRequests = action.payload;
         },
-        resetConnections(state) {
-            state.connections = [];
-            state.followers = [];
-            state.following = [];
-            state.connectionRequests = [];
-        }
     },
 });
 
-export const { setConnections, setFollowers, setFollowing, setConnectionRequests, resetConnections } = ConnectionSlice.actions;
+export const { setConnections, setFollowers, setFollowing, setConnectionRequests } = ConnectionSlice.actions;
 export { ConnectionSlice };

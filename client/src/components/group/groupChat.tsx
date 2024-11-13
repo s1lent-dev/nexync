@@ -2,18 +2,18 @@
 
 import React, { useEffect } from "react";
 import Image from "next/image";
-import SingleChat from "./singleChat";
+import SingleGroupChat from "./singleGroupChat";
 import { useSelector } from "react-redux";
-import { useGetConnectionChats } from "@/hooks/chat";
+import { useGetGroupChats } from "@/hooks/chat";
 import { RootState } from "@/context/store";
 
-const Chat = () => {
+const GroupChat = () => {
   
-  const connections = useSelector((state: RootState) => state.chat.connectionChats);
-  const { getConnectionChats } = useGetConnectionChats();
+  const groups = useSelector((state: RootState) => state.chat.groupChats);
+  const { getGroupChats } = useGetGroupChats();
 
   useEffect(() => {
-    getConnectionChats();
+    getGroupChats();
   }, []);
 
   return (
@@ -21,7 +21,7 @@ const Chat = () => {
       {/* Header with title and icons */}
       <div className="flex flex-row justify-between">
         <h2 className="font-sfpro text-font_main text-xl font-bold antialiased">
-          Chats
+          Groups
         </h2>
         <div className="flex flex-row gap-6">
           <Image src="/new-chat.svg" width={25} height={25} alt="New Chat"/>
@@ -41,16 +41,17 @@ const Chat = () => {
 
       {/* Chat List with scrollable div */}
       <div className="flex-grow overflow-y-scroll custom-scrollbar scrollbar-thin pr-2 space-y-2">
-        {connections.length > 0 ? (
-          connections.map((connection) => (
-            <SingleChat key={connection.userId} connection={connection} />
+        {groups.length > 0 ? (
+          groups.map((group) => (
+            <SingleGroupChat key={group.chatId} group={group} />
           ))
         ) : (
-          <p className="text-font_dark text-center">No chats found</p>
+          <p className="text-font_dark text-center">No Groups found</p>
         )}
       </div>
     </section>
   );
 };
 
-export default Chat;
+export default GroupChat;
+

@@ -7,7 +7,7 @@ import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { setNavigation } from "@/context/reducers/navigation";
 import SingleConnection from "./singleConnection";
-import { useGetConnectionRequests, useGetConnections } from "@/utils/api";
+import { useGetConnectionRequests, useGetConnections } from "@/hooks/user";
 import { RootState } from "@/context/store";
 import ConnectionProfile from "./connectionProfile";
 import { IConnection } from "@/types/types";

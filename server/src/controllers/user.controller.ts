@@ -10,19 +10,22 @@ import { prisma } from "../lib/db/prisma.db.js";
 import { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_OK } from "../config/config.js";
 import { socketService } from "../app.js";
 
-const getMe = AsyncHandler(
-    async (req: CustomRequest, res: Response, next: NextFunction) => {
-        const user = req.user;
-        res
-            .status(HTTP_STATUS_OK)
-            .json(new ResponseHandler(HTTP_STATUS_OK, "User details", user));
-    }
-);
+const getMe = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const user = req.user;
+    res
+        .status(HTTP_STATUS_OK)
+        .json(new ResponseHandler(HTTP_STATUS_OK, "User details", user));
+});
 
-const searchUsers = AsyncHandler(async(req: CustomRequest, res: Response, next: NextFunction) => {
+const searchUsers = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { search } = req.query;
-    
-    const userId  = req.user?.userId;
+
+    const userId = req.user?.userId;
+
+    const alreadyFollowers = await prisma.connection.findMany({
+        where: { followingId: userId },
+        include: { follower: true }
+    })
 
     const alreadyFollowing = await prisma.connection.findMany({
         where: { followerId: userId },
@@ -32,7 +35,7 @@ const searchUsers = AsyncHandler(async(req: CustomRequest, res: Response, next: 
     const alreadyRequested = await prisma.connectionRequest.findMany({
         where: { senderId: userId },
         include: { receiver: true }
-    })
+    });
 
     let users = await prisma.user.findMany({
         where: {
@@ -55,10 +58,12 @@ const searchUsers = AsyncHandler(async(req: CustomRequest, res: Response, next: 
     users = users.filter((user) => user.userId !== userId);
 
     users = users.map((user) => {
+        const follower = alreadyFollowers.find((f) => f.followerId === user.userId);
         const following = alreadyFollowing.find((f) => f.followingId === user.userId);
         const requested = alreadyRequested.find((r) => r.receiverId === user.userId);
         return {
             ...user,
+            isFollower: !!follower,
             isFollowing: !!following,
             isRequested: !!requested,
         };
@@ -67,110 +72,108 @@ const searchUsers = AsyncHandler(async(req: CustomRequest, res: Response, next: 
 });
 
 const sendConnectionRequest = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
-        const { userId } = req.params;
-        const user = req.user;
-        if (userId === user?.userId) {
-            return next(
-                new ErrorHandler(
-                    "You cannot send connection request to yourself",
-                    HTTP_STATUS_BAD_REQUEST
-                )
-            );
-        }
-        const requestExists = await prisma.connectionRequest.findFirst({
-            where: {
-                senderId: user?.userId,
-                receiverId: userId,
-            },
-        });
-        if (requestExists) {
-            return next(
-                new ErrorHandler("Request already exists", HTTP_STATUS_BAD_REQUEST)
-            );
-        }
-        await prisma.connectionRequest.create({
-            data: {
-                senderId: user?.userId as string,
-                receiverId: userId,
-            },
-        });
-        socketService.emitEvents("connectionRequest", [userId], {
-            senderId: user?.userId,
-        });
-        res
-            .status(HTTP_STATUS_OK)
-            .json(
-                new ResponseHandler(HTTP_STATUS_OK, "Request sent successfully", {})
-            );
+    const { userId } = req.params;
+    const user = req.user;
+    if (userId === user?.userId) {
+        return next(
+            new ErrorHandler(
+                "You cannot send connection request to yourself",
+                HTTP_STATUS_BAD_REQUEST
+            )
+        );
     }
+    const requestExists = await prisma.connectionRequest.findFirst({
+        where: {
+            senderId: user?.userId,
+            receiverId: userId,
+        },
+    });
+    if (requestExists) {
+        return next(
+            new ErrorHandler("Request already exists", HTTP_STATUS_BAD_REQUEST)
+        );
+    }
+    await prisma.connectionRequest.create({
+        data: {
+            senderId: user?.userId as string,
+            receiverId: userId,
+        },
+    });
+
+    // socketService.emitEvents("connectionRequest", [userId], {
+    //     senderId: user?.userId,
+    // });
+
+    res
+        .status(HTTP_STATUS_OK)
+        .json(
+            new ResponseHandler(HTTP_STATUS_OK, "Request sent successfully", {})
+        );
+}
 );
 
-const acceptConnectionRequest = AsyncHandler(
-    async (req: CustomRequest, res: Response, next: NextFunction) => {
-        const { userId, status } = req.params;
-        const user = req.user;
-        const request = await prisma.connectionRequest.findFirst({
-            where: {
-                senderId: userId,
-                receiverId: user?.userId,
-            },
-        });
-        if (!request) {
-            return next(
-                new ErrorHandler("Request not found", HTTP_STATUS_BAD_REQUEST)
-            );
-        }
-        if (status === "rejected") {
-            await prisma.connectionRequest.delete({
-                where: {
-                    requestId: request.requestId,
-                },
-            });
-            return res
-                .status(HTTP_STATUS_OK)
-                .json(
-                    new ResponseHandler(
-                        HTTP_STATUS_OK,
-                        "Request rejected successfully",
-                        {}
-                    )
-                );
-        }
+const acceptConnectionRequest = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { userId, status } = req.params;
+    const user = req.user;
+
+    const request = await prisma.connectionRequest.findFirst({
+        where: { senderId: userId, receiverId: user?.userId }
+    });
+    if (!request) {
+        return next(new ErrorHandler("Request not found", HTTP_STATUS_BAD_REQUEST));
+    }
+
+    if (status === "rejected") {
         await prisma.connectionRequest.delete({
-            where: {
-                requestId: request.requestId,
-            },
+            where: { requestId: request.requestId }
         });
-        await prisma.connection.create({
-            data: {
-                followingId: user?.userId as string,
-                followerId: userId,
-            },
-        });
+        return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Request rejected successfully", {}));
+    }
 
-        const chat = await prisma.chat.create({
-            data: {
-                chatType: "PRIVATE",
-            },
-        });
-        await prisma.userChat.createMany({
-            data: [
-                { userId: user?.userId as string, chatId: chat.chatId },
-                { userId: userId, chatId: chat.chatId }
-            ],
-        });
+    await prisma.connectionRequest.delete({
+        where: { requestId: request.requestId }
+    });
+    await prisma.connection.create({
+        data: {
+            followingId: user?.userId as string,
+            followerId: userId,
+        },
+    });
 
-        socketService.emitEvents("connectionAccepted", [userId], {
-            receiverId: user?.userId,
-        });
-        res
-            .status(HTTP_STATUS_OK)
-            .json(
-                new ResponseHandler(HTTP_STATUS_OK, "Request accepted successfully", {})
-            );
+    const chatExists = await prisma.chat.findFirst({
+        where: {
+            users: {
+                every: {
+                    userId: { in: [user?.userId as string, userId] }
+                }
+            },
+            chatType: "PRIVATE"
+        },
+    });
+
+    if (chatExists) {
+        return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Request accepted successfully", {}));
+    }
+
+    const chat = await prisma.chat.create({
+        data: {
+            chatType: "PRIVATE",
+        },
+    });
+    await prisma.userChat.createMany({
+        data: [
+            { userId: user?.userId as string, chatId: chat.chatId },
+            { userId: userId, chatId: chat.chatId }
+        ],
+    });
+
+    // socketService.emitEvents("connectionAccepted", [userId], {
+    //     receiverId: user?.userId,
+    // });
+    res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Request accepted successfully", {}));
 });
 
-const getMyConnections = AsyncHandler(async(req: CustomRequest, res: Response, next: NextFunction) => {
+const getMyConnections = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const user = req.user;
     const following = await prisma.connection.findMany({
         where: {
@@ -195,7 +198,8 @@ const getMyConnections = AsyncHandler(async(req: CustomRequest, res: Response, n
     res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Connections", { followingData, followersData }));
 });
 
-const getConnectedUsers = AsyncHandler(async(req: CustomRequest, res: Response, next: NextFunction) => {
+
+const getAllConnections = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const user = req.user;
     const following = await prisma.connection.findMany({
         where: {
@@ -213,25 +217,30 @@ const getConnectedUsers = AsyncHandler(async(req: CustomRequest, res: Response, 
             follower: true,
         }
     });
-
     const followingData = following.map((f) => f.following);
     const followersData = followers.map((f) => f.follower);
-
     const connectionsMap = new Map();
-    
     followingData.forEach((connection) => connectionsMap.set(connection.userId, connection));
     followersData.forEach((connection) => {
         if (!connectionsMap.has(connection.userId)) {
             connectionsMap.set(connection.userId, connection);
         }
     });
-
-    const connections = Array.from(connectionsMap.values());
-
-    res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Connections", { connections }));
+    let connections = Array.from(connectionsMap.values());
+    connections = connections.map((connection) => {
+        return {
+            userId: connection.userId,
+            username: connection.username,
+            email: connection.email,
+            avatarUrl: connection.avatarUrl,
+            bio: connection.bio,
+        }
+    });
+    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Connections found.", connections));
 });
 
-const getSuggestions = AsyncHandler(async(req: CustomRequest, res: Response, next: NextFunction) => {
+
+const getSuggestions = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const user = req.user;
 
     const alreadyFollowingIds = await prisma.connection.findMany({
@@ -256,7 +265,7 @@ const getSuggestions = AsyncHandler(async(req: CustomRequest, res: Response, nex
 });
 
 
-const getConnectionRequests = AsyncHandler(async(req: CustomRequest, res: Response, next: NextFunction) => {
+const getConnectionRequests = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const user = req.user;
     const requests = await prisma.connectionRequest.findMany({
         where: { receiverId: user?.userId },
@@ -304,4 +313,4 @@ const updateBio = AsyncHandler(async (req: CustomRequest, res: Response, next: N
 });
 
 
-export { getMe, searchUsers, sendConnectionRequest, acceptConnectionRequest, getMyConnections, getConnectedUsers, getSuggestions, getConnectionRequests, uploadAvatar, updateBio };
+export { getMe, searchUsers, sendConnectionRequest, acceptConnectionRequest, getMyConnections, getAllConnections, getSuggestions, getConnectionRequests, uploadAvatar, updateBio };

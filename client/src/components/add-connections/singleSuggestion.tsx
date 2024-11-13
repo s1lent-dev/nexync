@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { IConnection } from "@/types/types";
-import { useSendConnectionRequest } from "@/utils/api";
+import { useSendConnectionRequest } from "@/hooks/user";
 import { useToast } from "@/context/toast/toast";
 
 interface SingleSuggestionProps {
@@ -20,22 +20,33 @@ const SingleSuggestion: React.FC<SingleSuggestionProps> = ({ user, handleConnect
       const requestSent = await sendConnectionRequest(user.userId);
       if (requestSent) {
         showSuccessToast("Connection request sent");
-        await handleConnectionSent();
+        handleConnectionSent();
       }
     };
-
-    if (!user.isFollowing && !user.isRequested) {
+  
+    if (!user.isFollowing && !user.isRequested && !user.isFollower) {
       return (
         <button
-          title="Connect"
+          title="Follow"
           type="button"
           className="text-font_main flex items-center justify-center rounded-md bg-primary px-3 py-1 text-base outline-none transition-all duration-300"
           onClick={handleConnectClick}
         >
-          Connect
+          Follow
         </button>
       );
-    } else if (user.isFollowing) {
+    } else if (!user.isFollowing && !user.isRequested && user.isFollower) {
+      return (
+        <button
+          title="Follow Back"
+          type="button"
+          className="text-font_main flex items-center justify-center rounded-md bg-primary px-3 py-1 text-base outline-none transition-all duration-300"
+          onClick={handleConnectClick}
+        >
+          Follow Back
+        </button>
+      );
+    } else if (user.isFollowing && user.isFollower) {
       return (
         <button
           title="Chat"
@@ -55,6 +66,17 @@ const SingleSuggestion: React.FC<SingleSuggestionProps> = ({ user, handleConnect
           disabled
         >
           Sent
+        </button>
+      );
+    } else if (user.isFollowing && !user.isFollower) {
+      return (
+        <button
+          title="Following"
+          type="button"
+          className="text-font_main flex items-center justify-center rounded-md bg-primary px-3 py-1 text-base outline-none transition-all duration-300"
+          onClick={() => {/* Optional logic to unfollow if desired */ }}
+        >
+          Following
         </button>
       );
     }

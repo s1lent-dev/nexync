@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { CircleCheck, CircleX } from "lucide-react";
 import { IConnectionRequests } from "@/types/types";
-import { useAcceptConnectionRequest } from "@/utils/api";
+import { useAcceptConnectionRequest } from "@/hooks/user";
 import { useToast } from "@/context/toast/toast";
 
 interface SingleRequestProps {

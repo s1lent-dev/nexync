@@ -2,62 +2,270 @@ import { Request, Response, NextFunction } from "express";
 import { AsyncHandler, ErrorHandler, ResponseHandler } from "../utils/handlers.util.js";
 import { CustomRequest } from "../types/types";
 import { prisma } from "../lib/db/prisma.db.js";
-import { HTTP_STATUS_NOT_FOUND, HTTP_STATUS_OK } from "../config/config.js";
+import { HTTP_STATUS_CREATED, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_OK } from "../config/config.js";
 
 
-const getAllConnectionsChats = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+const CreateGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { name, memberIds, tagline } = req.body;
     const user = req.user;
-    const following = await prisma.connection.findMany({
-        where: {
-            followerId: user?.userId,
-        },
-        include: {
-            following: true,
+    const chat = await prisma.chat.create({
+        data: {
+            chatType: 'GROUP',
+            name,
+            tagline,
         }
-    });
-    const followers = await prisma.connection.findMany({
-        where: {
-            followingId: user?.userId,
-        },
-        include: {
-            follower: true,
-        }
-    });
-    const followingData = following.map((f) => f.following);
-    const followersData = followers.map((f) => f.follower);
-    const connectionsMap = new Map();
-    followingData.forEach((connection) => connectionsMap.set(connection.userId, connection));
-    followersData.forEach((connection) => {
-        if (!connectionsMap.has(connection.userId)) {
-            connectionsMap.set(connection.userId, connection);
-        }
-    });
-    const connections = Array.from(connectionsMap.values());
+    })
+    await prisma.userChat.createMany({
+        data: [
+            ...memberIds.map((memberId: string) => ({
+                chatId: chat.chatId,
+                userId: memberId
+            })),
+            {
+                chatId: chat.chatId,
+                userId: user?.userId,
+                isAdmin: true
+            }
+        ]        
+    })
+    return res.status(HTTP_STATUS_CREATED).json(new ResponseHandler(HTTP_STATUS_CREATED, "Group chat created.", {}));
+});
 
-    const connectionsWithChat = await Promise.all(connections.map(async (connection) => {
-        const chat = await prisma.chat.findFirst({
-            where: {
-                AND: [
-                    { users: { some: { userId: user?.userId } } },
-                    { users: { some: { userId: connection.userId } } }
-                ]
-            },
-            select: { chatId: true }
-        });
-        return {
-            ...connection,
-            chatId: chat?.chatId || null, 
-        };
+
+const RenameGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { chatId, name } = req.body;
+    const user = req.user;
+    const chat = await prisma.chat.findFirst({
+        where: { chatId, chatType: 'GROUP' }
+    });
+
+    if (!chat) {
+        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Chat not found.", {}));
+    }
+
+    const admin = await prisma.userChat.findFirst({
+        where: { chatId, userId: user?.userId }
+    })
+
+    if (!admin?.isAdmin) {
+        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "You are not an admin of this group chat.", {}));
+    }
+
+    await prisma.chat.update({
+        where: { chatId },
+        data: { name }
+    });
+
+    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Group chat renamed.", {}));
+});
+
+
+const ChangeGroupChatTagline = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { chatId, tagline } = req.body;
+    const user = req.user;
+    const chat = await prisma.chat.findFirst({
+        where: { chatId, chatType: 'GROUP' }
+    });
+
+    if (!chat) {
+        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Chat not found.", {}));
+    }
+
+    const admin = await prisma.userChat.findFirst({
+        where: { chatId, userId: user?.userId }
+    })
+
+    if (!admin?.isAdmin) {
+        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "You are not an admin of this group chat.", {}));
+    }
+
+    await prisma.chat.update({
+        where: { chatId },
+        data: { tagline }
+    });
+
+    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Group chat tagline changed.", {}));
+});
+
+
+const AddNewMembersToGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { chatId, memberIds } = req.body;
+    const user = req.user;
+    const chat = await prisma.chat.findFirst({
+        where: { chatId, chatType: 'GROUP' }
+    });
+
+    if (!chat) {
+        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Chat not found.", {}));
+    }
+
+    const admin = await prisma.userChat.findFirst({
+        where: { chatId, userId: user?.userId }
+    })
+
+    if (!admin?.isAdmin) {
+        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "You are not an admin of this group chat.", {}));
+    }
+
+    const userChats = await prisma.userChat.createMany({
+        data: memberIds.map((memberId: string) => ({
+            chatId,
+            userId: memberId
+        }))
+    });
+
+    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Users added to group chat.", {}));
+});
+
+const AddNewMemberToGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { chatId, userId } = req.body;
+    const user = req.user;
+    const chat = await prisma.chat.findFirst({
+        where: { chatId, chatType: 'GROUP' }
+    });
+
+    if (!chat) {
+        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Chat not found.", {}));
+    }
+
+    const admin = await prisma.userChat.findFirst({
+        where: { chatId, userId: user?.userId }
+    })
+
+    if (!admin?.isAdmin) {
+        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "You are not an admin of this group chat.", {}));
+    }
+
+    const userChat = await prisma.userChat.create({
+        data: {
+            chatId,
+            userId,
+        }
+    });
+
+    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "User added to group chat.", {}));
+});
+
+
+const RemoveMemberFromGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { chatId, userId } = req.body;
+    const user = req.user;
+    const chat = await prisma.chat.findFirst({
+        where: { chatId, chatType: 'GROUP' }
+    });
+
+    if (!chat) {
+        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Chat not found.", {}));
+    }
+
+    const admin = await prisma.userChat.findFirst({
+        where: { chatId, userId: user?.userId }
+    })
+
+    if (!admin?.isAdmin) {
+        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "You are not an admin of this group chat.", {}));
+    }
+
+    await prisma.userChat.deleteMany({
+        where: {
+            chatId,
+            userId
+        }
+    });
+
+    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "User removed from group chat.", {}));
+});
+
+
+const LeaveGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { chatId } = req.body;
+    const user = req.user;
+    const chat = await prisma.chat.findFirst({
+        where: { chatId, chatType: 'GROUP' }
+    });
+
+    if (!chat) {
+        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Chat not found.", {}));
+    }
+
+    await prisma.userChat.deleteMany({
+        where: {
+            chatId,
+            userId: user?.userId
+        }
+    });
+
+    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "User removed from group chat.", {}));
+});
+
+
+const GetConnectionChats = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const user = req.user;
+    const chats = await prisma.chat.findMany({
+        where: {
+            users: { some: { userId: user?.userId } },
+            chatType: 'PRIVATE'
+        },
+        include: { 
+            users: {
+                include: {
+                    user: true
+                }
+            }
+        }
+    });
+
+    const connections = chats.flatMap((chat) =>
+        chat.users
+            .filter((u) => u.userId !== user?.userId)
+            .map((otherUser) => ({
+                chatId: chat.chatId,
+                userId: otherUser.userId,
+                username: otherUser.user.username,
+                email: otherUser.user.email,
+                avatarUrl: otherUser.user.avatarUrl,
+                bio: otherUser.user.bio
+            }))
+    );
+
+    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Chats found.", connections));
+});
+
+
+
+const GetGroupChats = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const user = req.user;
+    const groups = await prisma.chat.findMany({
+        where: {
+            users: { some: { userId: user?.userId } },
+            chatType: 'GROUP'
+        },
+        include: { 
+            users: {
+                include: {
+                    user: true
+                }
+            }
+        }
+    });
+
+    const response = groups.map((group) => ({
+        chatId: group.chatId,
+        name: group.name,
+        avatarUrl: group.avatarUrl,
+        tagline: group.tagline,
+        members: group.users.map((u) => ({
+            userId: u.userId,
+            username: u.user.username,
+            email: u.user.email,
+            avatarUrl: u.user.avatarUrl,
+            bio: u.user.bio
+        }))
     }));
-
-    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Connections found.", { connections: connectionsWithChat }));
+    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Groups found.", response));
 });
 
-const getGroupChats = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
-
-});
-
-const getMessages = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+const GetMessages = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
     const { chatId } = req.params;
     const chat = await prisma.chat.findFirst({
         where: { chatId},
@@ -80,5 +288,5 @@ const getMessages = AsyncHandler(async (req: CustomRequest, res: Response, next:
     return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Chat found.", response));
 });
 
-export { getAllConnectionsChats, getMessages };
+export { CreateGroupChat, RenameGroupChat, ChangeGroupChatTagline,  AddNewMembersToGroupChat, AddNewMemberToGroupChat, RemoveMemberFromGroupChat, LeaveGroupChat, GetMessages, GetConnectionChats, GetGroupChats };
 

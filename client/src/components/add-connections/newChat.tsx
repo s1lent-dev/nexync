@@ -3,12 +3,11 @@ import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import Image from "next/image";
 import { debounce } from "lodash";
-import { ArrowLeft } from "lucide-react";
 import SingleSuggestion from "./singleSuggestion";
-import { setNavigation } from "@/context/reducers/navigation";
 import { RootState } from "@/context/store";
-import { useGetSuggestions, useSearchUsers } from "@/utils/api";
+import { useGetSuggestions, useSearchUsers } from "@/hooks/user";
 import { resetSearchedUsers } from "@/context/reducers/newConnection";
+import { setNavigation } from "@/context/reducers/navigation";
 
 const NewChat = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -46,7 +45,6 @@ const NewChat = () => {
   return (
     <section className="flex flex-col p-4 w-full gap-6 h-full flex-grow overflow-y-scroll custom-scrollbar scrollbar-thin">
       <div className="flex flex-row gap-8">
-        <ArrowLeft width={25} className="text-primary cursor-pointer" onClick={() => dispatch(setNavigation('chat'))}/>
         <h4 className="font-sfpro text-font_dark text-xl font-thin">
           New chat
         </h4>
@@ -86,7 +84,7 @@ const NewChat = () => {
               <div className="bg-primary w-12 h-12 flex items-center justify-center rounded-full">
                 <Image src="/group.svg" width={25} height={25} alt="Group" />
               </div>
-              <h4 className="font-segoe antialiased">New Group</h4>
+              <h4 className="font-segoe antialiased" onClick={() => dispatch(setNavigation("newgroup"))}>New Group</h4>
               <span className="absolute bottom-0 left-14 right-0 h-[2px] bg-bg_card2" />
             </div>
             <div className="flex flex-row gap-4 items-center hover:bg-bg_card2 p-2 cursor-pointer relative">
@@ -97,6 +95,7 @@ const NewChat = () => {
               <span className="absolute bottom-0 left-14 right-0 h-[2px] bg-bg_card2" />
             </div>
           </div>
+          
           <div className="flex flex-col gap-4">
             <h2 className="font-segoe text-primary text-xl tracking-widest ml-6 font-thin opacity-75">
               Suggestions

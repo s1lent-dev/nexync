@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import Profile from './profile';
+import GroupProfile from './groupProfile';
 import { SendHorizontal } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/context/store';
 import { useGetMessages, useSendMessage, useSocketMessages } from '@/hooks/chat';
 import { IMessage } from '@/types/types';
 
-const ChatSection = () => {
+const GroupChatSection = () => {
 
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const user = useSelector((state: RootState) => state.user.selectedUser);
+  const group = useSelector((state: RootState) => state.chat.selectedGroupChat);
   const me = useSelector((state: RootState) => state.user.me);
-  const userMessages = useSelector((state: RootState) => state.chat.chats[user.chatId]);
+  const groupMessages = useSelector((state: RootState) => state.chat.chats[group.chatId]);
   const { sendMessage } = useSendMessage();
   useSocketMessages();
   const { getMessages } = useGetMessages();
@@ -23,18 +23,18 @@ const ChatSection = () => {
   };
 
   useEffect(() => {
-    if (user.userId) {
-      getMessages(user.chatId);
+    if (group.chatId) {
+      getMessages(group.chatId);
     }
-  }, [user.chatId]);
+  }, [group.chatId]);
 
   const handleSendMessage = async () => {
     if (!inputValue) return;
-    if (!user.userId) return;
+    if (!group.chatId) return;
     const message: IMessage = {
       senderId: me.userId,
-      chatId: user.chatId,
-      memberIds: [me.userId, user.userId],
+      chatId: group.chatId,
+      memberIds: group.members.map((member) => member.userId),
       content: inputValue,
       createdAt: new Date(),
     };
@@ -42,7 +42,7 @@ const ChatSection = () => {
     setInputValue("");
   };
 
-  if (!user.userId) {
+  if (!group.chatId) {
     return (
       <section className="flex flex-col items-center justify-center h-full w-full bg-bg_card2">
         <Image src='/illustration.webp' width={300} height={300} alt='select-user' />
@@ -64,7 +64,7 @@ const ChatSection = () => {
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => setSidebarOpen(true)}>
           <div className="w-[40px] h-[40px] rounded-full overflow-hidden">
                 <Image
-                    src={user.avatarUrl || "/pfp.jpg"}
+                    src={group.avatarUrl || "/pfp.jpg"}
                     width={40}
                     height={40}
                     alt="desc"
@@ -72,8 +72,10 @@ const ChatSection = () => {
                 />
             </div>
             <div>
-              <h3 className="font-semibold text-font_main">{user.username}</h3>
-              <p className="text-sm text-primary">online</p>
+              <h3 className="font-semibold text-font_main">{group.name}</h3>
+              <p className="text-sm text-primary">
+                {group.members.length} members
+              </p>
             </div>
           </div>
           {/* Icons */}
@@ -86,10 +88,10 @@ const ChatSection = () => {
 
         {/* Messages Section */}
         <article className="flex-grow overflow-y-scroll p-4 bg-bg_dark2 custom-scrollbar space-y-4">
-          {(userMessages && userMessages.length === 0) ? (
+          {(groupMessages && groupMessages.length === 0) ? (
             <p className="text-center text-gray-400">No messages yet</p>
           ) : (
-            userMessages && userMessages.map((message, index) => (
+            groupMessages && groupMessages.map((message, index) => (
               <div
                 key={index}
                 className={`flex ${message.senderId === me.userId ? 'justify-end' : 'justify-start'}`}
@@ -130,11 +132,11 @@ const ChatSection = () => {
       {/* Profile Sidebar */}
       {isSidebarOpen && (
         <div className="flex flex-col h-full w-1/2 bg-bg_dark1 ">
-          <Profile onClose={handleSidebarClose} user={user} />
+          <GroupProfile onClose={handleSidebarClose} group={group} />
         </div>
       )}
     </section>
   );
 };
 
-export default ChatSection;
+export default GroupChatSection;

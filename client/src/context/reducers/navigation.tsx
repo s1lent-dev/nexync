@@ -4,7 +4,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { INavigationItem } from "@/types/types";
 
 const initialState: INavigationItem = {
-  title: "chat",
+  title: "chats",
 };
 
 const NavigationSlice = createSlice({

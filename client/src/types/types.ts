@@ -1,10 +1,7 @@
 type IUser = {
     userId: string;
-    googleId: string | null;
-    githubId: string | null;
     username: string;
     email: string;
-    password: string | null;
     avatarUrl: string;
     bio: string;
 }
@@ -15,6 +12,7 @@ type IConnection = {
     email: string;
     avatarUrl: string;
     bio: string;
+    isFollower: boolean;
     isFollowing: boolean;
     isRequested: boolean;
 }
@@ -26,14 +24,20 @@ type IConnectionRequests = {
     bio: string;
 }
 
+type IGroupChat = {
+    chatId: string;
+    name: string;
+    avatarUrl: string;
+    tagline: string;
+    members: IUser[];
+}
+
+
 type IConnectionChat = {
     chatId: string;
     userId: string;
-    googleId: string | null;
-    githubId: string | null;
     username: string;
     email: string;
-    password: string | null;
     avatarUrl: string;
     bio: string;
 }
@@ -66,4 +70,4 @@ type ILoginForm = {
     password: string;
 }
 
-export type { INavigationItem, IRegsitrationForm, ILoginForm, IUser, IConnection, IConnectionChat, IConnectionRequests, IMessage, IChats };
+export type { INavigationItem, IRegsitrationForm, ILoginForm, IUser, IConnection, IGroupChat, IConnectionChat, IConnectionRequests, IMessage, IChats };

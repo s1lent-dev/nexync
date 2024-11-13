@@ -18,9 +18,6 @@ class ChatSocket extends SocketService {
             console.log("Members: ", chatId);
             await kafka.publishMessage({ senderId, chatId, memberIds, content, createdAt });
             await pubsub.publish("chats", JSON.stringify({ senderId, chatId, memberIds, content, createdAt }));
-            // const socketMembers = this.getSockets(memberIds) as string[];
-            // console.log("SocketMembers: ", socketMembers);
-            // this.io.to(socketMembers).emit("messages", { senderId, chatId, memberIds, content });
         });
     }
 

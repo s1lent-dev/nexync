@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/context/store';
-import { useGetMe, useUpdateBio, useUploadAvatar } from '@/utils/api';
+import { useGetMe, useUpdateBio, useUploadAvatar } from '@/hooks/user';
 import { Camera, SendHorizontal } from 'lucide-react';
 import { useToast } from '@/context/toast/toast';
 

@@ -5,11 +5,8 @@ import { IConnectionChat, IUser } from "@/types/types";
 
 const me: IUser = {
     userId: "",
-    googleId: "",
-    githubId: "",
     username: "",
     email: "",
-    password: "",
     avatarUrl: "",
     bio: "",
 }
@@ -17,11 +14,8 @@ const me: IUser = {
 const selectedUser: IConnectionChat = {
     chatId: "",
     userId: "",
-    googleId: "",
-    githubId: "",
     username: "",
     email: "",
-    password: "",
     avatarUrl: "",
     bio: "",
 }
@@ -41,11 +35,8 @@ const UserSlice = createSlice({
         resetMe(state) {
             state.me = {
                 userId: "",
-                googleId: "",
-                githubId: "",
                 username: "",
                 email: "",
-                password: "",
                 avatarUrl: "",
                 bio: "",
             }
@@ -57,11 +48,8 @@ const UserSlice = createSlice({
             state.selectedUser = {
                 chatId: "",
                 userId: "",
-                googleId: "",
-                githubId: "",
                 username: "",
                 email: "",
-                password: "",
                 avatarUrl: "",
                 bio: "",
             }

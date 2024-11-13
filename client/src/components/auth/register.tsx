@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useCheckEmail, useCheckUsername, useRegister, useVerifyEmail } from "@/utils/api";
+import { useCheckEmail, useCheckUsername, useRegister, useVerifyEmail } from "@/hooks/auth";
 import { ArrowRight, Eye, EyeClosed } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
