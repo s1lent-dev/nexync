@@ -4,29 +4,29 @@ enum chatType {
 }
 
 model Chat {
-    chatId     String     @id @default(uuid())
-    name       String?
-    avatarUrl  String?
-    tagline    String?
-    chatType   chatType   @default(PRIVATE)
-    users      UserChat[]
-    messages   Message[]  @relation("ChatMessages")
-    createdAt  DateTime   @default(now())
-    updatedAt  DateTime   @updatedAt
-    lastActive DateTime?
+    chatId        String     @id @default(uuid())
+    name          String?
+    avatarUrl     String?
+    tagline       String?   
+    chatType      chatType   @default(PRIVATE)
+    users         UserChat[]
+    messages      Message[]  @relation("ChatMessages")
+    createdAt     DateTime   @default(now())
+    updatedAt     DateTime   @updatedAt
+    lastActive    DateTime?
 
     @@index([chatType])
 }
 
 model UserChat {
-    id            String    @id @default(uuid())
-    userId        String
-    chatId        String
-    chat          Chat      @relation(fields: [chatId], references: [chatId])
-    user          User      @relation(fields: [userId], references: [userId])
-    joinedAt      DateTime  @default(now())
-    isAdmin       Boolean   @default(false)
-    lastSeenAt    DateTime?
+    id         String    @id @default(uuid())
+    userId     String
+    chatId     String
+    chat       Chat      @relation(fields: [chatId], references: [chatId])
+    user       User      @relation(fields: [userId], references: [userId])
+    joinedAt   DateTime  @default(now())
+    isAdmin    Boolean   @default(false)
+    lastSeenAt DateTime?
 
     @@unique([userId, chatId])
 }

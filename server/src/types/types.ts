@@ -30,11 +30,43 @@ enum MessageStatus {
 
 interface MessageEvent {
     senderId: string;
+    username: string;
     chatId: string;
     memberIds: string[];
     content: string;
     createdAt: Date | null;
 }
+
+interface TypingEvent {
+    senderId: string;
+    username: string;
+    chatId: string;
+    memberIds: string[];
+}
+
+interface GroupJoinedEvent {
+    chatId: string;
+    memberIds: string[];
+    messages: string[];
+}
+
+interface GroupRemoveEvent {
+    chatId: string;
+    memberIds: string[];
+    message: string
+}
+interface GroupLeftEvent {
+    chatId: string;
+    memberIds: string[];
+    message: string;
+}
+
+enum EventType {
+    MESSAGE,
+    TYPING
+}
+
+type Event = MessageEvent | TypingEvent;
 
 interface Message {
     messageId: string;
@@ -82,4 +114,4 @@ interface CustomRequest extends Request {
 }
 
 
-export { ControllerType, CustomRequest, User, Message, MessageEvent, Chat, UserChat, MailContent, MailType };
+export { ControllerType, CustomRequest, User, Message, MessageEvent, TypingEvent, GroupJoinedEvent, GroupRemoveEvent, GroupLeftEvent, Event, EventType, Chat, UserChat, MailContent, MailType };

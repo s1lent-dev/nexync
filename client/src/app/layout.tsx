@@ -21,13 +21,13 @@ export default function RootLayout({
         className={`antialiased bg-bg_main text-font_main w-screen h-screen`}
       >
         <ReduxProvider>
-          <SocketProvider>
-            <AxiosProvider>
+          <AxiosProvider>
+            <SocketProvider>
               <ToastProvider>
                 {children}
               </ToastProvider>
-            </AxiosProvider>
-          </SocketProvider>
+            </SocketProvider>
+          </AxiosProvider>
         </ReduxProvider>
       </body>
     </html>

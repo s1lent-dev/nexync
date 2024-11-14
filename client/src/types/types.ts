@@ -43,8 +43,14 @@ type IConnectionChat = {
     bio: string;
 }
 
+enum ChatType {
+    PRIVATE = "PRIVATE",
+    GROUP = "GROUP",
+}
+
 type IMessage = {
-    username: string;
+    username: string | null;
+    chatType: ChatType | null;
     senderId: string;
     chatId: string;
     memberIds: string[];
@@ -52,8 +58,19 @@ type IMessage = {
     createdAt: Date | null;
 }
 
+type ITyping = {
+    senderId: string;
+    username: string;
+    chatId: string;
+    memberIds: string[];
+}
+
 type IChats = {
     [chatId: string]: IMessage[]
+}
+
+type IChatTypings = {
+    [chatId: string]: ITyping
 }
 
 type INavigationItem =  {
@@ -72,4 +89,5 @@ type ILoginForm = {
     password: string;
 }
 
-export type { INavigationItem, IRegsitrationForm, ILoginForm, IUser, IConnection, IGroupChat, IConnectionChat, IConnectionRequests, IMessage, IChats };
+export type { INavigationItem, IRegsitrationForm, ILoginForm, IUser, IConnection, IGroupChat, IConnectionChat, IConnectionRequests, IMessage, ITyping, IChatTypings, IChats };
+export { ChatType };

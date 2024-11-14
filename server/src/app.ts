@@ -41,7 +41,7 @@ async function initServices() {
     await emailQueue.connect();
     await emailQueue.initQueues();
     await emailQueue.initConsumers();
-    await pubsub.subscribeChatsCallback();
+    await pubsub.subscribeToChannels();
 }
 
 // Middlewares

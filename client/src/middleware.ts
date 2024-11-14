@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
-  const token = req.cookies.get('accessToken');
+  const accessToken = req.cookies.get('accessToken');
+  const refreshToken = req.cookies.get('refreshToken');
+
   if (req.nextUrl.pathname === '/reset-password') {
     const urlToken = req.nextUrl.searchParams.get('token');
     if (!urlToken) {
@@ -10,7 +12,7 @@ export function middleware(req: NextRequest) {
     }
   }
 
-  if (token) {
+  if (accessToken || refreshToken) {
     if (req.nextUrl.pathname === '/login' || req.nextUrl.pathname === '/register') {
       return NextResponse.redirect(new URL('/', req.url));
     }

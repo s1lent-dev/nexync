@@ -4,8 +4,9 @@ import Profile from './profile';
 import { SendHorizontal } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/context/store';
-import { useGetMessages, useSendMessage, useSocketMessages } from '@/hooks/chat';
-import { IMessage } from '@/types/types';
+import { useGetMessages, useSendMessage, useSocketMessages, useTypingMessage } from '@/hooks/chat';
+import { ChatType, IMessage, ITyping } from '@/types/types';
+import ChatBubble from '../common/chat-bubble';
 
 const ChatSection = () => {
 
@@ -14,7 +15,9 @@ const ChatSection = () => {
   const user = useSelector((state: RootState) => state.chat.selectedConnectionChat);
   const me = useSelector((state: RootState) => state.user.me);
   const userMessages = useSelector((state: RootState) => state.chat.chats[user.chatId]);
+  const typing = useSelector((state: RootState) => state.chat.chatTypings[user.chatId]);
   const { sendMessage } = useSendMessage();
+  const { typingMessage } = useTypingMessage();
   useSocketMessages();
   const { getMessages } = useGetMessages();
   
@@ -33,6 +36,7 @@ const ChatSection = () => {
     if (!user.userId) return;
     const message: IMessage = {
       username: me.username,
+      chatType: ChatType.PRIVATE,
       senderId: me.userId,
       chatId: user.chatId,
       memberIds: [me.userId, user.userId],
@@ -42,6 +46,17 @@ const ChatSection = () => {
     await sendMessage(message);
     setInputValue("");
   };
+
+  const handleTyping = async () => {
+    console.log("Typing");
+    const typing: ITyping = {
+      senderId: me.userId,
+      username: me.username,
+      chatId: user.chatId,
+      memberIds: [me.userId, user.userId],
+    }
+    await typingMessage(typing);
+  }
 
   if (!user.userId) {
     return (
@@ -96,15 +111,17 @@ const ChatSection = () => {
                 className={`flex ${message.senderId === me.userId ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`p-2 rounded-lg max-w-xs break-words flex flex-col ${
+                  className={`p-2 rounded-lg max-w-xs break-words ${
                     message.senderId === me.userId ? 'bg-chat text-font_main' : 'bg-bg_card2 text-font_main'
                   }`}
                 >
-                  <span className='text-xs text-font_dark'>{message.username}</span>
-                  <span className='text-base'>{message.content}</span>
+                  {message.content}
                 </div>
               </div>
             ))
+          )}
+          {typing && typing.chatId === user.chatId && typing.senderId !== me.userId && (
+            <ChatBubble username=''/>
           )}
         </article>
 
@@ -117,7 +134,10 @@ const ChatSection = () => {
             placeholder='Type a message'
             className="flex-grow placeholder:text-slate-400 px-4 py-2 rounded-lg bg-slate-600 bg-opacity-30 focus:outline-none"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              handleTyping();
+            }}
           />
           <button
             type='button'

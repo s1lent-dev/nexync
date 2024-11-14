@@ -16,11 +16,7 @@ model Message {
 enum MessageType {
     TEXT
     IMAGE
-    VIDEO
-    AUDIO
-    FILE
-    LOCATION
-    CONTACT
+    GROUP
 }
 
 enum MessageStatus {

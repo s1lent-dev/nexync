@@ -4,8 +4,9 @@ import GroupProfile from './groupProfile';
 import { SendHorizontal } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/context/store';
-import { useGetMessages, useSendMessage, useSocketMessages } from '@/hooks/chat';
-import { IMessage } from '@/types/types';
+import { useGetMessages, useSendMessage, useSocketMessages, useTypingMessage } from '@/hooks/chat';
+import { ChatType, IMessage, ITyping } from '@/types/types';
+import ChatBubble from '../common/chat-bubble';
 
 const GroupChatSection = () => {
 
@@ -14,7 +15,9 @@ const GroupChatSection = () => {
   const group = useSelector((state: RootState) => state.chat.selectedGroupChat);
   const me = useSelector((state: RootState) => state.user.me);
   const groupMessages = useSelector((state: RootState) => state.chat.chats[group.chatId]);
+  const typing = useSelector((state: RootState) => state.chat.chatTypings[group.chatId]);
   const { sendMessage } = useSendMessage();
+  const { typingMessage } = useTypingMessage();
   useSocketMessages();
   const { getMessages } = useGetMessages();
 
@@ -33,6 +36,7 @@ const GroupChatSection = () => {
     if (!group.chatId) return;
     const message: IMessage = {
       username: me.username,
+      chatType: ChatType.GROUP,
       senderId: me.userId,
       chatId: group.chatId,
       memberIds: group.members.map((member) => member.userId),
@@ -42,6 +46,17 @@ const GroupChatSection = () => {
     await sendMessage(message);
     setInputValue("");
   };
+
+  const handleTyping = async () => {
+    console.log("Typing");
+    const typing: ITyping = {
+      senderId: me.userId,
+      username: me.username,
+      chatId: group.chatId,
+      memberIds: group.members.map((member) => member.userId),
+    }
+    await typingMessage(typing);
+  }
 
   if (!group.chatId) {
     return (
@@ -101,11 +116,18 @@ const GroupChatSection = () => {
                   className={`p-2 rounded-lg max-w-xs break-words flex flex-col ${message.senderId === me.userId ? 'bg-chat text-font_main' : 'bg-bg_card2 text-font_main'
                     }`}
                 >
-                  <span className='text-xs text-font_dark'>{message.username}</span>
+                  {message.senderId !== me.userId ? (
+                    <span className='text-xs text-font_dark'>{message.username}</span>
+                  ) : (
+                    <span className='text-xs text-font_dark'>you</span>
+                  )}
                   <span className='text-base'>{message.content}</span>
                 </div>
               </div>
             ))
+          )}
+          {typing && typing.chatId === group.chatId && typing.senderId !== me.userId && (
+            <ChatBubble username={typing.username}/>
           )}
         </article>
 
@@ -118,7 +140,10 @@ const GroupChatSection = () => {
             placeholder='Type a message'
             className="flex-grow placeholder:text-slate-400 px-4 py-2 rounded-lg bg-slate-600 bg-opacity-30 focus:outline-none"
             value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            onChange={(e) => {
+              setInputValue(e.target.value);
+              handleTyping();
+            }}
           />
           <button
             type='button'

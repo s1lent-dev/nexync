@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { X, ChevronRight, ChevronDown, Heart, Trash2, ThumbsDown, LogOut } from "lucide-react";
+import { X, ChevronRight, ChevronDown, Heart, ThumbsDown, LogOut } from "lucide-react";
 import Image from "next/image";
 import { IGroupChat } from "@/types/types";
-import { useGetGroupChats, useLeaveGroupChat, useRemoveMemberFromGroupChat } from "@/hooks/chat";
+import { useGetGroupChats, useLeaveGroupChat } from "@/hooks/chat";
 import { useToast } from "@/context/toast/toast";
 import { useSelector } from "react-redux";
 import { RootState } from "@/context/store";
 import { useGetAllConnections } from "@/hooks/user";
 import AddMembers from "./addMembers";
+import SingleGroupMember from "./singleGroupMember";
 
 interface ProfileProps {
     onClose: () => void;
@@ -15,14 +16,13 @@ interface ProfileProps {
 }
 
 const Profile: React.FC<ProfileProps> = ({ onClose, group }) => {
-    
+
     const [showAddMembers, setShowAddMembers] = useState(false);
     const me = useSelector((state: RootState) => state.user.me);
     const connections = useSelector((state: RootState) => state.connection.connections);
     const [showAllMembers, setShowAllMembers] = useState(false);
     const { getAllConnections } = useGetAllConnections();
     const { leaveGroupChat } = useLeaveGroupChat();
-    const { removeMemberFromGroupChat } = useRemoveMemberFromGroupChat();
     const { getGroupChats } = useGetGroupChats();
     const { showSuccessToast, showErrorToast } = useToast();
     const toggleShowAllMembers = () => setShowAllMembers(!showAllMembers);
@@ -33,20 +33,6 @@ const Profile: React.FC<ProfileProps> = ({ onClose, group }) => {
 
     const isAdmin = group.members.some((member) => member.userId === me.userId && member.isAdmin);
 
-    const handleRemoveMember = async (memberId: string) => {
-        try {
-            const res = await removeMemberFromGroupChat(group.chatId, memberId);
-            if (res.statusCode === 200) {
-                showSuccessToast('Member removed successfully');
-                await getGroupChats();
-            } else {
-                showErrorToast('An error occurred while removing the member');
-            }
-        } catch (error) {
-            console.error(error);
-            showErrorToast('An error occurred');
-        }
-    };
 
     const handleLeaveGroup = async () => {
         try {
@@ -117,55 +103,30 @@ const Profile: React.FC<ProfileProps> = ({ onClose, group }) => {
                     <div className="w-full flex flex-col gap-4">
                         {isAdmin && (
                             <>
-                            <div className="flex flex-row gap-4 items-center hover:bg-bg_card2 p-2 cursor-pointer relative" onClick={() => setShowAddMembers(true)}>
-                                <div className="bg-primary w-12 h-12 flex items-center justify-center rounded-full">
-                                    <Image src="/useradd.svg" width={25} height={25} alt="Community" />
+                                <div className="flex flex-row gap-4 items-center hover:bg-bg_card2 p-2 cursor-pointer relative" onClick={() => setShowAddMembers(true)}>
+                                    <div className="bg-primary w-12 h-12 flex items-center justify-center rounded-full">
+                                        <Image src="/useradd.svg" width={25} height={25} alt="Community" />
+                                    </div>
+                                    <h4 className="font-segoe antialiased">Add Members</h4>
+                                    <span className="absolute bottom-0 left-14 right-0 h-[2px] bg-bg_card2" />
                                 </div>
-                                <h4 className="font-segoe antialiased">Add Members</h4>
-                                <span className="absolute bottom-0 left-14 right-0 h-[2px] bg-bg_card2" />
-                            </div>
-                            <div className="flex flex-row gap-4 items-center hover:bg-bg_card2 p-2 cursor-pointer relative">
-                                <div className="bg-primary w-12 h-12 flex items-center justify-center rounded-full">
-                                    <Image src="/link.svg" width={25} height={25} alt="Community" />
+                                <div className="flex flex-row gap-4 items-center hover:bg-bg_card2 p-2 cursor-pointer relative">
+                                    <div className="bg-primary w-12 h-12 flex items-center justify-center rounded-full">
+                                        <Image src="/link.svg" width={25} height={25} alt="Community" />
+                                    </div>
+                                    <h4 className="font-segoe antialiased">Send Invite link</h4>
+                                    <span className="absolute bottom-0 left-14 right-0 h-[2px] bg-bg_card2" />
                                 </div>
-                                <h4 className="font-segoe antialiased">Send Invite link</h4>
-                                <span className="absolute bottom-0 left-14 right-0 h-[2px] bg-bg_card2" />
-                            </div>
                             </>
                         )}
                         {(showAllMembers ? group.members : group.members.slice(0, 1)).map((member, index) => (
-                            <div
+                            <SingleGroupMember
                                 key={index}
-                                className='flex items-center p-3 hover:bg-bg_card2 cursor-pointer relative'
-                            >
-                                <div className="w-[50px] h-[50px] rounded-full overflow-hidden">
-                                    <Image
-                                        src={member.avatarUrl || "/pfp.jpg"}
-                                        width={80}
-                                        height={80}
-                                        alt="desc"
-                                        className="object-cover w-fit h-fit rounded-full"
-                                    />
-                                </div>
-                                <div className='ml-4 flex flex-col flex-grow justify-between'>
-                                    <div className='flex justify-between'>
-                                        <h4 className='font-light tracking-wide text-font_main'>
-                                            {member.username} {member.isAdmin && <span className="text-xs text-primary ml-1">(Admin)</span>}
-                                        </h4>
-                                        <span className='text-xs text-gray-500'>10:30 AM</span>
-                                    </div>
-                                    <div className='flex justify-between items-center'>
-                                        <p className='text-sm text-gray-600 truncate'>{member.bio}</p>
-                                        {isAdmin && me.userId !== member.userId && (
-                                            <Trash2
-                                                className="text-error cursor-pointer"
-                                                onClick={() => handleRemoveMember(member.userId)}
-                                            />
-                                        )}
-                                    </div>
-                                </div>
-                                <span className="absolute bottom-0 left-12 right-0 h-[2px] bg-bg_card2" />
-                            </div>
+                                member={member}
+                                isAdmin={isAdmin}
+                                me={me}
+                                chatId={group.chatId}
+                            />
                         ))}
                         <div className="flex flex-row gap-2">
                             <span

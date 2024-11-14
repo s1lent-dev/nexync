@@ -9,6 +9,7 @@ const me: IUser = {
     email: "",
     avatarUrl: "",
     bio: "",
+    isAdmin: null,
 }
 
 const selectedUser: IConnectionChat = {
@@ -39,6 +40,7 @@ const UserSlice = createSlice({
                 email: "",
                 avatarUrl: "",
                 bio: "",
+                isAdmin: null
             }
         },
         setSelectedUser(state, action: PayloadAction<IConnectionChat>) {

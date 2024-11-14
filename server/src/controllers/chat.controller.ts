@@ -3,6 +3,7 @@ import { AsyncHandler, ErrorHandler, ResponseHandler } from "../utils/handlers.u
 import { CustomRequest } from "../types/types";
 import { prisma } from "../lib/db/prisma.db.js";
 import { HTTP_STATUS_CREATED, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_OK } from "../config/config.js";
+import { pubsub } from "../app.js";
 
 
 const CreateGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
@@ -40,7 +41,7 @@ const RenameGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, n
     });
 
     if (!chat) {
-        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Chat not found.", {}));
+        return next(new ErrorHandler("Chat not found.", HTTP_STATUS_NOT_FOUND));
     }
 
     const admin = await prisma.userChat.findFirst({
@@ -92,7 +93,7 @@ const AddNewMembersToGroupChat = AsyncHandler(async (req: CustomRequest, res: Re
     const { chatId, memberIds } = req.body;
     const user = req.user;
     const chat = await prisma.chat.findFirst({
-        where: { chatId, chatType: 'GROUP' }
+        where: { chatId, chatType: 'GROUP' },
     });
 
     if (!chat) {
@@ -107,12 +108,31 @@ const AddNewMembersToGroupChat = AsyncHandler(async (req: CustomRequest, res: Re
         return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "You are not an admin of this group chat.", {}));
     }
 
-    const userChats = await prisma.userChat.createMany({
+    await prisma.userChat.createMany({
         data: memberIds.map((memberId: string) => ({
             chatId,
             userId: memberId
         }))
     });
+    
+    const newAddedMembers = await prisma.user.findMany({
+        where: {
+            userId: { in: memberIds }
+        }
+    });
+
+    const messages = newAddedMembers.map((member) => `${member.username} joined the group chat.`);
+
+    await prisma.message.createMany({
+        data: messages.map((content) => ({
+            chatId,
+            senderId: user?.userId as string,
+            content,
+            messageType: 'GROUP' 
+        }))
+    })
+
+    pubsub.publish("group-joined", JSON.stringify({ chatId, memberIds, messages }));
 
     return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Users added to group chat.", {}));
 });
@@ -153,7 +173,14 @@ const RemoveMemberFromGroupChat = AsyncHandler(async (req: CustomRequest, res: R
     console.log(chatId, memberId);
     const user = req.user;
     const chat = await prisma.chat.findFirst({
-        where: { chatId, chatType: 'GROUP' }
+        where: { chatId, chatType: 'GROUP' },
+        include: {
+            users: {
+                include: {
+                    user: true
+                }
+            }
+        }
     });
 
     if (!chat) {
@@ -177,6 +204,25 @@ const RemoveMemberFromGroupChat = AsyncHandler(async (req: CustomRequest, res: R
         }
     });
 
+    const memberIds = chat.users.map((u) => u.userId);
+
+    const removedMember = await prisma.user.findFirst({
+        where: { userId: memberId }
+    });
+
+    const message = `${removedMember?.username} removed from the group chat.`;
+
+    await prisma.message.create({
+        data: {
+            chatId,
+            senderId: user?.userId as string,
+            content: message,
+            messageType: 'GROUP'
+        }
+    });
+
+    pubsub.publish("group-removed", JSON.stringify({ chatId, memberIds, message }));
+
     return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "User removed from group chat.", {}));
 });
 
@@ -185,7 +231,14 @@ const LeaveGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, ne
     const { chatId } = req.body;
     const user = req.user;
     const chat = await prisma.chat.findFirst({
-        where: { chatId, chatType: 'GROUP' }
+        where: { chatId, chatType: 'GROUP' },
+        include: {
+            users: {
+                include: {
+                    user: true
+                }
+            }
+        }
     });
 
     if (!chat) {
@@ -201,6 +254,21 @@ const LeaveGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, ne
         }
     });
 
+    const memberIds = chat.users.map((u) => u.userId);
+
+    const message = `${user?.username} left the group chat.`;
+
+    await prisma.message.create({
+        data: {
+            chatId,
+            senderId: user?.userId as string,
+            content: message,
+            messageType: 'GROUP'
+        }
+    });
+
+    pubsub.publish("group-left", JSON.stringify({ chatId, memberIds, message }));
+    
     return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "User removed from group chat.", {}));
 });
 
@@ -276,7 +344,7 @@ const GetMessages = AsyncHandler(async (req: CustomRequest, res: Response, next:
     const { chatId } = req.params;
     const chat = await prisma.chat.findFirst({
         where: { chatId},
-        include: { 
+        include: {
             messages: {
                 include: {
                     sender: true
@@ -292,6 +360,7 @@ const GetMessages = AsyncHandler(async (req: CustomRequest, res: Response, next:
     const response = {
         messages: chat.messages.map((message) => ({
             username: message.sender.username,
+            chatType: chat.chatType,
             senderId: message.senderId,
             chatId: message.chatId,
             content: message.content,

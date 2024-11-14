@@ -1,7 +1,7 @@
 "use client"
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IChats, IMessage, IConnectionChat, IGroupChat } from "@/types/types";
+import { IChats, IMessage, IConnectionChat, IGroupChat, ITyping, IChatTypings } from "@/types/types";
 
 const selectedConnectionChat: IConnectionChat = {
     chatId: "",
@@ -21,6 +21,7 @@ const selectedGroupChat: IGroupChat = {
 const connectionChats: IConnectionChat[] = [];
 const groupChats: IGroupChat[] = [];
 const chats: IChats = {};
+const chatTypings: IChatTypings = {};
 
 
 const initialState = {
@@ -29,6 +30,7 @@ const initialState = {
     connectionChats: connectionChats,
     groupChats: groupChats,
     chats: chats,
+    chatTypings: chatTypings,
 };
 
 const ChatSlice = createSlice({
@@ -55,6 +57,14 @@ const ChatSlice = createSlice({
             const { chatId, message } = action.payload;
             state.chats[chatId].push(message);
         },
+        addTyping: (state, action: PayloadAction<{chatId: string; typing: ITyping}>) => {
+            const { chatId, typing } = action.payload;
+            state.chatTypings[chatId] = typing;
+        },
+        removeTyping: (state, action: PayloadAction<string>) => {
+            const chatId = action.payload;
+            delete state.chatTypings[chatId];
+        },
         resetChats: (state) => {
             state.connectionChats = [];
             state.chats = {};
@@ -62,5 +72,5 @@ const ChatSlice = createSlice({
     },
 });
 
-export const { setSelectedConnectionChat, setSelectedGroupChat, setConnectionChats, setGroupChats, setChats, resetChats, addMessage } = ChatSlice.actions;
+export const { setSelectedConnectionChat, setSelectedGroupChat, setConnectionChats, setGroupChats, setChats, resetChats, addTyping, removeTyping, addMessage } = ChatSlice.actions;
 export { ChatSlice };

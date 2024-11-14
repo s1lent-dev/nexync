@@ -1,24 +1,24 @@
 'use client';
 import { useAxios } from "@/context/helper/axios";
-import { IMessage } from "@/types/types";
+import { IMessage, ITyping } from "@/types/types";
 import { AxiosError } from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { useSocket } from "@/context/helper/socket";
 import { RootState } from "@/context/store";
 import { useEffect } from "react";
-import { addMessage, setChats, setConnectionChats, setGroupChats } from "@/context/reducers/chats";
+import { addMessage, addTyping, removeTyping, setChats, setConnectionChats, setGroupChats } from "@/context/reducers/chats";
 
 
 
 const useCreateGroupChat = () => {
     const { axios, state, dispatch } = useAxios();
-    const createGroupChat = async (data : FormData) => {
+    const createGroupChat = async (data: FormData) => {
         const payload = {
             name: data.get('name'),
             tagline: data.get('tagline'),
             memberIds: data.getAll('memberIds')
         }
-        console.log("payload", payload);    
+        console.log("payload", payload);
         dispatch({ type: 'REQUEST_START' });
         try {
             const res = await axios.post('/chat/create-group', payload, {
@@ -252,21 +252,47 @@ const useSendMessage = () => {
     return { sendMessage };
 }
 
+const useTypingMessage = () => {
+    const socket = useSocket();
+    const typingMessage = async (typing: ITyping) => {
+        socket?.emit('typing', typing);
+    }
+    return { typingMessage };
+}
+
 const useSocketMessages = () => {
     const reduxDispatch = useDispatch();
     const socket = useSocket();
     const me = useSelector((state: RootState) => state.user.me);
+
     useEffect(() => {
         if (!socket) return;
-        const handleNewMessage = ({ senderId, chatId, memberIds, content, createdAt }: IMessage) => {
-            reduxDispatch(addMessage({ chatId, message: { senderId, chatId, memberIds, content, createdAt } }));
+
+        let typingTimeout: NodeJS.Timeout;
+
+        const handleNewMessage = ({ senderId, chatId, username, chatType, memberIds, content, createdAt }: IMessage) => {
+            reduxDispatch(addMessage({ chatId, message: { senderId, username, chatType, chatId, memberIds, content, createdAt } }));
         };
-        
+
+        const handleTyping = ({ senderId, chatId, username, memberIds }: ITyping) => {
+            reduxDispatch(addTyping({ chatId, typing: { senderId, username, chatId, memberIds } }));
+
+            if (typingTimeout) {
+                clearTimeout(typingTimeout);
+            }
+
+            typingTimeout = setTimeout(() => {
+                reduxDispatch(removeTyping(chatId)); 
+            }, 2000);
+        };
+
         socket.on("messages", handleNewMessage);
-        console.log("Socket connected: ", socket.id);
+        socket.on("typing", handleTyping);
 
         return () => {
             socket.off("messages", handleNewMessage);
+            socket.off("typing", handleTyping);
+            if (typingTimeout) clearTimeout(typingTimeout);
         };
     }, [socket, me.userId, reduxDispatch]);
 
@@ -275,6 +301,6 @@ const useSocketMessages = () => {
 };
 
 
-export { useCreateGroupChat, useRenameGroupChat, useRenameTagline, useAddMemberToGroupChat, useAddMembersToGroupChat, useRemoveMemberFromGroupChat, useLeaveGroupChat, useGetConnectionChats, useGetGroupChats, useGetMessages, useSendMessage, useSocketMessages };
+export { useCreateGroupChat, useRenameGroupChat, useRenameTagline, useAddMemberToGroupChat, useAddMembersToGroupChat, useRemoveMemberFromGroupChat, useLeaveGroupChat, useGetConnectionChats, useGetGroupChats, useGetMessages, useSendMessage, useTypingMessage, useSocketMessages };
 
 
