@@ -123,7 +123,7 @@ const ForgotPassword = AsyncHandler(async (req: Request, res: Response, next: Ne
     const token = await generateResetPasswordToken(user);
     const resetLink = `${FRONTEND_URL}/reset-password?token=${token}`;
     emailQueue.sendPasswordResetEmail({ email, contentType: MailType.RESET_PASSWORD, content: resetLink });
-    res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, 'Reset link sent successfully', {}));
+    res.status(HTTP_STATUS_OK).cookie('resetToken', token, COOKIE_OPTIONS).json(new ResponseHandler(HTTP_STATUS_OK, 'Reset link sent successfully', {}));
 });
 
 const ResetPassword = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {

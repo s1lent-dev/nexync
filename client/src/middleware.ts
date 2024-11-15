@@ -6,10 +6,14 @@ export function middleware(req: NextRequest) {
   const refreshToken = req.cookies.get('refreshToken');
 
   if (req.nextUrl.pathname === '/reset-password') {
+    const checkToken = req.cookies.get('resetToken');
     const urlToken = req.nextUrl.searchParams.get('token');
-    if (!urlToken) {
+    console.log(urlToken);
+    if (!urlToken || checkToken?.value !== urlToken) {
       return NextResponse.redirect(new URL('/login', req.url));
     }
+    
+    return NextResponse.next();
   }
 
   if (accessToken || refreshToken) {

@@ -26,7 +26,7 @@ const AddMembers: React.FC<AddMembersProps> = ({ connections, setShowAddMembers,
 
     const handleAddMembers = async () => {
         try {
-            const res = await addMembersToGroupChat(group.chatId, memberIds);
+            const res = await addMembersToGroupChat(group.chatId, memberIds, group.members.map(member => member.userId));
             if(res.statusCode === 200) {
                 showSuccessToast('Members added successfully');
                 setShowAddMembers(false);

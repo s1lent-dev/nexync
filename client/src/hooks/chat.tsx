@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSocket } from "@/context/helper/socket";
 import { RootState } from "@/context/store";
 import { useEffect } from "react";
-import { addMessage, addTyping, removeTyping, setChats, setConnectionChats, setGroupChats } from "@/context/reducers/chats";
+import { addMessage, addMessages, addTyping, removeTyping, setChats, setConnectionChats, setGroupChats } from "@/context/reducers/chats";
 
 
 
@@ -108,10 +108,10 @@ const useAddMemberToGroupChat = () => {
 
 const useAddMembersToGroupChat = () => {
     const { axios, state, dispatch } = useAxios();
-    const addMembersToGroupChat = async (chatId: string, memberIds: string[]) => {
+    const addMembersToGroupChat = async (chatId: string, newMemberIds: string[], memberIds: string[] ) => {
         dispatch({ type: 'REQUEST_START' });
         try {
-            const res = await axios.post('/chat/add-members', { chatId, memberIds });
+            const res = await axios.post('/chat/add-members', { chatId, newMemberIds, memberIds });
             dispatch({ type: 'REQUEST_SUCCESS' });
             return res.data;
         } catch (err) {
@@ -270,8 +270,8 @@ const useSocketMessages = () => {
 
         let typingTimeout: NodeJS.Timeout;
 
-        const handleNewMessage = ({ senderId, chatId, username, chatType, memberIds, content, createdAt }: IMessage) => {
-            reduxDispatch(addMessage({ chatId, message: { senderId, username, chatType, chatId, memberIds, content, createdAt } }));
+        const handleNewMessage = ({ senderId, chatId, username, messageType, chatType, memberIds, content, createdAt }: IMessage) => {
+            reduxDispatch(addMessage({ chatId, message: { senderId, username, messageType, chatType, chatId, memberIds, content, createdAt } }));
         };
 
         const handleTyping = ({ senderId, chatId, username, memberIds }: ITyping) => {
@@ -286,12 +286,33 @@ const useSocketMessages = () => {
             }, 2000);
         };
 
+        const handleGroupJoined = ({chatId, messages}: {chatId: string, messages: IMessage[]}) => {
+            console.log("group joined", chatId, messages);
+            reduxDispatch(addMessages({ chatId, messages }));
+        }
+
+        const handleGroupLeft = ({chatId, message}: {chatId: string, message: IMessage}) => {
+            console.log("group left", chatId, message);
+            reduxDispatch(addMessage({ chatId, message }));
+        }
+
+        const handleGroupRemoved = ({chatId, message}: {chatId: string, message: IMessage}) => {
+            console.log("group removed", chatId, message);
+            reduxDispatch(addMessage({ chatId, message }));
+        }
+
         socket.on("messages", handleNewMessage);
         socket.on("typing", handleTyping);
+        socket.on("group-joined", handleGroupJoined);
+        socket.on("group-left", handleGroupLeft);
+        socket.on("group-removed", handleGroupRemoved);
 
         return () => {
             socket.off("messages", handleNewMessage);
             socket.off("typing", handleTyping);
+            socket.off("group-joined", handleGroupJoined);
+            socket.off("group-left", handleGroupLeft);
+            socket.off("group-removed", handleGroupRemoved);
             if (typingTimeout) clearTimeout(typingTimeout);
         };
     }, [socket, me.userId, reduxDispatch]);

@@ -5,7 +5,7 @@ import { SendHorizontal } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/context/store';
 import { useGetMessages, useSendMessage, useSocketMessages, useTypingMessage } from '@/hooks/chat';
-import { ChatType, IMessage, ITyping } from '@/types/types';
+import { ChatType, IMessage, ITyping, MessageType } from '@/types/types';
 import ChatBubble from '../common/chat-bubble';
 
 const ChatSection = () => {
@@ -37,6 +37,7 @@ const ChatSection = () => {
     const message: IMessage = {
       username: me.username,
       chatType: ChatType.PRIVATE,
+      messageType: MessageType.TEXT,
       senderId: me.userId,
       chatId: user.chatId,
       memberIds: [me.userId, user.userId],

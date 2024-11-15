@@ -3,6 +3,7 @@ import Image from "next/image";
 import { IConnection } from "@/types/types";
 import { useSendConnectionRequest } from "@/hooks/user";
 import { useToast } from "@/context/toast/toast";
+import { UserPlus, MessageCircleCode, CircleDotDashed } from "lucide-react";
 
 interface SingleSuggestionProps {
   user: IConnection;
@@ -10,12 +11,10 @@ interface SingleSuggestionProps {
 }
 
 const SingleSuggestion: React.FC<SingleSuggestionProps> = ({ user, handleConnectionSent }) => {
-
   const { showSuccessToast } = useToast();
   const { sendConnectionRequest } = useSendConnectionRequest();
 
-  const renderButton = () => {
-
+  const renderActionIcon = () => {
     const handleConnectClick = async () => {
       const requestSent = await sendConnectionRequest(user.userId);
       if (requestSent) {
@@ -23,67 +22,80 @@ const SingleSuggestion: React.FC<SingleSuggestionProps> = ({ user, handleConnect
         handleConnectionSent();
       }
     };
-  
+
     if (!user.isFollowing && !user.isRequested && !user.isFollower) {
+      // Follow
       return (
-        <button
-          title="Follow"
-          type="button"
-          className="text-font_main flex items-center justify-center rounded-md bg-primary px-3 py-1 text-base outline-none transition-all duration-300"
+        <div
+          className="group flex items-center justify-center"
           onClick={handleConnectClick}
         >
-          Follow
-        </button>
+          <UserPlus className="text-primary cursor-pointer transition-transform duration-300 group-hover:scale-110" />
+          <span className="absolute z-50 -left-4 border border-chat bottom-full mb-2 hidden w-max bg-bg_dark2 text-font_main px-2 py-1 rounded-xl text-sm shadow-lg group-hover:block">
+            Follow
+          </span>
+        </div>
       );
     } else if (!user.isFollowing && !user.isRequested && user.isFollower) {
+      // Follow Back
       return (
-        <button
-          title="Follow Back"
-          type="button"
-          className="text-font_main flex items-center justify-center rounded-md bg-primary px-3 py-1 text-base outline-none transition-all duration-300"
+        <div
+          className="group flex items-center justify-center"
           onClick={handleConnectClick}
         >
-          Follow Back
-        </button>
+          <UserPlus className="text-primary cursor-pointer transition-transform duration-300 group-hover:scale-110" />
+          <span className="absolute z-50 -left-9 border border-chat bottom-full mb-2 hidden w-max bg-bg_dark2 text-font_main px-2 py-1 rounded-xl text-sm shadow-lg group-hover:block">
+            Follow Back
+          </span>
+        </div>
       );
     } else if (user.isFollowing && user.isFollower) {
+      // Chat
       return (
-        <button
-          title="Chat"
-          type="button"
-          className="text-font_main flex items-center justify-center rounded-md bg-primary px-3 py-1 text-base outline-none transition-all duration-300"
-          onClick={() => {/* Logic to initiate chat */ }}
+        <div
+          className="group flex items-center justify-center"
+          onClick={() => {
+            /* Logic to initiate chat */
+          }}
         >
-          Chat
-        </button>
+          <MessageCircleCode className="text-primary cursor-pointer transition-transform duration-300 group-hover:scale-110" />
+          <span className="absolute z-50 -left-2 border border-chat bottom-full mb-2 hidden w-max bg-bg_dark2 text-font_main px-2 py-1 rounded-xl text-sm shadow-lg group-hover:block">
+            Chat
+          </span>
+        </div>
       );
     } else if (user.isRequested) {
+      // Sent
       return (
-        <button
-          title="Sent"
-          type="button"
-          className="text-font_main flex items-center justify-center rounded-md bg-transparent border border-primary px-3 py-1 text-base outline-none transition-all duration-300 cursor-not-allowed"
-          disabled
+        <div
+          className="group flex items-center justify-center cursor-not-allowed"
         >
-          Sent
-        </button>
+          <CircleDotDashed className="text-gray-400 transition-transform duration-300 group-hover:scale-110" />
+          <span className="absolute z-50 -left-2 border border-chat bottom-full mb-2 hidden w-max bg-bg_dark2 text-font_main px-2 py-1 rounded-xl text-sm shadow-lg group-hover:block">
+            Sent
+          </span>
+        </div>
       );
     } else if (user.isFollowing && !user.isFollower) {
+      // Following
       return (
-        <button
-          title="Following"
-          type="button"
-          className="text-font_main flex items-center justify-center rounded-md bg-primary px-3 py-1 text-base outline-none transition-all duration-300"
-          onClick={() => {/* Optional logic to unfollow if desired */ }}
+        <div
+          className="group flex items-center justify-center"
+          onClick={() => {
+            /* Optional logic to unfollow if desired */
+          }}
         >
-          Following
-        </button>
+          <UserPlus className="text-primary cursor-pointer transition-transform duration-300 group-hover:scale-110" />
+          <span className="absolute z-50 -left-6 border border-chat bottom-full mb-2 hidden w-max bg-bg_dark2 text-font_main px-2 py-1 rounded-xl text-sm shadow-lg group-hover:block">
+            Following
+          </span>
+        </div>
       );
     }
   };
 
   return (
-    <div className="flex items-center p-3 hover:bg-bg_card2 cursor-pointer relative">
+    <div className="relative flex items-center p-3 hover:bg-bg_card2 cursor-pointer">
       <div className="w-[50px] h-[50px] rounded-full overflow-hidden">
         <Image
           src={user.avatarUrl || "/pfp.jpg"}
@@ -95,11 +107,9 @@ const SingleSuggestion: React.FC<SingleSuggestionProps> = ({ user, handleConnect
       </div>
       <div className="ml-4 flex flex-col flex-grow justify-between">
         <h4 className="font-light tracking-wide text-font_main">{user.username}</h4>
-        <p className="text-sm text-gray-600 truncate">
-          {user.bio}
-        </p>
+        <p className="text-sm text-gray-600 truncate">{user.bio}</p>
       </div>
-      {renderButton()}
+      <div className="relative flex items-center justify-center">{renderActionIcon()}</div>
       <span className="absolute bottom-0 left-14 right-0 h-[2px] bg-bg_card2" />
     </div>
   );

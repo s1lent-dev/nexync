@@ -48,15 +48,23 @@ enum ChatType {
     GROUP = "GROUP",
 }
 
+enum MessageType {
+    TEXT = "TEXT",
+    IMAGE = "IMAGE",
+    GROUP = "GROUP",
+}
+
 type IMessage = {
     username: string | null;
     chatType: ChatType | null;
+    messageType: MessageType | null;
     senderId: string;
     chatId: string;
     memberIds: string[];
     content: string;
     createdAt: Date | null;
 }
+
 
 type ITyping = {
     senderId: string;
@@ -90,4 +98,4 @@ type ILoginForm = {
 }
 
 export type { INavigationItem, IRegsitrationForm, ILoginForm, IUser, IConnection, IGroupChat, IConnectionChat, IConnectionRequests, IMessage, ITyping, IChatTypings, IChats };
-export { ChatType };
+export { ChatType, MessageType };

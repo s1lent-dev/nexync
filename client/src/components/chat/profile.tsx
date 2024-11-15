@@ -52,7 +52,7 @@ const Profile: React.FC<ProfileProps> = ({ onClose, user }) => {
             Media, links and docs
           </h4>
           <div className="flex flex-row gap-2">
-            <span className="font-segoe text-font_dark font-thin">112</span>
+            <span className="font-segoe text-font_dark font-thin">32</span>
             <ChevronRight width={20} className="text-primary" />
           </div>
         </div>
@@ -79,11 +79,11 @@ const Profile: React.FC<ProfileProps> = ({ onClose, user }) => {
         </div>
         <div className="flex flex-row gap-6 p-4 hover:bg-bg_card2 w-full">
           <Ban className="text-error ml-4" />
-          <span className="font-segoe font-thin text-error tracking-wide">Block Paresh</span>
+          <span className="font-segoe font-thin text-error tracking-wide">Block {user.username}</span>
         </div>
         <div className="flex flex-row gap-6 p-4 hover:bg-bg_card2 w-full">
           <ThumbsDown className="text-error ml-4" />
-          <span className="font-segoe font-thin text-error tracking-wide">Report Paresh</span>
+          <span className="font-segoe font-thin text-error tracking-wide">Report {user.username}</span>
         </div>
         <div className="flex flex-row gap-6 p-4 hover:bg-bg_card2 w-full">
           <Trash2 className="text-error ml-4" />

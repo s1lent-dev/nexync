@@ -14,18 +14,14 @@ interface User {
 enum MessageType {
     TEXT,
     IMAGE,
-    VIDEO,
-    AUDIO,
-    FILE,
-    LOCATION,
-    CONTACT
+    GROUP,
 }
 
 enum MessageStatus {
     PENDING,
     SENT,
     DELIVERED,
-    READ
+    READ,
 }
 
 interface MessageEvent {
@@ -34,6 +30,7 @@ interface MessageEvent {
     chatId: string;
     memberIds: string[];
     content: string;
+    messageType: MessageType;
     createdAt: Date | null;
 }
 
@@ -47,23 +44,32 @@ interface TypingEvent {
 interface GroupJoinedEvent {
     chatId: string;
     memberIds: string[];
-    messages: string[];
+    messages: {
+        content: string;
+        messageType: MessageType;
+    }[];
 }
 
 interface GroupRemoveEvent {
     chatId: string;
     memberIds: string[];
-    message: string
+    message: {
+        content: string;
+        messageType: MessageType;
+    };
 }
 interface GroupLeftEvent {
     chatId: string;
     memberIds: string[];
-    message: string;
+    message: {
+        content: string;
+        messageType: MessageType;
+    };
 }
 
 enum EventType {
     MESSAGE,
-    TYPING
+    TYPING,
 }
 
 type Event = MessageEvent | TypingEvent;
@@ -99,7 +105,7 @@ enum MailType {
     CONFIRMATION,
     RESET_PASSWORD,
     PASSWORD,
-    VERIFY_EMAIL
+    VERIFY_EMAIL,
 }
 interface MailContent {
     email: string;
@@ -107,11 +113,30 @@ interface MailContent {
     content: string;
 }
 
-type ControllerType = (req: Request, res: Response, next: NextFunction) => Promise<void | Response<any, Record<string, any>>>;
+type ControllerType = (
+    req: Request,
+    res: Response,
+    next: NextFunction
+) => Promise<void | Response<any, Record<string, any>>>;
 
 interface CustomRequest extends Request {
     user?: User;
 }
 
-
-export { ControllerType, CustomRequest, User, Message, MessageEvent, TypingEvent, GroupJoinedEvent, GroupRemoveEvent, GroupLeftEvent, Event, EventType, Chat, UserChat, MailContent, MailType };
+export {
+    ControllerType,
+    CustomRequest,
+    User,
+    Message,
+    MessageEvent,
+    TypingEvent,
+    GroupJoinedEvent,
+    GroupRemoveEvent,
+    GroupLeftEvent,
+    Event,
+    EventType,
+    Chat,
+    UserChat,
+    MailContent,
+    MailType,
+};

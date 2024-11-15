@@ -140,7 +140,7 @@ const useLogout = () => {
             reduxDispatch(resetMe());
             reduxDispatch(resetSelectedUser());
             reduxDispatch(resetChats());
-            reduxDispatch(setNavigation("chat"));
+            reduxDispatch(setNavigation("chats"));
             return res.data.data;
         } catch (err) {
             if (err instanceof AxiosError) {

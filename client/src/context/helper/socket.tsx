@@ -2,6 +2,7 @@
 import { io, Socket } from "socket.io-client";
 import { createContext, useContext, useEffect, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation"; // Use Next.js hooks
+import Cookie from "js-cookie";
 
 const SocketContext = createContext<Socket | null>(null);
 const useSocket = () => useContext(SocketContext);
@@ -10,6 +11,7 @@ const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    const accessToken = Cookie.get("accessToken");
 
     useEffect(() => {
         const socketInstance = io(process.env.NEXT_PUBLIC_API_URL, { 
@@ -37,7 +39,7 @@ const SocketProvider = ({ children }: { children: React.ReactNode }) => {
         };
         handleRouteChange();
 
-    }, [socket, pathname, searchParams]); // Re-run when socket, pathname, or searchParams changes
+    }, [socket, pathname, searchParams, accessToken]); // Re-run when socket, pathname, or searchParams changes
 
     return (
         <SocketContext.Provider value={socket}>

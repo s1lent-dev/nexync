@@ -5,7 +5,7 @@ import { SendHorizontal } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/context/store';
 import { useGetMessages, useSendMessage, useSocketMessages, useTypingMessage } from '@/hooks/chat';
-import { ChatType, IMessage, ITyping } from '@/types/types';
+import { ChatType, IMessage, ITyping, MessageType } from '@/types/types';
 import ChatBubble from '../common/chat-bubble';
 
 const GroupChatSection = () => {
@@ -37,6 +37,7 @@ const GroupChatSection = () => {
     const message: IMessage = {
       username: me.username,
       chatType: ChatType.GROUP,
+      messageType: MessageType.TEXT,
       senderId: me.userId,
       chatId: group.chatId,
       memberIds: group.members.map((member) => member.userId),
@@ -110,24 +111,34 @@ const GroupChatSection = () => {
             groupMessages && groupMessages.map((message, index) => (
               <div
                 key={index}
-                className={`flex ${message.senderId === me.userId ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${message.messageType === 'GROUP'
+                    ? 'justify-center'
+                    : message.senderId === me.userId
+                      ? 'justify-end'
+                      : 'justify-start'
+                  }`}
               >
                 <div
-                  className={`p-2 rounded-lg max-w-xs break-words flex flex-col ${message.senderId === me.userId ? 'bg-chat text-font_main' : 'bg-bg_card2 text-font_main'
+                  className={`p-2 rounded-lg max-w-xs break-words flex flex-col ${message.messageType === 'GROUP'
+                      ? 'bg-bg_card2 text-font_main'
+                      : message.senderId === me.userId
+                        ? 'bg-chat text-font_main'
+                        : 'bg-bg_card2 text-font_main'
                     }`}
                 >
-                  {message.senderId !== me.userId ? (
-                    <span className='text-xs text-font_dark'>{message.username}</span>
-                  ) : (
-                    <span className='text-xs text-font_dark'>you</span>
+                  {message.messageType !== 'GROUP' && (
+                    <span className='text-xs text-font_dark'>
+                      {message.senderId === me.userId ? 'you' : message.username}
+                    </span>
                   )}
-                  <span className='text-base'>{message.content}</span>
+                  <span className={`text-base ${message.messageType === 'GROUP' ? 'text-xs' : 'text-base'}`}>{message.content}</span>
                 </div>
               </div>
+
             ))
           )}
           {typing && typing.chatId === group.chatId && typing.senderId !== me.userId && (
-            <ChatBubble username={typing.username}/>
+            <ChatBubble username={typing.username} />
           )}
         </article>
 

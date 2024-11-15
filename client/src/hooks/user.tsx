@@ -152,8 +152,8 @@ const useGetConnectionRequests = () => {
             dispatch({ type: 'REQUEST_SUCCESS' });
             const requests = res.data.data;
             reduxDispatch(setConnectionRequests(requests));
-            console.log(res.data.data);
-            return res.data.data;
+            console.log(res.data);
+            return res.data;
         } catch (err) {
             if (err instanceof AxiosError) {
                 dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });

@@ -33,8 +33,8 @@ class PubSubRedis extends RedisService {
     async subscribeChatsCallback() {
         this.subscribe("messages", (message) => {
             const msg = JSON.parse(message) as MessageEvent;
-            const { senderId, username, chatId, memberIds, content, createdAt } = msg;
-            socketService.emitEvents("messages", { senderId, username, chatId, memberIds, content, createdAt });
+            const { senderId, username, messageType, chatId, memberIds, content, createdAt } = msg;
+            socketService.emitEvents("messages", { senderId, username, messageType, chatId, memberIds, content, createdAt });
         });
     }
 
@@ -55,10 +55,10 @@ class PubSubRedis extends RedisService {
     }
 
     async subscribeGroupRemoveCallback() {
-        this.subscribe("group-remove", async (messageReceived) => {
+        this.subscribe("group-removed", async (messageReceived) => {
             const msg = JSON.parse(messageReceived) as GroupRemoveEvent;
             const { chatId, memberIds, message } = msg;
-            socketService.emitEvents("group-remove", { chatId, memberIds, message });
+            socketService.emitEvents("group-removed", { chatId, memberIds, message });
         });
     }
 

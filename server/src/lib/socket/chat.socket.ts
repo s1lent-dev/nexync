@@ -12,11 +12,11 @@ class ChatSocket extends SocketService {
     protected async registerEvents(socket: Socket) {
         console.log("ChatSocket registerEvents called.");
 
-        socket.on("messages", async ({ senderId, username, chatId, memberIds, content, createdAt }: MessageEvent) => {
+        socket.on("messages", async ({ senderId, username, chatId, messageType, memberIds, content, createdAt }: MessageEvent) => {
             console.log(`Message from ${socket.id}: ${content}`);
             console.log("Members: ", chatId);
-            await kafka.publishMessage({ senderId, username, chatId, memberIds, content, createdAt });
-            await pubsub.publish("messages", JSON.stringify({ senderId, username, chatId, memberIds, content, createdAt }));
+            await kafka.publishMessage({ senderId, username, chatId, messageType, memberIds, content, createdAt });
+            await pubsub.publish("messages", JSON.stringify({ senderId, username, messageType, chatId, memberIds, content, createdAt }));
         });
 
         socket.on("typing", async ({ senderId, username, chatId, memberIds }: TypingEvent) => {

@@ -57,6 +57,10 @@ const ChatSlice = createSlice({
             const { chatId, message } = action.payload;
             state.chats[chatId].push(message);
         },
+        addMessages: (state, action: PayloadAction<{chatId: string; messages: IMessage[]}>) => {
+            const { chatId, messages } = action.payload;
+            state.chats[chatId].push(...messages);
+        },
         addTyping: (state, action: PayloadAction<{chatId: string; typing: ITyping}>) => {
             const { chatId, typing } = action.payload;
             state.chatTypings[chatId] = typing;
@@ -72,5 +76,5 @@ const ChatSlice = createSlice({
     },
 });
 
-export const { setSelectedConnectionChat, setSelectedGroupChat, setConnectionChats, setGroupChats, setChats, resetChats, addTyping, removeTyping, addMessage } = ChatSlice.actions;
+export const { setSelectedConnectionChat, setSelectedGroupChat, setConnectionChats, setGroupChats, setChats, resetChats, addTyping, removeTyping, addMessage, addMessages } = ChatSlice.actions;
 export { ChatSlice };
