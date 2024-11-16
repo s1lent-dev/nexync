@@ -7,6 +7,7 @@ model User {
     password         String
     avatarUrl        String?
     bio              String?             @default("Hey there! I'm using Nexync.")
+    lastUsernameEdit DateTime?
     chats            UserChat[]
     messages         Message[]           @relation("UserSentMessages")
     followers        Connection[]        @relation("UserFollowers")

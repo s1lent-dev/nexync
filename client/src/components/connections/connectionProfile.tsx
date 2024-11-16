@@ -1,7 +1,15 @@
 import React from "react";
 import { X } from "lucide-react";
 import Image from "next/image";
-import { ChevronRight, Heart, Ban, ThumbsDown, Trash2, MessageCircleCode, Phone } from "lucide-react";
+import {
+  ChevronRight,
+  Heart,
+  Ban,
+  ThumbsDown,
+  Trash2,
+  MessageCircleCode,
+  Phone,
+} from "lucide-react";
 import { IConnection } from "@/types/types";
 
 interface ProfileProps {
@@ -10,6 +18,25 @@ interface ProfileProps {
 }
 
 const ConnectionProfile: React.FC<ProfileProps> = ({ onClose, user }) => {
+
+  const getActions = () => {
+    const actions = [];
+    if (user.isFollowing && user.isFollower && !user.isRequested) {
+      actions.push({ label: "Unfollow", icon: <Trash2 className="text-error ml-4" /> });
+      actions.push({ label: "Remove Follower", icon: <Trash2 className="text-error ml-4" /> });
+    } else if (user.isFollowing && !user.isFollower && !user.isRequested) {
+      actions.push({ label: "Unfollow", icon: <Trash2 className="text-error ml-4" /> });
+    } else if (user.isFollower && !user.isFollowing && user.isRequested) {
+      actions.push({ label: "Remove Follower", icon: <Trash2 className="text-error ml-4" /> });
+      actions.push({ label: "Unsend Request", icon: <Trash2 className="text-error ml-4" /> });
+    } else if (user.isFollower && !user.isFollowing && !user.isRequested) {
+      actions.push({ label: "Remove Follower", icon: <Trash2 className="text-error ml-4" /> });
+    }
+    return actions;
+  };
+
+  const actions = getActions();
+
   return (
     <aside className="flex flex-col h-full w-full bg-bg_dark1 shadow-lg overflow-y-scroll custom-scrollbar relative">
       {/* Sticky Navbar */}
@@ -22,14 +49,14 @@ const ConnectionProfile: React.FC<ProfileProps> = ({ onClose, user }) => {
       <div className="flex flex-col w-full items-center justify-center bg-bg_card3 p-5">
         <div className="flex items-center justify-center">
           <div className="w-[200px] h-[200px] rounded-full overflow-hidden">
-                <Image
-                    src={user.avatarUrl || "/pfp.jpg"}
-                    width={200}
-                    height={200}
-                    alt="desc"
-                    className="object-cover w-fit h-fit rounded-full"
-                />
-            </div>
+            <Image
+              src={user.avatarUrl || "/pfp.jpg"}
+              width={200}
+              height={200}
+              alt="Profile picture"
+              className="object-cover w-fit h-fit rounded-full"
+            />
+          </div>
         </div>
         <h2 className="mt-6 font-thin tracking-wider font-sfpro text-font_main text-xl antialiased">
           {user.username}
@@ -39,11 +66,11 @@ const ConnectionProfile: React.FC<ProfileProps> = ({ onClose, user }) => {
         </span>
         <div className="flex flex-row gap-4 mt-6">
           <button className="flex flex-row gap-4 px-4 py-2 bg-primary border border-primary rounded-md">
-            <MessageCircleCode width={25} strokeWidth={1} className="text-font_main"/>
+            <MessageCircleCode width={25} strokeWidth={1} className="text-font_main" />
             <span className="text-font_main">Message</span>
           </button>
           <button className="flex flex-row gap-4 px-4 py-2 bg-primary border border-primary rounded-md">
-            <Phone width={25} strokeWidth={1} className="text-font_main"/>
+            <Phone width={25} strokeWidth={1} className="text-font_main" />
             <span className="text-font_main">Call</span>
           </button>
         </div>
@@ -84,6 +111,7 @@ const ConnectionProfile: React.FC<ProfileProps> = ({ onClose, user }) => {
         </div>
       </div>
 
+      {/* Actions */}
       <div className="flex flex-col w-full bg-bg_card3 mt-3 mb-3">
         <div className="flex flex-row gap-6 p-4 hover:bg-bg_card2 w-full">
           <Heart className="text-font_dark ml-4" />
@@ -97,13 +125,21 @@ const ConnectionProfile: React.FC<ProfileProps> = ({ onClose, user }) => {
           <ThumbsDown className="text-error ml-4" />
           <span className="font-segoe font-thin text-error tracking-wide">Report {user.username}</span>
         </div>
-        <div className="flex flex-row gap-6 p-4 hover:bg-bg_card2 w-full">
-          <Trash2 className="text-error ml-4" />
-          <span className="font-segoe font-thin text-error tracking-wide">Unfollow {user.username}</span>
-        </div>
+        {actions.map((action, index) => (
+          <div
+            key={index}
+            className="flex flex-row gap-6 p-4 hover:bg-bg_card2 w-full cursor-pointer"
+          >
+            {action.icon}
+            <span className="font-segoe font-thin text-error tracking-wide">
+              {action.label}
+            </span>
+          </div>
+        ))}
       </div>
     </aside>
   );
 };
 
 export default ConnectionProfile;
+

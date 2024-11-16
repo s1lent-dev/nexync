@@ -70,6 +70,30 @@ class PubSubRedis extends RedisService {
         });
     }
 
+    async subscribeMakeAdminCallback() {
+        this.subscribe("make-admin", async (messageReceived) => {
+            const msg = JSON.parse(messageReceived) as GroupLeftEvent;
+            const { chatId, memberIds, message } = msg;
+            socketService.emitEvents("make-admin", { chatId, memberIds, message });
+        });
+    }
+
+    async subscribeDismissAdminCallback() {
+        this.subscribe("dismiss-admin", async (messageReceived) => {
+            const msg = JSON.parse(messageReceived) as GroupLeftEvent;
+            const { chatId, memberIds, message } = msg;
+            socketService.emitEvents("dismiss-admin", { chatId, memberIds, message });
+        });
+    }
+
+    async subscribeRefetchChats() {
+        this.subscribe("refetch-chats", async(message) => {
+            const msg = JSON.parse(message) as { chatId: string, memberIds: string[], adminId: string };
+            const { chatId, memberIds, adminId } = msg;
+            socketService.refetchChats("refetch-chats", { chatId, memberIds, adminId });
+        })
+    }
+
     async unsubscribe(channel: string) {
         this.subscriber?.unsubscribe(channel);
     }
@@ -80,6 +104,9 @@ class PubSubRedis extends RedisService {
         await this.subscribeGroupJoinedCallback();
         await this.subscribeGroupRemoveCallback();
         await this.subscribeGroupLeftCallback();
+        await this.subscribeMakeAdminCallback();
+        await this.subscribeDismissAdminCallback();
+        await this.subscribeRefetchChats();
     }
 
 }

@@ -7,8 +7,13 @@ import {
 import { uploadToS3 } from "../services/aws.service.js";
 import { CustomRequest } from "../types/types.js";
 import { prisma } from "../lib/db/prisma.db.js";
-import { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_OK } from "../config/config.js";
-import { socketService, cache } from "../app.js";
+import {
+    HTTP_STATUS_BAD_REQUEST,
+    HTTP_STATUS_NOT_FOUND,
+    HTTP_STATUS_OK,
+} from "../config/config.js";
+import { cache } from "../app.js";
+import { canUpdateUsername } from "../utils/helper.util.js";
 
 const getMe = AsyncHandler(
     async (req: CustomRequest, res: Response, next: NextFunction) => {
@@ -114,7 +119,7 @@ const sendConnectionRequest = AsyncHandler(
         });
 
         await cache.delCache(`getSuggestions:${user?.userId}`);
-        
+
         res
             .status(HTTP_STATUS_OK)
             .json(
@@ -122,6 +127,31 @@ const sendConnectionRequest = AsyncHandler(
             );
     }
 );
+
+
+const unsendConnectionRequest = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { userId } = req.params;
+    const user = req.user;
+    const request = await prisma.connectionRequest.findFirst({
+        where: { senderId: user?.userId, receiverId: userId },
+    });
+    if (!request) {
+        return next(
+            new ErrorHandler("Request not found", HTTP_STATUS_BAD_REQUEST)
+        );
+    }
+    await prisma.connectionRequest.delete({
+        where: { requestId: request.requestId },
+    });
+
+    await cache.delCache(`getSuggestions:${user?.userId}`);
+
+    res
+        .status(HTTP_STATUS_OK)
+        .json(
+            new ResponseHandler(HTTP_STATUS_OK, "Request unsend successfully", {})
+        );
+});
 
 const acceptConnectionRequest = AsyncHandler(
     async (req: CustomRequest, res: Response, next: NextFunction) => {
@@ -200,11 +230,11 @@ const acceptConnectionRequest = AsyncHandler(
         await cache.delCache(`getMyConnections:${user?.userId}`);
         await cache.delCache(`getAllConnections:${user?.userId}`);
         await cache.delCache(`getSuggestions:${user?.userId}`);
-        await cache.delCache(`get-connection-chats-${user?.userId}`)
+        await cache.delCache(`get-connection-chats-${user?.userId}`);
         await cache.delCache(`getMyConnections:${userId}`);
         await cache.delCache(`getAllConnections:${userId}`);
         await cache.delCache(`getSuggestions:${userId}`);
-        await cache.delCache(`get-connection-chats-${userId}`)
+        await cache.delCache(`get-connection-chats-${userId}`);
 
         res
             .status(HTTP_STATUS_OK)
@@ -214,10 +244,136 @@ const acceptConnectionRequest = AsyncHandler(
     }
 );
 
+const removeFollwers = AsyncHandler(
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+        const { userId } = req.params;
+        const user = req.user;
+
+        const chatExists = await prisma.chat.findFirst({
+            where: {
+                users: {
+                    every: {
+                        userId: { in: [user?.userId as string, userId] },
+                    },
+                },
+                chatType: "PRIVATE",
+            },
+        });
+
+        if (!chatExists)
+            return next(new ErrorHandler("Chat not found", HTTP_STATUS_NOT_FOUND));
+
+        await prisma.connection.delete({
+            where: {
+                followerId_followingId: {
+                    followerId: userId,
+                    followingId: user?.userId as string,
+                },
+            },
+        });
+
+        const isFollowing = await prisma.connection.findFirst({
+            where: {
+                followerId: user?.userId as string,
+                followingId: userId,
+            },
+        });
+
+        if (!isFollowing) {
+            await prisma.chat.delete({
+                where: { chatId: chatExists.chatId },
+            });
+
+            await prisma.userChat.deleteMany({
+                where: { chatId: chatExists.chatId },
+            });
+        }
+
+        await cache.delCache(`getMyConnections:${user?.userId}`);
+        await cache.delCache(`getAllConnections:${user?.userId}`);
+        await cache.delCache(`get-connection-chats:${user?.userId}`);
+        await cache.delCache(`getMyConnections:${userId}`);
+        await cache.delCache(`getAllConnections:${userId}`);
+        await cache.delCache(`get-connection-chats:${userId}`);
+
+        res
+            .status(HTTP_STATUS_OK)
+            .json(
+                new ResponseHandler(HTTP_STATUS_OK, "Follower removed successfully", {})
+            );
+    }
+);
+
+const removeFollowing = AsyncHandler(
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+        const { userId } = req.params;
+        const user = req.user;
+
+        const chatExists = await prisma.chat.findFirst({
+            where: {
+                users: {
+                    every: {
+                        userId: { in: [user?.userId as string, userId] },
+                    },
+                },
+                chatType: "PRIVATE",
+            },
+        });
+
+        if (!chatExists)
+            return next(new ErrorHandler("Chat not found", HTTP_STATUS_NOT_FOUND));
+
+        await prisma.connection.delete({
+            where: {
+                followerId_followingId: {
+                    followerId: user?.userId as string,
+                    followingId: userId,
+                },
+            },
+        });
+
+        const isFollower = await prisma.connection.findFirst({
+            where: {
+                followerId: userId,
+                followingId: user?.userId as string,
+            },
+        });
+
+        if (!isFollower) {
+            await prisma.chat.delete({
+                where: { chatId: chatExists.chatId },
+            });
+
+            await prisma.userChat.deleteMany({
+                where: { chatId: chatExists.chatId },
+            });
+        }
+
+        await cache.delCache(`getMyConnections:${user?.userId}`);
+        await cache.delCache(`getAllConnections:${user?.userId}`);
+        await cache.delCache(`get-connection-chats:${user?.userId}`);
+        await cache.delCache(`getMyConnections:${userId}`);
+        await cache.delCache(`getAllConnections:${userId}`);
+        await cache.delCache(`get-connection-chats:${userId}`);
+
+        res
+            .status(HTTP_STATUS_OK)
+            .json(
+                new ResponseHandler(
+                    HTTP_STATUS_OK,
+                    "Following removed successfully",
+                    {}
+                )
+            );
+    }
+);
+
 const getMyConnections = AsyncHandler(
     async (req: CustomRequest, res: Response, next: NextFunction) => {
         const user = req.user;
-        if (!user?.userId) return next(new ErrorHandler("User not found", HTTP_STATUS_NOT_FOUND));
+        if (!user?.userId) {
+            return next(new ErrorHandler("User not found", HTTP_STATUS_NOT_FOUND));
+        }
 
         const cacheKey = `getMyConnections:${user.userId}`;
         let followingData = [];
@@ -228,26 +384,60 @@ const getMyConnections = AsyncHandler(
             followingData = cachedData.followingData;
             followersData = cachedData.followersData;
         } else {
+
             const following = await prisma.connection.findMany({
-                where: {
-                    followerId: user.userId,
-                },
-                include: {
-                    following: true,
-                },
+                where: { followerId: user.userId },
+                include: { following: true },
             });
 
             const followers = await prisma.connection.findMany({
-                where: {
-                    followingId: user.userId,
-                },
-                include: {
-                    follower: true,
-                },
+                where: { followingId: user.userId },
+                include: { follower: true },
             });
 
-            followingData = following.map((f) => f.following);
-            followersData = followers.map((f) => f.follower);
+            const connectionRequests = await prisma.connectionRequest.findMany({
+                where: { senderId: user.userId },
+                include: { receiver: true },
+            });
+
+            followingData = following.map((f) => {
+                const isFollower = followers.some(
+                    (follower) => follower.followerId === f.following.userId
+                );
+
+                return {
+                    userId: f.following.userId,
+                    username: f.following.username,
+                    email: f.following.email,
+                    avatarUrl: f.following.avatarUrl,
+                    bio: f.following.bio,
+                    isFollower,
+                    isFollowing: true,
+                    isRequested: false
+                };
+            });
+
+            followersData = followers.map((f) => {
+                const isFollowing = following.some(
+                    (followed) => followed.followingId === f.follower.userId
+                );
+
+                const isRequested = connectionRequests.some(
+                    (req) => req.receiverId === f.follower.userId && req.status === "pending"
+                );
+
+                return {
+                    userId: f.follower.userId,
+                    username: f.follower.username,
+                    email: f.follower.email,
+                    avatarUrl: f.follower.avatarUrl,
+                    bio: f.follower.bio,
+                    isFollower: true,
+                    isFollowing,
+                    isRequested,
+                };
+            });
+
             await cache.setCache(cacheKey, { followingData, followersData });
         }
 
@@ -260,15 +450,17 @@ const getMyConnections = AsyncHandler(
     }
 );
 
+
 const getAllConnections = AsyncHandler(
     async (req: CustomRequest, res: Response, next: NextFunction) => {
         const user = req.user;
-        if (!user?.userId) return next(new ErrorHandler("User not found", HTTP_STATUS_NOT_FOUND));
+        if (!user?.userId)
+            return next(new ErrorHandler("User not found", HTTP_STATUS_NOT_FOUND));
 
         const cacheKey = `getAllConnections:${user.userId}`;
         let connections = [];
-        
-        if(await cache.hasCache(cacheKey)) {
+
+        if (await cache.hasCache(cacheKey)) {
             const cachedData = await cache.getCache(cacheKey);
             connections = cachedData.connections;
         } else {
@@ -321,7 +513,8 @@ const getAllConnections = AsyncHandler(
 const getSuggestions = AsyncHandler(
     async (req: CustomRequest, res: Response, next: NextFunction) => {
         const user = req.user;
-        if (!user?.userId) return next(new ErrorHandler("User not found", HTTP_STATUS_NOT_FOUND));
+        if (!user?.userId)
+            return next(new ErrorHandler("User not found", HTTP_STATUS_NOT_FOUND));
 
         const cacheKey = `getSuggestions:${user.userId}`;
         let suggestions = [];
@@ -379,6 +572,61 @@ const getConnectionRequests = AsyncHandler(
     }
 );
 
+const updateUsername = AsyncHandler(
+    async (req: CustomRequest, res: Response, next: NextFunction) => {
+        const { username } = req.body;
+        const user = req.user;
+
+        if (!user) {
+            return next(new ErrorHandler("User not found", HTTP_STATUS_NOT_FOUND));
+        }
+
+        const result = await canUpdateUsername(user);
+        if (!result) {
+            return next(
+                new ErrorHandler("Unable to update username", HTTP_STATUS_BAD_REQUEST)
+            );
+        }
+
+        const { canUpdate, remainingDays } = result;
+
+        if (!canUpdate) {
+            return next(
+                new ErrorHandler(
+                    `You can update your username after ${remainingDays} days`,
+                    HTTP_STATUS_BAD_REQUEST
+                )
+            );
+        }
+
+        await prisma.user.update({
+            where: { userId: user?.userId },
+            data: {
+                username,
+                lastUsernameEdit: new Date(),
+            },
+        });
+
+        const prefixes = [
+            "getMyConnections",
+            "getAllConnections",
+            "get-connection-chats",
+            "get-group-chats",
+            "getSuggestions",
+        ];
+
+        const deleteCachePromises = prefixes.map((prefix) =>
+            cache.delCachePattern(`${prefix}:*`)
+        );
+
+        await Promise.all(deleteCachePromises);
+
+        res.json(
+            new ResponseHandler(HTTP_STATUS_OK, "Username updated successfully", {})
+        );
+    }
+);
+
 const uploadAvatar = AsyncHandler(
     async (req: CustomRequest, res: Response, next: NextFunction) => {
         const filePath = req.file?.path;
@@ -424,11 +672,15 @@ export {
     getMe,
     searchUsers,
     sendConnectionRequest,
+    unsendConnectionRequest,
     acceptConnectionRequest,
+    removeFollwers,
+    removeFollowing,
     getMyConnections,
     getAllConnections,
     getSuggestions,
     getConnectionRequests,
+    updateUsername,
     uploadAvatar,
     updateBio,
 };

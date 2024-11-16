@@ -29,6 +29,11 @@ class ChatSocket extends SocketService {
         const socketMembers = this.getSockets(data.memberIds) as string[];
         this.io.to(socketMembers).emit(event, data);
     }
+
+    public async refetchChats(event: string, {chatId, memberIds, adminId}: {chatId: string, memberIds: string[], adminId: string}) {
+        const socketMembers = this.getSockets(memberIds) as string[];
+        this.io.to(socketMembers).emit(event, {chatId, adminId});
+    }
 }
 
 export { ChatSocket };

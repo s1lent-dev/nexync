@@ -81,4 +81,24 @@ const generateResetPasswordToken = async (user: User) => {
     });
 }
 
-export { hashPassword, comparePassword, generateTokens, generatePassword, generateUsername, generateVerificationCode, compareCode, generateResetPasswordToken };
+const canUpdateUsername = async (user: User) => {
+    try {
+        if (!user.lastUsernameEdit) {
+            return { canUpdate: true, remainingDays: 0 };
+        }
+    
+        const timeDifference = Date.now() - new Date(user.lastUsernameEdit).getTime();
+        const sevenDaysInMilliseconds = 7 * 24 * 60 * 60 * 1000; 
+        if (timeDifference < sevenDaysInMilliseconds) {
+            const remainingTime = sevenDaysInMilliseconds - timeDifference;
+            const remainingDays = Math.ceil(remainingTime / (24 * 60 * 60 * 1000));
+            return { canUpdate: false, remainingDays };
+        }
+    
+        return { canUpdate: true, remainingDays: 0 };
+    } catch(err) {
+        console.error(err);
+    }
+}
+
+export { hashPassword, comparePassword, generateTokens, generatePassword, generateUsername, generateVerificationCode, compareCode, generateResetPasswordToken, canUpdateUsername };

@@ -173,6 +173,7 @@ const AddNewMembersToGroupChat = AsyncHandler(async (req: CustomRequest, res: Re
     }));
 
     pubsub.publish("group-joined", JSON.stringify({ chatId, memberIds, messages: emitMessages }));
+    pubsub.publish("refetch-chats", JSON.stringify({ chatId, memberIds: [...memberIds, ...newMemberIds], adminId: user?.userId }));
 
     return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Users added to group chat.", {}));
 });
@@ -283,8 +284,177 @@ const RemoveMemberFromGroupChat = AsyncHandler(async (req: CustomRequest, res: R
     };
 
     pubsub.publish("group-removed", JSON.stringify({ chatId, memberIds, message: emitMessage }));
+    pubsub.publish("refetch-chats", JSON.stringify({ chatId, memberIds, adminId: user?.userId }));
 
     return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "User removed from group chat.", {}));
+});
+
+
+const MakeMemberAdmin = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { chatId, memberId } = req.body;
+    const user = req.user;
+
+    if (!chatId || !memberId) {
+        return res.status(400).json(new ResponseHandler(400, "Invalid input data.", {}));
+    }
+
+    const chat = await prisma.chat.findUnique({
+        where: { chatId },
+        include: {
+            users: {
+                select: { userId: true },
+            },
+        },
+    });
+
+    if (!chat || chat.chatType !== 'GROUP') {
+        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Group chat not found.", {}));
+    }
+
+    const adminRecord = await prisma.userChat.findFirst({
+        where: { chatId, userId: user?.userId, isAdmin: true },
+    });
+
+    if (!adminRecord) {
+        return res.status(HTTP_STATUS_FORBIDDEN).json(new ResponseHandler(HTTP_STATUS_FORBIDDEN, "You are not authorized to make members admin in this group chat.", {}));
+    }
+
+    const memberExists = chat.users.some((u) => u.userId === memberId);
+
+    if (!memberExists) {
+        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Member not found in this group chat.", {}));
+    }
+
+    await prisma.userChat.update({
+        where: {
+            userId_chatId: {
+                chatId,
+                userId: memberId,
+            },
+        },
+        data: {
+            isAdmin: true,
+        },
+    });
+
+    const member = await prisma.user.findUnique({
+        where: { userId: memberId },
+        select: { username: true },
+    });
+
+    const message = `${member?.username || 'A user'} was made an admin in the group chat.`;
+
+    await prisma.message.create({
+        data: {
+            chatId,
+            senderId: user?.userId as string,
+            content: message,
+            messageType: 'GROUP',
+        },
+    });
+
+    const memberIds = chat.users.map((u) => u.userId);
+    const cacheKeysToDelete = [
+        `get-group-chats-${user?.userId}`,
+        ...memberIds.map((id) => `get-group-chats-${id}`),
+        `get-group-chats-${memberId}`,
+    ];
+
+    await Promise.all(cacheKeysToDelete.map((key) => cache.delCache(key)));
+
+    const emitMessage = {
+        content: message,
+        messageType: 'GROUP',
+    };
+
+    pubsub.publish("make-admin", JSON.stringify({ chatId, memberIds, message: emitMessage }));
+    pubsub.publish("refetch-chats", JSON.stringify({ chatId, memberIds, adminId: user?.userId }));
+
+    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "User made admin in group chat.", {}));
+});
+
+
+const DismissAdmin = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { chatId, memberId } = req.body;
+    const user = req.user;
+
+    if (!chatId || !memberId) {
+        return res.status(400).json(new ResponseHandler(400, "Invalid input data.", {}));
+    }
+
+    const chat = await prisma.chat.findUnique({
+        where: { chatId },
+        include: {
+            users: {
+                select: { userId: true },
+            },
+        },
+    });
+
+    if (!chat || chat.chatType !== 'GROUP') {
+        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Group chat not found.", {}));
+    }
+
+    const adminRecord = await prisma.userChat.findFirst({
+        where: { chatId, userId: user?.userId, isAdmin: true },
+    });
+
+    if (!adminRecord) {
+        return res.status(HTTP_STATUS_FORBIDDEN).json(new ResponseHandler(HTTP_STATUS_FORBIDDEN, "You are not authorized to dismiss admins in this group chat.", {}));
+    }
+
+    const memberExists = chat.users.some((u) => u.userId === memberId);
+
+    if (!memberExists) {
+        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Member not found in this group chat.", {}));
+    }
+
+    await prisma.userChat.update({
+        where: {
+            userId_chatId: {
+                chatId,
+                userId: memberId,
+            },
+        },
+        data: {
+            isAdmin: false,
+        },
+    });
+
+    const member = await prisma.user.findUnique({
+        where: { userId: memberId },
+        select: { username: true },
+    });
+
+    const message = `${member?.username || 'A user'} was dismissed as an admin in the group chat.`;
+
+    await prisma.message.create({
+        data: {
+            chatId,
+            senderId: user?.userId as string,
+            content: message,
+            messageType: 'GROUP',
+        },
+    });
+
+    const memberIds = chat.users.map((u) => u.userId);
+    const cacheKeysToDelete = [
+        `get-group-chats-${user?.userId}`,
+        ...memberIds.map((id) => `get-group-chats-${id}`),
+        `get-group-chats-${memberId}`,
+    ];
+
+    await Promise.all(cacheKeysToDelete.map((key) => cache.delCache(key)));
+
+    const emitMessage = {
+        content: message,
+        messageType: 'GROUP',
+    };
+
+    pubsub.publish("dismiss-admin", JSON.stringify({ chatId, memberIds, message: emitMessage }));
+    pubsub.publish("refetch-chats", JSON.stringify({ chatId, memberIds, adminId: user?.userId }));
+
+    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "User dismissed as admin in group chat.", {}));
 });
 
 
@@ -349,6 +519,7 @@ const LeaveGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, ne
     };
 
     pubsub.publish("group-left", JSON.stringify({ chatId, memberIds, message: emitMessage }));
+    pubsub.publish("refetch-chats", JSON.stringify({ chatId, memberIds, adminId: ''}));
 
     return res
         .status(HTTP_STATUS_OK)
@@ -360,7 +531,7 @@ const GetConnectionChats = AsyncHandler(async (req: CustomRequest, res: Response
     const user = req.user;
     if (!user?.userId) return next(new ErrorHandler("User not found.", HTTP_STATUS_NOT_FOUND));
 
-    const cacheKey = `get-connection-chats-${user.userId}`;
+    const cacheKey = `get-connection-chats:${user.userId}`;
     let connections = [];
 
     if (await cache.hasCache(cacheKey)) {
@@ -479,5 +650,5 @@ const GetMessages = AsyncHandler(async (req: CustomRequest, res: Response, next:
     return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Chat found.", response));
 });
 
-export { CreateGroupChat, RenameGroupChat, ChangeGroupChatTagline, AddNewMembersToGroupChat, AddNewMemberToGroupChat, RemoveMemberFromGroupChat, LeaveGroupChat, GetMessages, GetConnectionChats, GetGroupChats };
+export { CreateGroupChat, RenameGroupChat, ChangeGroupChatTagline, AddNewMembersToGroupChat, AddNewMemberToGroupChat, RemoveMemberFromGroupChat, MakeMemberAdmin, DismissAdmin, LeaveGroupChat, GetMessages, GetConnectionChats, GetGroupChats };
 

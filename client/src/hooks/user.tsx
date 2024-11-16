@@ -214,6 +214,72 @@ const useAcceptConnectionRequest = () => {
     return { acceptConnectionRequest, state };
 }
 
+const useRemoveFollower = () => {
+    const { axios, state, dispatch } = useAxios();
+    const removeFollower = async (userId: string) => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.delete(`/user/remove-follower/${userId}`);
+            dispatch({ type: 'REQUEST_SUCCESS' });
+            return res.data.data;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { removeFollower, state };
+}
+
+
+const useRemoveFollowing = () => {
+    const { axios, state, dispatch } = useAxios();
+    const removeFollowing = async (userId: string) => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.delete(`/user/remove-following/${userId}`);
+            dispatch({ type: 'REQUEST_SUCCESS' });
+            return res.data.data;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { removeFollowing, state };
+}
+
+
+// useUpdateUsername hook
+const useUpdateUsername = () => {
+    const { axios, state, dispatch } = useAxios();
+    const updateUsername = async (username: string) => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.put('/user/update-username', { username });
+            dispatch({ type: 'REQUEST_SUCCESS' });
+            return res.data;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { updateUsername, state };
+}
+
 
 // useUploadAvatar hook
 const useUploadAvatar = () => {
@@ -262,4 +328,4 @@ const useUpdateBio = () => {
 
 
 // Exports
-export { useGetMe, useGetConnections, useGetAllConnections, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useUploadAvatar, useUpdateBio };
+export { useGetMe, useGetConnections, useGetAllConnections, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useRemoveFollower, useRemoveFollowing,  useUpdateUsername, useUploadAvatar, useUpdateBio };

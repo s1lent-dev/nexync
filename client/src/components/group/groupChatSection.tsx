@@ -105,7 +105,7 @@ const GroupChatSection = () => {
 
         {/* Messages Section */}
         <article className="flex-grow overflow-y-scroll p-4 bg-bg_dark2 custom-scrollbar space-y-4">
-          {(groupMessages && groupMessages.length === 0) ? (
+          {groupMessages && groupMessages.length === 0 ? (
             <p className="text-center text-gray-400">No messages yet</p>
           ) : (
             groupMessages && groupMessages.map((message, index) => (
@@ -119,22 +119,23 @@ const GroupChatSection = () => {
                   }`}
               >
                 <div
-                  className={`p-2 rounded-lg max-w-xs break-words flex flex-col ${message.messageType === 'GROUP'
+                  className={`relative px-3 py-1 rounded-lg max-w-xs break-words flex flex-col ${message.messageType === 'GROUP'
                       ? 'bg-bg_card2 text-font_main'
                       : message.senderId === me.userId
-                        ? 'bg-chat text-font_main'
-                        : 'bg-bg_card2 text-font_main'
+                        ? 'bg-chat text-font_main before:content-[""] before:absolute before:right-[-8px] before:top-3 before:w-0 before:h-0 before:border-t-[8px] before:border-t-transparent before:border-b-[8px] before:border-b-transparent before:border-l-[8px] before:border-l-chat'
+                        : 'bg-bg_card2 text-font_main before:content-[""] before:absolute before:left-[-8px] before:top-3 before:w-0 before:h-0 before:border-t-[8px] before:border-t-transparent before:border-b-[8px] before:border-b-transparent before:border-r-[8px] before:border-r-bg_card2'
                     }`}
                 >
                   {message.messageType !== 'GROUP' && (
-                    <span className='text-xs text-font_dark'>
+                    <span className="text-xs text-font_dark">
                       {message.senderId === me.userId ? 'you' : message.username}
                     </span>
                   )}
-                  <span className={`text-base ${message.messageType === 'GROUP' ? 'text-xs' : 'text-base'}`}>{message.content}</span>
+                  <span className={`text-base ${message.messageType === 'GROUP' ? 'text-xs' : 'text-base'}`}>
+                    {message.content}
+                  </span>
                 </div>
               </div>
-
             ))
           )}
           {typing && typing.chatId === group.chatId && typing.senderId !== me.userId && (

@@ -4,9 +4,9 @@ import { IMessage, ITyping } from "@/types/types";
 import { AxiosError } from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { useSocket } from "@/context/helper/socket";
-import { RootState } from "@/context/store";
+import { RootState, store } from "@/context/store";
 import { useEffect } from "react";
-import { addMessage, addMessages, addTyping, removeTyping, setChats, setConnectionChats, setGroupChats } from "@/context/reducers/chats";
+import { addMessage, addMessages, addTyping, removeTyping, setChats, setConnectionChats, setGroupChats, setSelectedGroupChat } from "@/context/reducers/chats";
 
 
 
@@ -150,6 +150,50 @@ const useRemoveMemberFromGroupChat = () => {
 }
 
 
+const useMakeMemberAdmin = () => {
+    const { axios, state, dispatch } = useAxios();
+    const makeMemberAdmin = async (chatId: string, memberId: string) => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.put('/chat/make-admin', { chatId, memberId });
+            dispatch({ type: 'REQUEST_SUCCESS' });
+            return res.data;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { makeMemberAdmin, state };
+}
+
+
+const useDismissAdmin = () => {
+    const { axios, state, dispatch } = useAxios();
+    const dismissAdmin = async (chatId: string, memberId: string) => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.put('/chat/dismiss-admin', { chatId, memberId });
+            dispatch({ type: 'REQUEST_SUCCESS' });
+            return res.data;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { dismissAdmin, state };
+}
+
+
 const useLeaveGroupChat = () => {
     const { axios, state, dispatch } = useAxios();
     const leaveGroupChat = async (chatId: string) => {
@@ -264,6 +308,7 @@ const useSocketMessages = () => {
     const reduxDispatch = useDispatch();
     const socket = useSocket();
     const me = useSelector((state: RootState) => state.user.me);
+    const { getGroupChats } = useGetGroupChats();
 
     useEffect(() => {
         if (!socket) return;
@@ -301,11 +346,34 @@ const useSocketMessages = () => {
             reduxDispatch(addMessage({ chatId, message }));
         }
 
+        const handleMakeAdmin = ({chatId, memberIds, message}: {chatId: string, memberIds: string[], message: IMessage}) => {
+            console.log("make admin", chatId, memberIds, message);
+            reduxDispatch(addMessage({ chatId, message }));
+        }
+
+        const handleDismissAdmin = ({chatId, memberIds, message}: {chatId: string, memberIds: string[], message: IMessage}) => {
+            console.log("dismiss admin", chatId, memberIds, message);
+            reduxDispatch(addMessage({ chatId, message }));
+        }
+
+        const handleRefetchChats = async ({chatId, adminId}: {chatId: string, adminId: string}) => {
+            console.log("refetch chats", chatId);
+            await getGroupChats();
+            const groups = store.getState().chat.groupChats;
+            const group = groups.find(group => group.chatId === chatId);
+            if (group && me.userId === adminId) {
+                reduxDispatch(setSelectedGroupChat(group));
+            }
+        }
+
         socket.on("messages", handleNewMessage);
         socket.on("typing", handleTyping);
         socket.on("group-joined", handleGroupJoined);
         socket.on("group-left", handleGroupLeft);
         socket.on("group-removed", handleGroupRemoved);
+        socket.on("make-admin", handleMakeAdmin);
+        socket.on("dismiss-admin", handleDismissAdmin);
+        socket.on("refetch-chats", handleRefetchChats);
 
         return () => {
             socket.off("messages", handleNewMessage);
@@ -313,15 +381,15 @@ const useSocketMessages = () => {
             socket.off("group-joined", handleGroupJoined);
             socket.off("group-left", handleGroupLeft);
             socket.off("group-removed", handleGroupRemoved);
+            socket.off("make-admin", handleMakeAdmin);
+            socket.off("dismiss-admin", handleDismissAdmin);
+            socket.off("refetch-chats", handleRefetchChats);
             if (typingTimeout) clearTimeout(typingTimeout);
         };
     }, [socket, me.userId, reduxDispatch]);
-
-    const chats = useSelector((state: RootState) => state.chat.chats);
-    return { chats };
 };
 
 
-export { useCreateGroupChat, useRenameGroupChat, useRenameTagline, useAddMemberToGroupChat, useAddMembersToGroupChat, useRemoveMemberFromGroupChat, useLeaveGroupChat, useGetConnectionChats, useGetGroupChats, useGetMessages, useSendMessage, useTypingMessage, useSocketMessages };
+export { useCreateGroupChat, useRenameGroupChat, useRenameTagline, useAddMemberToGroupChat, useAddMembersToGroupChat, useRemoveMemberFromGroupChat, useMakeMemberAdmin, useDismissAdmin, useLeaveGroupChat, useGetConnectionChats, useGetGroupChats, useGetMessages, useSendMessage, useTypingMessage, useSocketMessages };
 
 

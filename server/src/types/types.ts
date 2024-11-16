@@ -9,7 +9,7 @@ interface User {
     password: string;
     avatarUrl?: string | null;
     bio?: string | null;
-    refreshToken?: string | null;
+    lastUsernameEdit?: Date | null;
 }
 enum MessageType {
     TEXT,
@@ -66,6 +66,7 @@ interface GroupLeftEvent {
         messageType: MessageType;
     };
 }
+
 
 enum EventType {
     MESSAGE,

@@ -20,7 +20,7 @@ const ChatSection = () => {
   const { typingMessage } = useTypingMessage();
   useSocketMessages();
   const { getMessages } = useGetMessages();
-  
+
   const handleSidebarClose = () => {
     setSidebarOpen(false);
   };
@@ -79,14 +79,14 @@ const ChatSection = () => {
         <nav className="flex justify-between items-center px-4 py-2 bg-bg_card1">
           {/* User Info */}
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => setSidebarOpen(true)}>
-          <div className="w-[40px] h-[40px] rounded-full overflow-hidden">
-                <Image
-                    src={user.avatarUrl || "/pfp.jpg"}
-                    width={40}
-                    height={40}
-                    alt="desc"
-                    className="object-cover w-fit h-fit rounded-full cursor-pointer"
-                />
+            <div className="w-[40px] h-[40px] rounded-full overflow-hidden">
+              <Image
+                src={user.avatarUrl || "/pfp.jpg"}
+                width={40}
+                height={40}
+                alt="desc"
+                className="object-cover w-fit h-fit rounded-full cursor-pointer"
+              />
             </div>
             <div>
               <h3 className="font-semibold text-font_main">{user.username}</h3>
@@ -103,7 +103,7 @@ const ChatSection = () => {
 
         {/* Messages Section */}
         <article className="flex-grow overflow-y-scroll p-4 bg-bg_dark2 custom-scrollbar space-y-4">
-          {(userMessages && userMessages.length === 0) ? (
+          {userMessages && userMessages.length === 0 ? (
             <p className="text-center text-gray-400">No messages yet</p>
           ) : (
             userMessages && userMessages.map((message, index) => (
@@ -112,9 +112,10 @@ const ChatSection = () => {
                 className={`flex ${message.senderId === me.userId ? 'justify-end' : 'justify-start'}`}
               >
                 <div
-                  className={`p-2 rounded-lg max-w-xs break-words ${
-                    message.senderId === me.userId ? 'bg-chat text-font_main' : 'bg-bg_card2 text-font_main'
-                  }`}
+                  className={`relative px-3 py-1 rounded-lg max-w-xs break-words ${message.senderId === me.userId
+                      ? 'bg-chat text-font_main before:content-[""] before:absolute before:right-[-8px] before:top-2 before:w-0 before:h-0 before:border-t-[8px] before:border-t-transparent before:border-b-[8px] before:border-b-transparent before:border-l-[8px] before:border-l-chat'
+                      : 'bg-bg_card2 text-font_main before:content-[""] before:absolute before:left-[-8px] before:top-2 before:w-0 before:h-0 before:border-t-[8px] before:border-t-transparent before:border-b-[8px] before:border-b-transparent before:border-r-[8px] before:border-r-bg_card2'
+                    }`}
                 >
                   {message.content}
                 </div>
@@ -122,7 +123,7 @@ const ChatSection = () => {
             ))
           )}
           {typing && typing.chatId === user.chatId && typing.senderId !== me.userId && (
-            <ChatBubble username=''/>
+            <ChatBubble username="" />
           )}
         </article>
 

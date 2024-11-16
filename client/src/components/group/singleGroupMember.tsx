@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { IUser } from '@/types/types';
-import { useRemoveMemberFromGroupChat } from '@/hooks/chat';
+import { useDismissAdmin, useMakeMemberAdmin, useRemoveMemberFromGroupChat } from '@/hooks/chat';
 import { useToast } from '@/context/toast/toast';
 import { ChevronDown } from 'lucide-react';
 
@@ -18,6 +18,8 @@ const SingleGroupMember: React.FC<SingleGroupMemberProps> = ({ member, isAdmin, 
     const dropdownRef = useRef<HTMLDivElement>(null);
 
     const { removeMemberFromGroupChat } = useRemoveMemberFromGroupChat();
+    const { makeMemberAdmin } = useMakeMemberAdmin();
+    const { dismissAdmin } = useDismissAdmin();
     const { showSuccessToast, showErrorToast } = useToast();
 
     const handleRemoveMember = async (memberId: string) => {
@@ -33,6 +35,34 @@ const SingleGroupMember: React.FC<SingleGroupMemberProps> = ({ member, isAdmin, 
             showErrorToast('An error occurred');
         }
     };
+
+    const handleMakeMemberAdmin = async (memberId: string) => {
+        try {
+            const res = await makeMemberAdmin(chatId, memberId);
+            if (res.statusCode === 200) {
+                showSuccessToast('Member is now an admin');
+            } else {
+                showErrorToast('An error occurred while making the member an admin');
+            }
+        } catch (error) {
+            console.error(error);
+            showErrorToast('An error occurred');
+        }
+    }
+
+    const handleDismissAdmin = async (memberId: string) => {
+        try {
+            const res = await dismissAdmin(chatId, memberId);
+            if (res.statusCode === 200) {
+                showSuccessToast('Admin dismissed successfully');
+            } else {
+                showErrorToast('An error occurred while dismissing the admin');
+            }
+        } catch (error) {
+            console.error(error);
+            showErrorToast('An error occurred');
+        }
+    }
 
     const handleToggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
@@ -104,12 +134,14 @@ const SingleGroupMember: React.FC<SingleGroupMemberProps> = ({ member, isAdmin, 
                     <ul>
                         {!member.isAdmin ? (
                             <li
+                                onClick={() => handleMakeMemberAdmin(member.userId)}
                                 className="p-2 hover:bg-gray-700 cursor-pointer"
                             >
                                 Make Admin
                             </li>
                         ) : (
                             <li
+                                onClick={() => handleDismissAdmin(member.userId)}
                                 className="p-2 hover:bg-gray-700 cursor-pointer"
                             >
                                 Dismiss Admin

@@ -27,6 +27,23 @@ class RedisCache extends RedisService {
         console.log(`Cache deleted for key: ${key}`);
     }
 
+    async delCachePattern(pattern: string) {
+        let cursor = '0';
+        do {
+            const result = await this.client?.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+            if (!result) break;
+            const [nextCursor, keys] = result;
+            cursor = nextCursor;
+
+            if (keys.length) {
+                const pipeline = this.client?.pipeline();
+                keys.forEach((key) => pipeline?.del(key));
+                await pipeline?.exec();
+                console.log(`Deleted keys: ${keys}`);
+            }
+        } while (cursor !== '0');
+    }
+
     async flushCache() {
         await this.client?.flushall();
         console.log('Cache flushed');
