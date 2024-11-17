@@ -9,6 +9,7 @@ import {
     TypingEvent,
 } from "../../types/types.js";
 import { socketService } from "../../app.js";
+import { prisma } from "../db/prisma.db.js";
 
 class PubSubRedis extends RedisService {
     private subscriber: Redis | null = null;
@@ -52,24 +53,28 @@ class PubSubRedis extends RedisService {
     }
 
     async subscribeChatsCallback() {
-        this.subscribe("messages", (message) => {
+        this.subscribe("messages", async (message) => {
             const msg = JSON.parse(message) as MessageEvent;
             const {
+                messageId,
                 senderId,
                 username,
                 messageType,
                 chatId,
                 memberIds,
                 content,
+                status,
                 createdAt,
             } = msg;
             socketService.emitEvents("messages", {
+                messageId,
                 senderId,
                 username,
                 messageType,
                 chatId,
                 memberIds,
                 content,
+                status,
                 createdAt,
             });
         });
@@ -145,13 +150,20 @@ class PubSubRedis extends RedisService {
     }
 
     async subscribeUserStatusCallback() {
-        this.subscribe(`online-status:46497c0a-0211-4b91-9e69-15607a6ccc97`, (message) => {
+        this.subscribe(`online-status:*`, (message) => {
             console.log("Received message on online-status channel:", message);
-            const msg = JSON.parse(message);
-            const { status } = msg; 
-            console.log("User status:", status);
-            const userId = message.split(":")[1];
-            socketService.emitOnlineStatus("online-status", { userId, status });
+            const msg = JSON.parse(message) as { status: boolean, userId: string };
+            const { status, userId } = msg; 
+            console.log("User status:", status, userId);
+            socketService.emitOnlineStatus(`online-status/${userId}`, { userId, status });
+        });
+    }
+
+    async subscribeMessageReadCallback() {
+        this.subscribe("message-read", async (message) => {
+            const msg = JSON.parse(message) as { chatId: string, senderId: string, messageIds: string[] };
+            const { chatId, senderId, messageIds } = msg;
+            socketService.emitMessageRead("message-read", { chatId, senderId, messageIds });
         });
     }
 
@@ -169,6 +181,7 @@ class PubSubRedis extends RedisService {
         await this.subscribeMakeAdminCallback();
         await this.subscribeDismissAdminCallback();
         await this.subscribeRefetchChats();
+        await this.subscribeMessageReadCallback();
     }
 }
 

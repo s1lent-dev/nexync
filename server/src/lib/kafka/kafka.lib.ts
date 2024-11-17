@@ -1,5 +1,6 @@
 import { Kafka, Producer, Consumer } from "kafkajs";
-import { KAFKA_BROKER, KAFKA_CLIENT_ID, KAFKA_PARTITIONS, KAFKA_TOPIC } from "../../config/config.js";
+import { KAFKA_BROKER, KAFKA_CLIENT_ID, KAFKA_PARTITIONS1, KAFKA_PARTITIONS2, KAFKA_TOPIC1, KAFKA_TOPIC2 } from "../../config/config.js";
+import { K } from "handlebars";
 
 class KafkaService {
   private kafka: Kafka;
@@ -22,7 +23,8 @@ class KafkaService {
 
     await admin.createTopics({
       topics: [
-        { topic: KAFKA_TOPIC, numPartitions: KAFKA_PARTITIONS },
+        { topic: KAFKA_TOPIC1, numPartitions: KAFKA_PARTITIONS1 },
+        { topic: KAFKA_TOPIC2, numPartitions: KAFKA_PARTITIONS2 },
       ],
     });
     await admin.disconnect();

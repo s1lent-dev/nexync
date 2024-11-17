@@ -37,10 +37,12 @@ class SocketService {
       console.log("Current user sockets map: ", Array.from(this.userSocketsIds.entries()));
       console.log(`Client connected: ${socket.id}`);
       console.log("User connected: ", user);
+      this.io.emit("online-status", { userId: user.userId, status: 'online' });
       this.registerEvents(socket);
       socket.on("disconnect", () => {
         console.log(`Client disconnected: ${socket.id}`);
         this.userSocketsIds.delete(user.userId);
+        this.io.emit("online-status", { userId: user.userId, status: 'offline' });
       });
     });
   }
@@ -52,6 +54,10 @@ class SocketService {
   protected getSockets = (memberIds: string[]) => {
     const sockets = memberIds.map((userId)=> this.userSocketsIds.get(userId));
     return sockets;
+  }
+
+  public isUserOnline = (userId: string) => {
+    return this.userSocketsIds.has(userId);
   }
 
   public getIo() {

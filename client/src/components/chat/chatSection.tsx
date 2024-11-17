@@ -1,25 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Profile from './profile';
-import { SendHorizontal } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { SendHorizontal, CheckCheck } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/context/store';
-import { useGetMessages, useSendMessage, useSocketMessages, useTypingMessage } from '@/hooks/chat';
+import { useGetMessages, useReadMessage, useSendMessage, useSocketMessages, useTypingMessage } from '@/hooks/chat';
 import { ChatType, IMessage, ITyping, MessageType } from '@/types/types';
 import ChatBubble from '../common/chat-bubble';
+import { setUnread } from '@/context/reducers/chats';
 
 const ChatSection = () => {
 
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const user = useSelector((state: RootState) => state.chat.selectedConnectionChat);
+  const user = useSelector((state: RootState) => {
+    const selectedUserId = state.chat.selectedConnectionChat.userId;
+    return state.chat.connectionChats.find(chat => chat.userId === selectedUserId) || state.chat.selectedConnectionChat;
+  });
   const me = useSelector((state: RootState) => state.user.me);
   const userMessages = useSelector((state: RootState) => state.chat.chats[user.chatId]);
   const typing = useSelector((state: RootState) => state.chat.chatTypings[user.chatId]);
   const { sendMessage } = useSendMessage();
+  const { readMessage } = useReadMessage();
   const { typingMessage } = useTypingMessage();
   useSocketMessages();
   const { getMessages } = useGetMessages();
+  const dispatch = useDispatch();
 
   const handleSidebarClose = () => {
     setSidebarOpen(false);
@@ -27,14 +33,31 @@ const ChatSection = () => {
 
   useEffect(() => {
     if (user.userId) {
-      getMessages(user.chatId);
+      if (!userMessages || userMessages.length === 0) {
+        getMessages(user.chatId);
+      }
+      if (userMessages && userMessages.length > 0) {
+        const initMessages = async () => {
+          const unreadMessages = userMessages.filter(
+            (message) => message.senderId !== me.userId && message.status !== 'READ'
+          );
+          if (unreadMessages.length > 0) {
+            const messageIds = unreadMessages.map((message) => message.messageId);
+            await readMessage({ chatId: user.chatId, senderId: user.userId, messageIds, readBy: me.userId, chatType: ChatType.PRIVATE });
+            dispatch(setUnread([{ chatId: user.chatId, count: 0 }]));
+          }
+        };
+        initMessages();
+      }
     }
   }, [user.chatId]);
+  
 
   const handleSendMessage = async () => {
     if (!inputValue) return;
     if (!user.userId) return;
     const message: IMessage = {
+      messageId: '',
       username: me.username,
       chatType: ChatType.PRIVATE,
       messageType: MessageType.TEXT,
@@ -42,6 +65,7 @@ const ChatSection = () => {
       chatId: user.chatId,
       memberIds: [me.userId, user.userId],
       content: inputValue,
+      status: "SENT",
       createdAt: new Date(),
     };
     await sendMessage(message);
@@ -90,7 +114,7 @@ const ChatSection = () => {
             </div>
             <div>
               <h3 className="font-semibold text-font_main">{user.username}</h3>
-              <p className="text-sm text-primary">online</p>
+              <p className={`text-sm ${user.status === 'online' ? 'text-primary' : 'text-font_dark'}`}>{user.status}</p>
             </div>
           </div>
           {/* Icons */}
@@ -113,11 +137,14 @@ const ChatSection = () => {
               >
                 <div
                   className={`relative px-3 py-1 rounded-lg max-w-xs break-words ${message.senderId === me.userId
-                      ? 'bg-chat text-font_main before:content-[""] before:absolute before:right-[-8px] before:top-2 before:w-0 before:h-0 before:border-t-[8px] before:border-t-transparent before:border-b-[8px] before:border-b-transparent before:border-l-[8px] before:border-l-chat'
-                      : 'bg-bg_card2 text-font_main before:content-[""] before:absolute before:left-[-8px] before:top-2 before:w-0 before:h-0 before:border-t-[8px] before:border-t-transparent before:border-b-[8px] before:border-b-transparent before:border-r-[8px] before:border-r-bg_card2'
+                    ? 'bg-chat text-font_main before:content-[""] before:absolute before:right-[-8px] before:top-2 before:w-0 before:h-0 before:border-t-[8px] before:border-t-transparent before:border-b-[8px] before:border-b-transparent before:border-l-[8px] before:border-l-chat pr-8'
+                    : 'bg-bg_card2 text-font_main before:content-[""] before:absolute before:left-[-8px] before:top-2 before:w-0 before:h-0 before:border-t-[8px] before:border-t-transparent before:border-b-[8px] before:border-b-transparent before:border-r-[8px] before:border-r-bg_card2'
                     }`}
                 >
                   {message.content}
+                  {message.senderId === me.userId && (
+                    <CheckCheck size={18} className={`absolute bottom-1 right-1 ${message.status === 'READ' ? 'text-blue-500' : 'text-font_dark'}`} />
+                  )}
                 </div>
               </div>
             ))

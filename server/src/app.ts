@@ -38,6 +38,7 @@ const emailQueue = new EmailQueue();
 
 async function initServices() {
     await kafka.consumeMessages();
+    await kafka.consumeMessageRead();
     await emailQueue.connect();
     await emailQueue.initQueues();
     await emailQueue.initConsumers();

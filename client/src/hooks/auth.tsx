@@ -6,7 +6,7 @@ import { resetMe, resetSelectedUser } from "@/context/reducers/user";
 import { IRegsitrationForm, ILoginForm } from "@/types/types";
 import { AxiosError } from "axios";
 import { useDispatch } from "react-redux";
-import { resetChats } from "@/context/reducers/chats";
+import { resetChats, setConnectionChats, setGroupChats } from "@/context/reducers/chats";
 import { setNavigation } from "@/context/reducers/navigation";
 
 
@@ -140,6 +140,8 @@ const useLogout = () => {
             reduxDispatch(resetMe());
             reduxDispatch(resetSelectedUser());
             reduxDispatch(resetChats());
+            reduxDispatch(setConnectionChats([]));
+            reduxDispatch(setGroupChats([]));
             reduxDispatch(setNavigation("chats"));
             return res.data.data;
         } catch (err) {

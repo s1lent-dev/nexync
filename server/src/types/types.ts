@@ -1,3 +1,4 @@
+import { chatType } from "@prisma/client";
 import { Request, Response, NextFunction } from "express";
 
 interface User {
@@ -17,19 +18,26 @@ enum MessageType {
     GROUP,
 }
 
+enum ChatType {
+    PRIVATE = "PRIVATE",
+    GROUP = "GROUP",
+}
 enum MessageStatus {
-    PENDING,
-    SENT,
-    DELIVERED,
-    READ,
+    PENDING = "PENDING",
+    SENT = "SENT",
+    DELIVERED = "DELIVERED",
+    READ = "READ",
 }
 
 interface MessageEvent {
+    messageId: string;
     senderId: string;
     username: string;
     chatId: string;
+    chatType: chatType;
     memberIds: string[];
     content: string;
+    status: MessageStatus;
     messageType: MessageType;
     createdAt: Date | null;
 }
@@ -140,4 +148,5 @@ export {
     UserChat,
     MailContent,
     MailType,
+    ChatType
 };

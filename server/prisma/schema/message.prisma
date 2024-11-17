@@ -9,8 +9,22 @@ model Message {
     messageType MessageType
     status      MessageStatus @default(PENDING)
     mediaUrl    String?
+    reads       MessageRead[] 
 
     @@index([senderId, chatId, createdAt])
+}
+
+model MessageRead {
+    id         String    @id @default(uuid())
+    chatId     String
+    chat       Chat      @relation("ChatMessageReads", fields: [chatId], references: [chatId])
+    messageId  String
+    message    Message   @relation(fields: [messageId], references: [messageId])
+    userId     String
+    user       User      @relation("UserReadMessages", fields: [userId], references: [userId])
+    readAt     DateTime  @default(now())
+
+    @@unique([messageId, userId]) 
 }
 
 enum MessageType {

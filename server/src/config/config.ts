@@ -30,9 +30,12 @@ const REDIS_HOST = process.env.REDIS_HOST || 'localhost';
 
 const KAFKA_CLIENT_ID = process.env.KAFKA_CLIENT_ID || 'kafka';
 const KAFKA_BROKER = process.env.KAFKA_BROKER || 'localhost:9092';
-const KAFKA_TOPIC = process.env.KAFKA_TOPIC || 'chat';
-const KAFKA_GROUP_ID = process.env.KAFKA_GROUP_ID || 'chat-group';
-const KAFKA_PARTITIONS = parseInt(process.env.KAFKA_PARTITIONS || '1');
+const KAFKA_TOPIC1 = process.env.KAFKA_TOPIC1 || 'chat';
+const KAFKA_GROUP_ID1 = process.env.KAFKA_GROUP_ID1 || 'chat-group';
+const KAFKA_PARTITIONS1 = parseInt(process.env.KAFKA_PARTITIONS1 || '1');
+const KAFKA_TOPIC2 = process.env.KAFKA_TOPIC2 || 'chat2';
+const KAFKA_GROUP_ID2 = process.env.KAFKA_GROUP_ID2 || 'chat-group2';
+const KAFKA_PARTITIONS2 = parseInt(process.env.KAFKA_PARTITIONS2 || '1');
 
 
 const RABBITMQ_HOST = process.env.RABBITMQ_HOST || 'localhost';
@@ -100,9 +103,12 @@ export {
   REDIS_HOST,
   KAFKA_CLIENT_ID,
   KAFKA_BROKER,
-  KAFKA_TOPIC,
-  KAFKA_GROUP_ID,
-  KAFKA_PARTITIONS,
+  KAFKA_TOPIC1,
+  KAFKA_GROUP_ID1,
+  KAFKA_PARTITIONS1,
+  KAFKA_TOPIC2,
+  KAFKA_GROUP_ID2,
+  KAFKA_PARTITIONS2,
   RABBITMQ_HOST,
   RABBITMQ_PORT,
   RABBITMQ_USER,

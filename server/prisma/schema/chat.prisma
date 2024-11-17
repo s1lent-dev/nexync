@@ -11,6 +11,7 @@ model Chat {
     chatType      chatType   @default(PRIVATE)
     users         UserChat[]
     messages      Message[]  @relation("ChatMessages")
+    messageReads  MessageRead[] @relation("ChatMessageReads")
     createdAt     DateTime   @default(now())
     updatedAt     DateTime   @updatedAt
     lastActive    DateTime?

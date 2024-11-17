@@ -3,7 +3,7 @@ import { AsyncHandler, ErrorHandler, ResponseHandler } from "../utils/handlers.u
 import { CustomRequest } from "../types/types";
 import { prisma } from "../lib/db/prisma.db.js";
 import { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_CREATED, HTTP_STATUS_FORBIDDEN, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_OK } from "../config/config.js";
-import { pubsub, cache } from "../app.js";
+import { pubsub, cache,socketService } from "../app.js";
 import { MessageType } from "@prisma/client";
 
 
@@ -548,10 +548,10 @@ const GetConnectionChats = AsyncHandler(async (req: CustomRequest, res: Response
                     include: {
                         user: true
                     }
-                }
+                },
+                messages: true
             }
         });
-
         connections = chats.flatMap((chat) =>
             chat.users
                 .filter((u) => u.userId !== user?.userId)
@@ -568,7 +568,29 @@ const GetConnectionChats = AsyncHandler(async (req: CustomRequest, res: Response
         await cache.setCache(cacheKey, { connections });
     }
 
-    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Chats found.", connections));
+    connections = connections.map((connection: any) => ({
+        ...connection,
+        status: socketService.isUserOnline(connection.userId) ? 'online' : 'offline'
+    }));
+
+    const unreadMessages = await prisma.message.groupBy({
+        by: ['chatId'],
+        where: {
+            chatId: { in: connections.map((c: any) => c.chatId) },
+            senderId: { not: user.userId },
+            status: { in: ['SENT', 'PENDING'] }
+        },
+        _count: {
+            _all: true
+        }
+    });
+
+    const unread = unreadMessages.map((message) => ({
+        chatId: message.chatId,
+        count: message._count._all
+    }));
+
+    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Chats found.", { connections, unread }));
 });
 
 
@@ -597,7 +619,6 @@ const GetGroupChats = AsyncHandler(async (req: CustomRequest, res: Response, nex
                 }
             }
         });
-
         groups = chats.map((group) => ({
             chatId: group.chatId,
             name: group.name,
@@ -615,7 +636,25 @@ const GetGroupChats = AsyncHandler(async (req: CustomRequest, res: Response, nex
 
         await cache.setCache(cacheKey, { groups });
     }
-    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Groups found.", groups));
+
+    const unreadMessages = await prisma.message.groupBy({
+        by: ['chatId'],
+        where: {
+            chatId: { in: groups.map((g: any) => g.chatId) },
+            senderId: { not: user.userId },
+            status: { in: ['SENT', 'PENDING'] }
+        },
+        _count: {
+            _all: true
+        }
+    });
+
+    const unread = unreadMessages.map((message) => ({
+        chatId: message.chatId,
+        count: message._count._all
+    }));
+
+    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Groups found.", { groups, unread }));
 });
 
 const GetMessages = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
@@ -637,12 +676,14 @@ const GetMessages = AsyncHandler(async (req: CustomRequest, res: Response, next:
 
     const response = {
         messages: chat.messages.map((message) => ({
+            messageId: message.messageId,
             username: message.sender.username,
             messageType: message.messageType,
             chatType: chat.chatType,
             senderId: message.senderId,
             chatId: message.chatId,
             content: message.content,
+            status: message.status,
             createdAt: message.createdAt,
         }))
     }

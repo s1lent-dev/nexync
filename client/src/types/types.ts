@@ -41,6 +41,7 @@ type IConnectionChat = {
     email: string;
     avatarUrl: string;
     bio: string;
+    status: string;
 }
 
 enum ChatType {
@@ -55,6 +56,7 @@ enum MessageType {
 }
 
 type IMessage = {
+    messageId: string;
     username: string | null;
     chatType: ChatType | null;
     messageType: MessageType | null;
@@ -62,6 +64,7 @@ type IMessage = {
     chatId: string;
     memberIds: string[];
     content: string;
+    status: string;
     createdAt: Date | null;
 }
 
@@ -75,6 +78,10 @@ type ITyping = {
 
 type IChats = {
     [chatId: string]: IMessage[]
+}
+
+type IUnread = {
+    [chatId: string]: number;
 }
 
 type IChatTypings = {
@@ -97,5 +104,5 @@ type ILoginForm = {
     password: string;
 }
 
-export type { INavigationItem, IRegsitrationForm, ILoginForm, IUser, IConnection, IGroupChat, IConnectionChat, IConnectionRequests, IMessage, ITyping, IChatTypings, IChats };
+export type { INavigationItem, IRegsitrationForm, ILoginForm, IUser, IConnection, IGroupChat, IConnectionChat, IConnectionRequests, IMessage, ITyping, IChatTypings, IChats, IUnread };
 export { ChatType, MessageType };

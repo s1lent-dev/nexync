@@ -1,7 +1,7 @@
 "use client"
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { IChats, IMessage, IConnectionChat, IGroupChat, ITyping, IChatTypings } from "@/types/types";
+import { IChats, IMessage, IConnectionChat, IGroupChat, ITyping, IChatTypings, IUnread } from "@/types/types";
 
 const selectedConnectionChat: IConnectionChat = {
     chatId: "",
@@ -10,6 +10,7 @@ const selectedConnectionChat: IConnectionChat = {
     email: "",
     avatarUrl: "",
     bio: "",
+    status: "",
 }
 const selectedGroupChat: IGroupChat = {
     chatId: "",
@@ -21,6 +22,7 @@ const selectedGroupChat: IGroupChat = {
 const connectionChats: IConnectionChat[] = [];
 const groupChats: IGroupChat[] = [];
 const chats: IChats = {};
+const unread: IUnread = {};
 const chatTypings: IChatTypings = {};
 
 
@@ -30,6 +32,7 @@ const initialState = {
     connectionChats: connectionChats,
     groupChats: groupChats,
     chats: chats,
+    unread: unread,
     chatTypings: chatTypings,
 };
 
@@ -46,22 +49,51 @@ const ChatSlice = createSlice({
         setConnectionChats: (state, action: PayloadAction<IConnectionChat[]>) => {
             state.connectionChats = action.payload;
         },
+        setConnectionStatus: (state, action: PayloadAction<{ userId: string; status: string }>) => {
+            const { userId, status } = action.payload;
+            const connectionChat = state.connectionChats.find(chat => chat.userId === userId);
+            if (connectionChat) connectionChat.status = status;
+        },
         setGroupChats: (state, action: PayloadAction<IGroupChat[]>) => {
             state.groupChats = action.payload;
         },
-        setChats: (state, action: PayloadAction<{chatId: string; messages: IMessage[]}>) => {
+        setChats: (state, action: PayloadAction<{ chatId: string; messages: IMessage[] }>) => {
             const { chatId, messages } = action.payload;
             state.chats[chatId] = messages
         },
-        addMessage: (state, action: PayloadAction<{chatId: string; message: IMessage}>) => {
-            const { chatId, message } = action.payload;
-            state.chats[chatId].push(message);
+        setUnread: (state, action: PayloadAction<{ chatId: string; count: number }[]>) => {
+            action.payload.forEach(({ chatId, count }) => {
+                state.unread[chatId] = count;
+            });
         },
-        addMessages: (state, action: PayloadAction<{chatId: string; messages: IMessage[]}>) => {
+        addUnread: (state, action: PayloadAction<{ chatId: string; count: number }>) => {
+            const { chatId, count } = action.payload;
+            state.unread[chatId] = (state.unread[chatId] || 0) + count;
+        },
+        addMessage: (state, action: PayloadAction<{ chatId: string; message: IMessage }>) => {
+            const { chatId, message } = action.payload;
+            if (state.chats[chatId]) {
+                state.chats[chatId].push(message);
+            } else {
+                state.chats[chatId] = [message];
+            }
+        },
+        addMessages: (state, action: PayloadAction<{ chatId: string; messages: IMessage[] }>) => {
             const { chatId, messages } = action.payload;
             state.chats[chatId].push(...messages);
         },
-        addTyping: (state, action: PayloadAction<{chatId: string; typing: ITyping}>) => {
+        updateMessageStatus: (state, action: PayloadAction<{ chatId: string; messageIds: string[]; senderId: string; status: string }>) => {
+            const { chatId, senderId, messageIds, status } = action.payload;
+            const chatMessages = state.chats[chatId];
+            if (chatMessages) {
+                chatMessages.forEach(message => {
+                    if (message.senderId === senderId && messageIds.includes(message.messageId)) {
+                        message.status = status;
+                    }
+                });
+            }
+        },
+        addTyping: (state, action: PayloadAction<{ chatId: string; typing: ITyping }>) => {
             const { chatId, typing } = action.payload;
             state.chatTypings[chatId] = typing;
         },
@@ -76,5 +108,5 @@ const ChatSlice = createSlice({
     },
 });
 
-export const { setSelectedConnectionChat, setSelectedGroupChat, setConnectionChats, setGroupChats, setChats, resetChats, addTyping, removeTyping, addMessage, addMessages } = ChatSlice.actions;
+export const { setSelectedConnectionChat, setSelectedGroupChat, setConnectionChats, setConnectionStatus, setGroupChats, setChats, resetChats, addTyping, removeTyping, addMessage, addMessages, updateMessageStatus, setUnread, addUnread } = ChatSlice.actions;
 export { ChatSlice };

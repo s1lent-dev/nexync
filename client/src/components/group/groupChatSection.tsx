@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import GroupProfile from './groupProfile';
-import { SendHorizontal } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { CheckCheck, SendHorizontal } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/context/store';
-import { useGetMessages, useSendMessage, useSocketMessages, useTypingMessage } from '@/hooks/chat';
+import { useGetMessages, useReadMessage, useSendMessage, useSocketMessages, useTypingMessage } from '@/hooks/chat';
 import { ChatType, IMessage, ITyping, MessageType } from '@/types/types';
 import ChatBubble from '../common/chat-bubble';
+import { setUnread } from '@/context/reducers/chats';
 
 const GroupChatSection = () => {
 
@@ -17,9 +18,11 @@ const GroupChatSection = () => {
   const groupMessages = useSelector((state: RootState) => state.chat.chats[group.chatId]);
   const typing = useSelector((state: RootState) => state.chat.chatTypings[group.chatId]);
   const { sendMessage } = useSendMessage();
+  const { readMessage } = useReadMessage();
   const { typingMessage } = useTypingMessage();
   useSocketMessages();
   const { getMessages } = useGetMessages();
+  const dispatch = useDispatch();
 
   const handleSidebarClose = () => {
     setSidebarOpen(false);
@@ -27,14 +30,47 @@ const GroupChatSection = () => {
 
   useEffect(() => {
     if (group.chatId) {
-      getMessages(group.chatId);
+      if (!groupMessages || groupMessages.length === 0) {
+        getMessages(group.chatId);
+      }
+  
+      if (groupMessages && groupMessages.length > 0) {
+        const initMessages = async () => {
+          const unreadMessages = groupMessages.filter(
+            (message) => message.senderId !== me.userId && message.status !== "READ"
+          );
+  
+          if (unreadMessages.length > 0) {
+            const messagesBySender = unreadMessages.reduce((acc: { [key: string]: string[] }, message) => {
+              acc[message.senderId] = acc[message.senderId] || [];
+              acc[message.senderId].push(message.messageId);
+              return acc;
+            }, {});
+  
+            for (const [senderId, messageIds] of Object.entries(messagesBySender)) {
+              await readMessage({
+                chatId: group.chatId,
+                senderId,
+                messageIds,
+                readBy: me.userId,
+                chatType: ChatType.GROUP,
+              });
+            }
+  
+            dispatch(setUnread([{ chatId: group.chatId, count: 0 }]));
+          }
+        };
+  
+        initMessages();
+      }
     }
-  }, [group.chatId]);
+  }, [group.chatId, groupMessages, me.userId, dispatch, getMessages]);
 
   const handleSendMessage = async () => {
     if (!inputValue) return;
     if (!group.chatId) return;
     const message: IMessage = {
+      messageId: '',
       username: me.username,
       chatType: ChatType.GROUP,
       messageType: MessageType.TEXT,
@@ -42,6 +78,7 @@ const GroupChatSection = () => {
       chatId: group.chatId,
       memberIds: group.members.map((member) => member.userId),
       content: inputValue,
+      status: 'SENT',
       createdAt: new Date(),
     };
     await sendMessage(message);
@@ -133,6 +170,9 @@ const GroupChatSection = () => {
                   )}
                   <span className={`text-base ${message.messageType === 'GROUP' ? 'text-xs' : 'text-base'}`}>
                     {message.content}
+                    {message.senderId === me.userId && message.messageType !== 'GROUP' && (
+                    <CheckCheck size={18} className={`absolute bottom-1 right-1 ${message.status === 'READ' ? 'text-blue-500' : 'text-font_dark'}`} />
+                  )}
                   </span>
                 </div>
               </div>

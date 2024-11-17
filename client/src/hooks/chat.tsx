@@ -1,12 +1,12 @@
 'use client';
 import { useAxios } from "@/context/helper/axios";
-import { IMessage, ITyping } from "@/types/types";
+import { ChatType, IMessage, ITyping } from "@/types/types";
 import { AxiosError } from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { useSocket } from "@/context/helper/socket";
 import { RootState, store } from "@/context/store";
 import { useEffect } from "react";
-import { addMessage, addMessages, addTyping, removeTyping, setChats, setConnectionChats, setGroupChats, setSelectedGroupChat } from "@/context/reducers/chats";
+import { addMessage, addMessages, addTyping, addUnread, removeTyping, setChats, setConnectionChats, setConnectionStatus, setGroupChats, setSelectedGroupChat, setUnread, updateMessageStatus } from "@/context/reducers/chats";
 
 
 
@@ -223,7 +223,8 @@ const useGetConnectionChats = () => {
         dispatch({ type: 'REQUEST_START' });
         try {
             const res = await axios.get('/chat/get-connection-chats');
-            reduxDispatch(setConnectionChats(res.data.data));
+            reduxDispatch(setConnectionChats(res.data.data.connections));
+            reduxDispatch(setUnread(res.data.data.unread));
             dispatch({ type: 'REQUEST_SUCCESS' });
             return res.data.data;
         } catch (err) {
@@ -247,7 +248,8 @@ const useGetGroupChats = () => {
         dispatch({ type: 'REQUEST_START' });
         try {
             const res = await axios.get('/chat/get-group-chats');
-            reduxDispatch(setGroupChats(res.data.data))
+            reduxDispatch(setGroupChats(res.data.data.groups));
+            reduxDispatch(setUnread(res.data.data.unread));
             dispatch({ type: 'REQUEST_SUCCESS' });
             return res.data.data;
         } catch (err) {
@@ -296,6 +298,14 @@ const useSendMessage = () => {
     return { sendMessage };
 }
 
+const useReadMessage = () => {
+    const socket = useSocket();
+    const readMessage = async (message: { chatId: string, senderId: string, messageIds: string[], readBy: string, chatType: ChatType }) => {
+        socket?.emit('message-read', message);
+    }
+    return { readMessage };
+}
+
 const useTypingMessage = () => {
     const socket = useSocket();
     const typingMessage = async (typing: ITyping) => {
@@ -315,9 +325,17 @@ const useSocketMessages = () => {
 
         let typingTimeout: NodeJS.Timeout;
 
-        const handleNewMessage = ({ senderId, chatId, username, messageType, chatType, memberIds, content, createdAt }: IMessage) => {
-            reduxDispatch(addMessage({ chatId, message: { senderId, username, messageType, chatType, chatId, memberIds, content, createdAt } }));
+        const handleNewMessage = ({ senderId, messageId, chatId, username, messageType, chatType, memberIds, content, status, createdAt }: IMessage) => {
+            reduxDispatch(addMessage({ chatId, message: { senderId, messageId, username, messageType, chatType, chatId, memberIds, content, status, createdAt } }));
+            if(me.userId !== senderId) {
+                reduxDispatch(addUnread({ chatId, count: 1 }));
+            }
         };
+
+        const handleOnlineStatus = ({ userId, status }: { userId: string, status: string }) => {
+            console.log("online status", userId, status);
+            reduxDispatch(setConnectionStatus({ userId, status }));
+        }
 
         const handleTyping = ({ senderId, chatId, username, memberIds }: ITyping) => {
             reduxDispatch(addTyping({ chatId, typing: { senderId, username, chatId, memberIds } }));
@@ -366,7 +384,12 @@ const useSocketMessages = () => {
             }
         }
 
+        const handleMessageRead = ({ chatId, senderId, messageIds }: { chatId: string, senderId: string, messageIds: string[] }) => {
+            reduxDispatch(updateMessageStatus({ chatId, senderId, messageIds, status: 'READ' }));
+        }
+
         socket.on("messages", handleNewMessage);
+        socket.on("online-status", handleOnlineStatus);
         socket.on("typing", handleTyping);
         socket.on("group-joined", handleGroupJoined);
         socket.on("group-left", handleGroupLeft);
@@ -374,12 +397,11 @@ const useSocketMessages = () => {
         socket.on("make-admin", handleMakeAdmin);
         socket.on("dismiss-admin", handleDismissAdmin);
         socket.on("refetch-chats", handleRefetchChats);
-        socket.on(`online-status:${store.getState().chat.selectedConnectionChat.userId}`, ({status}: {status: boolean}) => {
-            console.log("status", status);
-        });
+        socket.on("message-read", handleMessageRead);
 
         return () => {
             socket.off("messages", handleNewMessage);
+            socket.off("online-status", handleOnlineStatus);
             socket.off("typing", handleTyping);
             socket.off("group-joined", handleGroupJoined);
             socket.off("group-left", handleGroupLeft);
@@ -387,13 +409,13 @@ const useSocketMessages = () => {
             socket.off("make-admin", handleMakeAdmin);
             socket.off("dismiss-admin", handleDismissAdmin);
             socket.off("refetch-chats", handleRefetchChats);
-            socket.off(`online-status:${store.getState().chat.selectedConnectionChat.userId}`);
+            socket.off("message-read", handleMessageRead);
             if (typingTimeout) clearTimeout(typingTimeout);
         };
-    }, [socket, me.userId, reduxDispatch]);
+    }, [socket, me.userId, reduxDispatch ]);
 };
 
 
-export { useCreateGroupChat, useRenameGroupChat, useRenameTagline, useAddMemberToGroupChat, useAddMembersToGroupChat, useRemoveMemberFromGroupChat, useMakeMemberAdmin, useDismissAdmin, useLeaveGroupChat, useGetConnectionChats, useGetGroupChats, useGetMessages, useSendMessage, useTypingMessage, useSocketMessages };
+export { useCreateGroupChat, useRenameGroupChat, useRenameTagline, useAddMemberToGroupChat, useAddMembersToGroupChat, useRemoveMemberFromGroupChat, useMakeMemberAdmin, useDismissAdmin, useLeaveGroupChat, useGetConnectionChats, useGetGroupChats, useGetMessages, useSendMessage, useReadMessage, useTypingMessage, useSocketMessages };
 
 

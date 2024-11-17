@@ -10,6 +10,7 @@ model User {
     lastUsernameEdit DateTime?
     chats            UserChat[]
     messages         Message[]           @relation("UserSentMessages")
+    messagesRead     MessageRead[]       @relation("UserReadMessages")
     followers        Connection[]        @relation("UserFollowers")
     following        Connection[]        @relation("UserFollowings")
     sentRequests     ConnectionRequest[] @relation("SenderRequest")

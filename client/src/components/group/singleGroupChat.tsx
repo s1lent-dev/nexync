@@ -4,8 +4,9 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import { ChevronDown } from 'lucide-react'
 import { IGroupChat } from '@/types/types'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setSelectedGroupChat } from '@/context/reducers/chats'
+import { RootState } from '@/context/store'
 
 interface SingleGroupChatProps {
   group: IGroupChat;
@@ -14,6 +15,8 @@ interface SingleGroupChatProps {
 const SingleGroupChat: React.FC<SingleGroupChatProps> = ({ group }) => {
   const [isHovered, setIsHovered] = useState(false);
   const dispatch = useDispatch();
+
+  const unreadCount = useSelector((state: RootState) => state.chat.unread[group.chatId] || 0);
 
   return (
     <div
@@ -41,6 +44,12 @@ const SingleGroupChat: React.FC<SingleGroupChatProps> = ({ group }) => {
           {isHovered && <ChevronDown size={20} className="text-gray-400" />}
         </div>
       </div>
+
+      {unreadCount > 0 && (
+        <span className="absolute top-2 right-2 text-xs font-semibold text-font_main bg-primary px-2 py-1 rounded-full">
+          {unreadCount}
+        </span>
+      )}
 
       {/* Custom Border */}
       <span className="absolute bottom-0 left-12 right-0 h-[2px] bg-bg_card2" />
