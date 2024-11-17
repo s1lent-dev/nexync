@@ -1,6 +1,7 @@
 import { Server, Socket } from "socket.io";
 import http, { IncomingMessage} from "http";
 import { User as IUser } from "../../types/types";
+import { pubsub } from "../../app.js";
 
 interface CustomSocket extends Socket {
   request: IncomingMessage & { user: IUser };
@@ -31,9 +32,8 @@ class SocketService {
       if (this.userSocketsIds.has(user.userId)) {
         console.log(`User ${user.userId} already has an active socket: ${this.userSocketsIds.get(user.userId)}.`);
       } else {
-        this.userSocketsIds.set(user.userId.toString(), socket.id)
+        this.userSocketsIds.set(user.userId.toString(), socket.id);
       }
-      
       console.log("Current user sockets map: ", Array.from(this.userSocketsIds.entries()));
       console.log(`Client connected: ${socket.id}`);
       console.log("User connected: ", user);

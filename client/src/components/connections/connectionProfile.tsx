@@ -11,6 +11,8 @@ import {
   Phone,
 } from "lucide-react";
 import { IConnection } from "@/types/types";
+import { useCancelConnectionRequest, useGetConnections, useRemoveFollower, useRemoveFollowing } from "@/hooks/user";
+import { useToast } from "@/context/toast/toast";
 
 interface ProfileProps {
   onClose: () => void;
@@ -19,18 +21,96 @@ interface ProfileProps {
 
 const ConnectionProfile: React.FC<ProfileProps> = ({ onClose, user }) => {
 
+  const { removeFollower } = useRemoveFollower();
+  const { removeFollowing } = useRemoveFollowing();
+  const { cancelConnectionRequest } = useCancelConnectionRequest();
+  const { getConnections } = useGetConnections();
+  const { showSuccessToast, showErrorToast } = useToast();
+
+  const handleRemoveFollower = async () => {
+    try {
+      const res = await removeFollower(user.userId);
+      if(res.statusCode === 200) {
+        showSuccessToast(res.message);
+        await getConnections();
+        onClose();
+      } else {
+        showErrorToast(res.message);
+      }
+    } catch (error) {
+      console.error(error);
+      showErrorToast("Failed to remove follower");
+    }
+  }
+
+  const handleRemoveFollowing = async () => {
+    try {
+      const res = await removeFollowing(user.userId);
+      if(res.statusCode === 200) {
+        showSuccessToast(res.message);
+        await getConnections();
+        onClose();
+      } else {
+        showErrorToast(res.message);
+      }
+    } catch (error) {
+      console.error(error);
+      showErrorToast("Failed to remove following");
+    }
+  }
+
+  const handleCancelConnectionRequest = async () => {
+    try {
+      const res = await cancelConnectionRequest(user.userId);
+      if(res.statusCode === 200) {
+        showSuccessToast(res.message);
+        await getConnections();
+        onClose();
+      } else {
+        showErrorToast(res.message);
+      }
+    } catch (error) {
+      console.error(error);
+      showErrorToast("Failed to cancel connection request");
+    }
+  }
+
   const getActions = () => {
     const actions = [];
     if (user.isFollowing && user.isFollower && !user.isRequested) {
-      actions.push({ label: "Unfollow", icon: <Trash2 className="text-error ml-4" /> });
-      actions.push({ label: "Remove Follower", icon: <Trash2 className="text-error ml-4" /> });
+      actions.push({
+        label: "Unfollow",
+        icon: <Trash2 className="text-error ml-4" />,
+        onClick: handleRemoveFollowing,
+      });
+      actions.push({
+        label: "Remove Follower",
+        icon: <Trash2 className="text-error ml-4" />,
+        onClick: handleRemoveFollower,
+      });
     } else if (user.isFollowing && !user.isFollower && !user.isRequested) {
-      actions.push({ label: "Unfollow", icon: <Trash2 className="text-error ml-4" /> });
+      actions.push({
+        label: "Unfollow",
+        icon: <Trash2 className="text-error ml-4" />,
+        onClick: handleRemoveFollowing,
+      });
     } else if (user.isFollower && !user.isFollowing && user.isRequested) {
-      actions.push({ label: "Remove Follower", icon: <Trash2 className="text-error ml-4" /> });
-      actions.push({ label: "Unsend Request", icon: <Trash2 className="text-error ml-4" /> });
+      actions.push({
+        label: "Remove Follower",
+        icon: <Trash2 className="text-error ml-4" />,
+        onClick: handleRemoveFollower,
+      });
+      actions.push({
+        label: "Unsend Request",
+        icon: <Trash2 className="text-error ml-4" />,
+        onClick: handleCancelConnectionRequest,
+      });
     } else if (user.isFollower && !user.isFollowing && !user.isRequested) {
-      actions.push({ label: "Remove Follower", icon: <Trash2 className="text-error ml-4" /> });
+      actions.push({
+        label: "Remove Follower",
+        icon: <Trash2 className="text-error ml-4" />,
+        onClick: handleRemoveFollower,
+      });
     }
     return actions;
   };
@@ -117,18 +197,19 @@ const ConnectionProfile: React.FC<ProfileProps> = ({ onClose, user }) => {
           <Heart className="text-font_dark ml-4" />
           <span className="font-segoe font-thin text-font_main tracking-wide">Add to favourites</span>
         </div>
-        <div className="flex flex-row gap-6 p-4 hover:bg-bg_card2 w-full">
+        <div className="flex flex-row gap-6 p-4 hover:bg-red-400 hover:bg-opacity-20 w-full">
           <Ban className="text-error ml-4" />
           <span className="font-segoe font-thin text-error tracking-wide">Block {user.username}</span>
         </div>
-        <div className="flex flex-row gap-6 p-4 hover:bg-bg_card2 w-full">
+        <div className="flex flex-row gap-6 p-4 hover:bg-red-400 hover:bg-opacity-20 w-full">
           <ThumbsDown className="text-error ml-4" />
           <span className="font-segoe font-thin text-error tracking-wide">Report {user.username}</span>
         </div>
         {actions.map((action, index) => (
           <div
             key={index}
-            className="flex flex-row gap-6 p-4 hover:bg-bg_card2 w-full cursor-pointer"
+            className="flex flex-row gap-6 p-4 hover:bg-red-400 hover:bg-opacity-20 w-full cursor-pointer"
+            onClick={action.onClick}
           >
             {action.icon}
             <span className="font-segoe font-thin text-error tracking-wide">

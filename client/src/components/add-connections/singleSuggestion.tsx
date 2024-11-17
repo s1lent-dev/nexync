@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { IConnection } from "@/types/types";
-import { useSendConnectionRequest } from "@/hooks/user";
+import { useCancelConnectionRequest, useSendConnectionRequest } from "@/hooks/user";
 import { useToast } from "@/context/toast/toast";
 import { UserPlus, MessageCircleCode, CircleDotDashed } from "lucide-react";
 
@@ -13,8 +13,10 @@ interface SingleSuggestionProps {
 const SingleSuggestion: React.FC<SingleSuggestionProps> = ({ user, handleConnectionSent }) => {
   const { showSuccessToast } = useToast();
   const { sendConnectionRequest } = useSendConnectionRequest();
+  const { cancelConnectionRequest } = useCancelConnectionRequest();
 
   const renderActionIcon = () => {
+
     const handleConnectClick = async () => {
       const requestSent = await sendConnectionRequest(user.userId);
       if (requestSent) {
@@ -22,6 +24,14 @@ const SingleSuggestion: React.FC<SingleSuggestionProps> = ({ user, handleConnect
         handleConnectionSent();
       }
     };
+
+    const handleCancelClick = async () => {
+      const requestCancelled = await cancelConnectionRequest(user.userId);
+      if (requestCancelled) {
+        showSuccessToast("Connection request cancelled");
+        handleConnectionSent();
+      }
+    }
 
     if (!user.isFollowing && !user.isRequested && !user.isFollower) {
       // Follow
@@ -68,11 +78,12 @@ const SingleSuggestion: React.FC<SingleSuggestionProps> = ({ user, handleConnect
       // Sent
       return (
         <div
-          className="group flex items-center justify-center cursor-not-allowed"
+          onClick={handleCancelClick}
+          className="group flex items-center justify-center"
         >
-          <CircleDotDashed className="text-gray-400 transition-transform duration-300 group-hover:scale-110" />
-          <span className="absolute z-50 -left-2 border border-chat bottom-full mb-2 hidden w-max bg-bg_dark2 text-font_main px-2 py-1 rounded-xl text-sm shadow-lg group-hover:block">
-            Sent
+          <CircleDotDashed className="text-error transition-transform duration-300 group-hover:scale-110" />
+          <span className="absolute z-50 -left-14 border border-chat bottom-full mb-2 hidden w-max bg-bg_dark2 text-font_main px-2 py-1 rounded-xl text-sm shadow-lg group-hover:block">
+            cancel request
           </span>
         </div>
       );

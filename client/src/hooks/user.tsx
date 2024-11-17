@@ -177,7 +177,7 @@ const useSendConnectionRequest = () => {
             const res = await axios.post(`/user/send-request/${userId}`);
             dispatch({ type: 'REQUEST_SUCCESS' });
             console.log(res.data.data);
-            return res.data.data;
+            return res.data;
         } catch (err) {
             if (err instanceof AxiosError) {
                 dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
@@ -192,6 +192,28 @@ const useSendConnectionRequest = () => {
 }
 
 
+const useCancelConnectionRequest = () => {
+    const { axios, state, dispatch } = useAxios();
+    const cancelConnectionRequest = async (userId: string) => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.delete(`/user/cancel-request/${userId}`);
+            dispatch({ type: 'REQUEST_SUCCESS' });
+            return res.data;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { cancelConnectionRequest, state };
+}
+
+
 // useAcceptConnectionRequest hook
 const useAcceptConnectionRequest = () => {
     const { axios, state, dispatch } = useAxios();
@@ -200,7 +222,7 @@ const useAcceptConnectionRequest = () => {
         try {
             const res = await axios.post(`/user/accept-request/${userId}/${status}`);
             dispatch({ type: 'REQUEST_SUCCESS' });
-            return res.data.data;
+            return res.data;
         } catch (err) {
             if (err instanceof AxiosError) {
                 dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
@@ -221,7 +243,7 @@ const useRemoveFollower = () => {
         try {
             const res = await axios.delete(`/user/remove-follower/${userId}`);
             dispatch({ type: 'REQUEST_SUCCESS' });
-            return res.data.data;
+            return res.data;
         } catch (err) {
             if (err instanceof AxiosError) {
                 dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
@@ -243,7 +265,7 @@ const useRemoveFollowing = () => {
         try {
             const res = await axios.delete(`/user/remove-following/${userId}`);
             dispatch({ type: 'REQUEST_SUCCESS' });
-            return res.data.data;
+            return res.data;
         } catch (err) {
             if (err instanceof AxiosError) {
                 dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
@@ -328,4 +350,4 @@ const useUpdateBio = () => {
 
 
 // Exports
-export { useGetMe, useGetConnections, useGetAllConnections, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useAcceptConnectionRequest, useRemoveFollower, useRemoveFollowing,  useUpdateUsername, useUploadAvatar, useUpdateBio };
+export { useGetMe, useGetConnections, useGetAllConnections, useSearchUsers, useGetSuggestions, useGetConnectionRequests, useSendConnectionRequest, useCancelConnectionRequest, useAcceptConnectionRequest, useRemoveFollower, useRemoveFollowing,  useUpdateUsername, useUploadAvatar, useUpdateBio };

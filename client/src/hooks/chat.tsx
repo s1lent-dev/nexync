@@ -374,6 +374,9 @@ const useSocketMessages = () => {
         socket.on("make-admin", handleMakeAdmin);
         socket.on("dismiss-admin", handleDismissAdmin);
         socket.on("refetch-chats", handleRefetchChats);
+        socket.on(`online-status:${store.getState().chat.selectedConnectionChat.userId}`, ({status}: {status: boolean}) => {
+            console.log("status", status);
+        });
 
         return () => {
             socket.off("messages", handleNewMessage);
@@ -384,6 +387,7 @@ const useSocketMessages = () => {
             socket.off("make-admin", handleMakeAdmin);
             socket.off("dismiss-admin", handleDismissAdmin);
             socket.off("refetch-chats", handleRefetchChats);
+            socket.off(`online-status:${store.getState().chat.selectedConnectionChat.userId}`);
             if (typingTimeout) clearTimeout(typingTimeout);
         };
     }, [socket, me.userId, reduxDispatch]);

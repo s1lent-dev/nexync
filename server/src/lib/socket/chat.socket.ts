@@ -34,6 +34,10 @@ class ChatSocket extends SocketService {
         const socketMembers = this.getSockets(memberIds) as string[];
         this.io.to(socketMembers).emit(event, {chatId, adminId});
     }
+
+    public async emitOnlineStatus(event: string, {userId, status}: {userId: string, status: boolean}) {
+        this.io.emit(event, {userId, status});
+    }
 }
 
 export { ChatSocket };

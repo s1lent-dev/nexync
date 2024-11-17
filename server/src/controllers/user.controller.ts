@@ -244,7 +244,7 @@ const acceptConnectionRequest = AsyncHandler(
     }
 );
 
-const removeFollwers = AsyncHandler(
+const removeFollowers = AsyncHandler(
     async (req: CustomRequest, res: Response, next: NextFunction) => {
         const { userId } = req.params;
         const user = req.user;
@@ -263,15 +263,6 @@ const removeFollwers = AsyncHandler(
         if (!chatExists)
             return next(new ErrorHandler("Chat not found", HTTP_STATUS_NOT_FOUND));
 
-        await prisma.connection.delete({
-            where: {
-                followerId_followingId: {
-                    followerId: userId,
-                    followingId: user?.userId as string,
-                },
-            },
-        });
-
         const isFollowing = await prisma.connection.findFirst({
             where: {
                 followerId: user?.userId as string,
@@ -280,14 +271,23 @@ const removeFollwers = AsyncHandler(
         });
 
         if (!isFollowing) {
-            await prisma.chat.delete({
-                where: { chatId: chatExists.chatId },
-            });
-
             await prisma.userChat.deleteMany({
                 where: { chatId: chatExists.chatId },
             });
+            
+            await prisma.chat.delete({
+                where: { chatId: chatExists.chatId },
+            });
         }
+
+        await prisma.connection.delete({
+            where: {
+                followerId_followingId: {
+                    followerId: userId,
+                    followingId: user?.userId as string,
+                },
+            },
+        });
 
         await cache.delCache(`getMyConnections:${user?.userId}`);
         await cache.delCache(`getAllConnections:${user?.userId}`);
@@ -323,15 +323,6 @@ const removeFollowing = AsyncHandler(
         if (!chatExists)
             return next(new ErrorHandler("Chat not found", HTTP_STATUS_NOT_FOUND));
 
-        await prisma.connection.delete({
-            where: {
-                followerId_followingId: {
-                    followerId: user?.userId as string,
-                    followingId: userId,
-                },
-            },
-        });
-
         const isFollower = await prisma.connection.findFirst({
             where: {
                 followerId: userId,
@@ -340,14 +331,23 @@ const removeFollowing = AsyncHandler(
         });
 
         if (!isFollower) {
-            await prisma.chat.delete({
-                where: { chatId: chatExists.chatId },
-            });
-
             await prisma.userChat.deleteMany({
                 where: { chatId: chatExists.chatId },
             });
+
+            await prisma.chat.delete({
+                where: { chatId: chatExists.chatId },
+            });
         }
+
+        await prisma.connection.delete({
+            where: {
+                followerId_followingId: {
+                    followerId: user?.userId as string,
+                    followingId: userId,
+                },
+            },
+        });
 
         await cache.delCache(`getMyConnections:${user?.userId}`);
         await cache.delCache(`getAllConnections:${user?.userId}`);
@@ -523,6 +523,14 @@ const getSuggestions = AsyncHandler(
             const cachedData = await cache.getCache(cacheKey);
             suggestions = cachedData.suggestions;
         } else {
+
+            const alreadyFollowerIds = await prisma.connection
+                .findMany({
+                    where: { followingId: user?.userId },
+                    select: { followerId: true },
+                })
+                .then((connections) => connections.map((c) => c.followerId));
+
             const alreadyFollowingIds = await prisma.connection
                 .findMany({
                     where: { followerId: user?.userId },
@@ -537,7 +545,7 @@ const getSuggestions = AsyncHandler(
                 })
                 .then((requests) => requests.map((r) => r.receiverId));
 
-            suggestions = await prisma.user.findMany({
+            const rawSuggestions = await prisma.user.findMany({
                 where: {
                     userId: {
                         notIn: [
@@ -548,6 +556,11 @@ const getSuggestions = AsyncHandler(
                     },
                 },
             });
+
+            suggestions = rawSuggestions.map((suggestion) => ({
+                ...suggestion,
+                isFollower: alreadyFollowerIds.includes(suggestion.userId),
+            }));
 
             cache.setCache(cacheKey, { suggestions });
         }
@@ -674,7 +687,7 @@ export {
     sendConnectionRequest,
     unsendConnectionRequest,
     acceptConnectionRequest,
-    removeFollwers,
+    removeFollowers,
     removeFollowing,
     getMyConnections,
     getAllConnections,
