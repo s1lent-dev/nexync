@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import SingleChat from "./singleChat";
 import { useSelector } from "react-redux";
@@ -9,12 +9,17 @@ import { RootState } from "@/context/store";
 
 const Chat = () => {
   
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const connections = useSelector((state: RootState) => state.chat.connectionChats);
   const { getConnectionChats } = useGetConnectionChats();
 
   useEffect(() => {
     getConnectionChats();
   }, []);
+
+  const filteredConnections = connections.filter((connection) =>
+    connection.username.toLowerCase().includes(searchQuery.toLowerCase())
+);
 
   return (
     <section className="flex flex-col p-4 w-full gap-6 h-full">
@@ -35,14 +40,16 @@ const Chat = () => {
         <input
           type="text"
           placeholder="Search..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           className="w-10/12 bg-transparent placeholder:text-font_light placeholder:font-thin placeholder:font-segoe ml-2 focus:outline-none"
         />
       </div>
 
       {/* Chat List with scrollable div */}
       <div className="flex-grow overflow-y-scroll custom-scrollbar scrollbar-thin pr-2 space-y-2">
-        {connections.length > 0 ? (
-          connections.map((connection) => (
+        {filteredConnections.length > 0 ? (
+          filteredConnections.map((connection) => (
             <SingleChat key={connection.userId} connection={connection} />
           ))
         ) : (

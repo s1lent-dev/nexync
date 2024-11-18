@@ -14,6 +14,7 @@ import { IConnection } from "@/types/types";
 
 const Connections = () => {
   
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const connectionRequests = useSelector((state: RootState) => state.connection.connectionRequests);
   const followers = useSelector((state: RootState) => state.connection.followers);
   const following = useSelector((state: RootState) => state.connection.following);
@@ -71,6 +72,8 @@ const Connections = () => {
             <input
               type="text"
               placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-10/12 bg-transparent placeholder:text-font_light placeholder:font-thin placeholder:font-segoe ml-2 focus:outline-none"
             />
           </div>
@@ -92,25 +95,18 @@ const Connections = () => {
 
           {/* Chat List */}
           <div className="flex-grow overflow-y-scroll custom-scrollbar scrollbar-thin pr-2 space-y-2">
-            {isFollowing ? (
-              following.map((user) => (
+            {(isFollowing ? following : followers)
+              .filter((user) =>
+                user.username.toLowerCase().includes(searchQuery.toLowerCase())
+              )
+              .map((user) => (
                 <SingleConnection
                   key={user.userId}
                   user={user}
                   setIsSidebar={setIsSidebar}
-                  setSelectedUser={setSelectedUser} 
+                  setSelectedUser={setSelectedUser}
                 />
-              ))
-            ) : (
-              followers.map((user) => (
-                <SingleConnection
-                  key={user.userId}
-                  user={user}
-                  setIsSidebar={setIsSidebar}
-                  setSelectedUser={setSelectedUser} 
-                />
-              ))
-            )}
+              ))}
           </div>
         </>
       )}

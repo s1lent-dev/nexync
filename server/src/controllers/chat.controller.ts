@@ -642,7 +642,9 @@ const GetGroupChats = AsyncHandler(async (req: CustomRequest, res: Response, nex
         where: {
             chatId: { in: groups.map((g: any) => g.chatId) },
             senderId: { not: user.userId },
-            status: { in: ['SENT', 'PENDING'] }
+            NOT: {
+                reads: { some: { userId: user.userId } },
+            }
         },
         _count: {
             _all: true
@@ -691,5 +693,75 @@ const GetMessages = AsyncHandler(async (req: CustomRequest, res: Response, next:
     return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Chat found.", response));
 });
 
-export { CreateGroupChat, RenameGroupChat, ChangeGroupChatTagline, AddNewMembersToGroupChat, AddNewMemberToGroupChat, RemoveMemberFromGroupChat, MakeMemberAdmin, DismissAdmin, LeaveGroupChat, GetMessages, GetConnectionChats, GetGroupChats };
+
+const GetInfiniteScrollMessages = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
+    const { chatId, lastMessageId } = req.params;
+    const user = req.user;
+
+    if (!chatId) {
+        return res.status(HTTP_STATUS_BAD_REQUEST).json(new ResponseHandler(HTTP_STATUS_BAD_REQUEST, "Chat ID is required.", {}));
+    }
+
+    let chat;
+    
+    if (lastMessageId !== 'undefined') {
+
+        const lastMessage = await prisma.message.findUnique({
+            where: { messageId: lastMessageId },
+            select: { createdAt: true }
+        });
+
+        if (!lastMessage) {
+            return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Last message not found.", {}));
+        }
+
+        chat = await prisma.chat.findFirst({
+            where: { chatId },
+            include: {
+                messages: {
+                    where: {
+                        createdAt: { lt: lastMessage.createdAt }, 
+                    },
+                    orderBy: { createdAt: 'desc' },  
+                    take: 20,
+                    include: { sender: true }
+                }
+            }
+        });
+    } else {
+        console.log('this runs when lastMessageId is undefined');
+        chat = await prisma.chat.findFirst({
+            where: { chatId },
+            include: {
+                messages: {
+                    orderBy: { createdAt: 'desc' },
+                    take: 20,
+                    include: { sender: true }
+                }
+            }
+        });
+    }
+
+    if (!chat) {
+        return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Chat not found.", {}));
+    }
+
+    let messages = chat.messages.map((message) => ({
+        messageId: message.messageId,
+        username: message.sender.username,
+        messageType: message.messageType,
+        chatType: chat.chatType,
+        senderId: message.senderId,
+        chatId: message.chatId,
+        content: message.content,
+        status: message.status,
+        createdAt: message.createdAt,
+    }));
+
+    messages = messages.reverse();
+
+    return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Messages found.", { messages }));
+});
+
+export { CreateGroupChat, RenameGroupChat, ChangeGroupChatTagline, AddNewMembersToGroupChat, AddNewMemberToGroupChat, RemoveMemberFromGroupChat, MakeMemberAdmin, DismissAdmin, LeaveGroupChat, GetMessages, GetInfiniteScrollMessages, GetConnectionChats, GetGroupChats };
 

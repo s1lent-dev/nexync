@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Profile from './profile';
 import { SendHorizontal, CheckCheck } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/context/store';
-import { useGetMessages, useReadMessage, useSendMessage, useSocketMessages, useTypingMessage } from '@/hooks/chat';
+import { useGetInfiniteScrollMessages, useReadMessage, useSendMessage, useSocketMessages, useTypingMessage } from '@/hooks/chat';
 import { ChatType, IMessage, ITyping, MessageType } from '@/types/types';
 import ChatBubble from '../common/chat-bubble';
 import { setUnread } from '@/context/reducers/chats';
@@ -24,34 +24,82 @@ const ChatSection = () => {
   const { readMessage } = useReadMessage();
   const { typingMessage } = useTypingMessage();
   useSocketMessages();
-  const { getMessages } = useGetMessages();
+  // const { getMessages } = useGetMessages();
+  const { getInfiniteScrollMessages } = useGetInfiniteScrollMessages();
   const dispatch = useDispatch();
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const handleSidebarClose = () => {
     setSidebarOpen(false);
   };
 
+  const scrollToBottom = () => {
+    const chatContainer = chatContainerRef.current;
+    if (chatContainer) {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+  };
+
   useEffect(() => {
-    if (user.userId) {
-      if (!userMessages || userMessages.length === 0) {
-        getMessages(user.chatId);
-      }
-      if (userMessages && userMessages.length > 0) {
-        const initMessages = async () => {
-          const unreadMessages = userMessages.filter(
-            (message) => message.senderId !== me.userId && message.status !== 'READ'
-          );
-          if (unreadMessages.length > 0) {
-            const messageIds = unreadMessages.map((message) => message.messageId);
-            await readMessage({ chatId: user.chatId, senderId: user.userId, messageIds, readBy: me.userId, chatType: ChatType.PRIVATE });
-            dispatch(setUnread([{ chatId: user.chatId, count: 0 }]));
-          }
-        };
-        initMessages();
-      }
+    if (user && chatContainerRef.current) {
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);  
+    }
+  }, [user]);
+
+
+  const loadMoreMessages = async () => {
+    if (!user.chatId || !userMessages?.length) return;
+    const lastMessageId = userMessages[0].messageId; 
+    await getInfiniteScrollMessages(user.chatId, lastMessageId);
+  };
+
+  useEffect(() => {
+    if (user.chatId) {
+      const fetchInitialMessages = async () => {
+        await getInfiniteScrollMessages(user.chatId);
+      };
+      fetchInitialMessages();
     }
   }, [user.chatId]);
-  
+
+  useEffect(() => {
+    const chatContainer = document.querySelector("#chat-container");
+
+    const handleScroll = async () => {
+      if (chatContainer?.scrollTop === 0) {
+        await loadMoreMessages();
+      }
+    };
+
+    chatContainer?.addEventListener("scroll", handleScroll);
+    return () => chatContainer?.removeEventListener("scroll", handleScroll);
+  }, [userMessages, user.chatId]);
+
+  useEffect(() => {
+    if (user.chatId && userMessages?.length > 0) {
+      const initMessages = async () => {
+        const unreadMessages = userMessages.filter(
+          (message) => message.senderId !== me.userId && message.status !== "READ"
+        );
+        if (unreadMessages.length > 0) {
+          const messageIds = unreadMessages.map((message) => message.messageId);
+          await readMessage({
+            chatId: user.chatId,
+            senderId: user.userId,
+            messageIds,
+            readBy: me.userId,
+            chatType: ChatType.PRIVATE,
+          });
+          dispatch(setUnread([{ chatId: user.chatId, count: 0 }]));
+        }
+      };
+      initMessages();
+    }
+  }, [user.chatId, userMessages, dispatch, me.userId, readMessage, user.userId]);
+
+
 
   const handleSendMessage = async () => {
     if (!inputValue) return;
@@ -126,7 +174,10 @@ const ChatSection = () => {
         </nav>
 
         {/* Messages Section */}
-        <article className="flex-grow overflow-y-scroll p-4 bg-bg_dark2 custom-scrollbar space-y-4">
+        <article 
+        id='chat-container'
+        ref={chatContainerRef}
+        className="chat-container flex-grow overflow-y-scroll p-4 bg-bg_dark2 custom-scrollbar space-y-4">
           {userMessages && userMessages.length === 0 ? (
             <p className="text-center text-gray-400">No messages yet</p>
           ) : (
@@ -137,15 +188,20 @@ const ChatSection = () => {
               >
                 <div
                   className={`relative px-3 py-1 rounded-lg max-w-xs break-words ${message.senderId === me.userId
-                    ? 'bg-chat text-font_main before:content-[""] before:absolute before:right-[-8px] before:top-2 before:w-0 before:h-0 before:border-t-[8px] before:border-t-transparent before:border-b-[8px] before:border-b-transparent before:border-l-[8px] before:border-l-chat pr-8'
-                    : 'bg-bg_card2 text-font_main before:content-[""] before:absolute before:left-[-8px] before:top-2 before:w-0 before:h-0 before:border-t-[8px] before:border-t-transparent before:border-b-[8px] before:border-b-transparent before:border-r-[8px] before:border-r-bg_card2'
+                    ? 'bg-chat text-font_main rounded-tr-none before:content-[""] before:absolute before:right-[-6px] before:top-0 before:w-0 before:h-0 before:border-t-[0px] before:border-t-transparent before:border-b-[6px] before:border-b-transparent before:border-l-[8px] before:border-l-chat pr-8'
+                    : 'bg-bg_card2 text-font_main rounded-tl-none before:content-[""] before:absolute before:left-[-6px] before:top-0 before:w-0 before:h-0 before:border-t-[0px] before:border-t-transparent before:border-b-[6px] before:border-b-transparent before:border-r-[8px] before:border-r-bg_card2'
                     }`}
                 >
                   {message.content}
                   {message.senderId === me.userId && (
-                    <CheckCheck size={18} className={`absolute bottom-1 right-1 ${message.status === 'READ' ? 'text-blue-500' : 'text-font_dark'}`} />
+                    <CheckCheck
+                      size={18}
+                      className={`absolute bottom-1 right-1 ${message.status === 'READ' ? 'text-blue-500' : 'text-font_dark'
+                        }`}
+                    />
                   )}
                 </div>
+
               </div>
             ))
           )}
@@ -176,15 +232,17 @@ const ChatSection = () => {
             <SendHorizontal size={25} className="cursor-pointer text-primary" />
           </button>
         </footer>
-      </div>
+      </div >
 
       {/* Profile Sidebar */}
-      {isSidebarOpen && (
-        <div className="flex flex-col h-full w-1/2 bg-bg_dark1 ">
-          <Profile onClose={handleSidebarClose} user={user} />
-        </div>
-      )}
-    </section>
+      {
+        isSidebarOpen && (
+          <div className="flex flex-col h-full w-1/2 bg-bg_dark1 ">
+            <Profile onClose={handleSidebarClose} user={user} />
+          </div>
+        )
+      }
+    </section >
   );
 };
 

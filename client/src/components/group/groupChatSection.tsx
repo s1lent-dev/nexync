@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import GroupProfile from './groupProfile';
 import { CheckCheck, SendHorizontal } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@/context/store';
-import { useGetMessages, useReadMessage, useSendMessage, useSocketMessages, useTypingMessage } from '@/hooks/chat';
+import { useGetInfiniteScrollMessages, useReadMessage, useSendMessage, useSocketMessages, useTypingMessage } from '@/hooks/chat';
 import { ChatType, IMessage, ITyping, MessageType } from '@/types/types';
 import ChatBubble from '../common/chat-bubble';
 import { setUnread } from '@/context/reducers/chats';
@@ -21,50 +21,93 @@ const GroupChatSection = () => {
   const { readMessage } = useReadMessage();
   const { typingMessage } = useTypingMessage();
   useSocketMessages();
-  const { getMessages } = useGetMessages();
+  // const { getMessages } = useGetMessages();
+  const { getInfiniteScrollMessages } = useGetInfiniteScrollMessages();
   const dispatch = useDispatch();
+
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const handleSidebarClose = () => {
     setSidebarOpen(false);
   };
 
+  const scrollToBottom = () => {
+    const chatContainer = chatContainerRef.current;
+    if (chatContainer) {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+  };
+
   useEffect(() => {
-    if (group.chatId) {
-      if (!groupMessages || groupMessages.length === 0) {
-        getMessages(group.chatId);
+    if (group && chatContainerRef.current) {
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);  
+    }
+  }, [group]);
+
+  const loadMoreMessages = async () => {
+    if (!group.chatId || !groupMessages?.length) return;
+    const lastMessageId = groupMessages[0].messageId; 
+    await getInfiniteScrollMessages(group.chatId, lastMessageId);
+  };
+
+  useEffect(() => {
+    const chatContainer = document.querySelector("#group-chat-container");
+
+    const handleScroll = async () => {
+      if (chatContainer?.scrollTop === 0) {
+        await loadMoreMessages();
       }
-  
-      if (groupMessages && groupMessages.length > 0) {
-        const initMessages = async () => {
-          const unreadMessages = groupMessages.filter(
-            (message) => message.senderId !== me.userId && message.status !== "READ"
-          );
-  
-          if (unreadMessages.length > 0) {
-            const messagesBySender = unreadMessages.reduce((acc: { [key: string]: string[] }, message) => {
+    };
+
+    chatContainer?.addEventListener("scroll", handleScroll);
+    return () => chatContainer?.removeEventListener("scroll", handleScroll);
+  }, [groupMessages, group.chatId]);
+
+  useEffect(() => {
+    if (group.chatId && groupMessages?.length === 0) {
+      const fetchInitialMessages = async () => {
+        await getInfiniteScrollMessages(group.chatId);
+      };
+      fetchInitialMessages();
+    }
+  }, [group.chatId]);
+
+  useEffect(() => {
+    if (group.chatId && groupMessages?.length > 0) {
+      const initMessages = async () => {
+        const unreadMessages = groupMessages.filter(
+          (message) => message.senderId !== me.userId && message.status !== "READ"
+        );
+
+        if (unreadMessages.length > 0) {
+          const messagesBySender = unreadMessages.reduce(
+            (acc: { [key: string]: string[] }, message) => {
               acc[message.senderId] = acc[message.senderId] || [];
               acc[message.senderId].push(message.messageId);
               return acc;
-            }, {});
-  
-            for (const [senderId, messageIds] of Object.entries(messagesBySender)) {
-              await readMessage({
-                chatId: group.chatId,
-                senderId,
-                messageIds,
-                readBy: me.userId,
-                chatType: ChatType.GROUP,
-              });
-            }
-  
-            dispatch(setUnread([{ chatId: group.chatId, count: 0 }]));
+            },
+            {}
+          );
+
+          for (const [senderId, messageIds] of Object.entries(messagesBySender)) {
+            await readMessage({
+              chatId: group.chatId,
+              senderId,
+              messageIds,
+              readBy: me.userId,
+              chatType: ChatType.GROUP,
+            });
           }
-        };
-  
-        initMessages();
-      }
+
+          dispatch(setUnread([{ chatId: group.chatId, count: 0 }]));
+        }
+      };
+
+      initMessages();
     }
-  }, [group.chatId, groupMessages, me.userId, dispatch, getMessages]);
+  }, [group.chatId, groupMessages, me.userId, readMessage, dispatch]);
 
   const handleSendMessage = async () => {
     if (!inputValue) return;
@@ -141,7 +184,10 @@ const GroupChatSection = () => {
         </nav>
 
         {/* Messages Section */}
-        <article className="flex-grow overflow-y-scroll p-4 bg-bg_dark2 custom-scrollbar space-y-4">
+        <article
+        id='group-chat-container'
+        ref={chatContainerRef}
+        className="flex-grow overflow-y-scroll p-4 bg-bg_dark2 custom-scrollbar space-y-4">
           {groupMessages && groupMessages.length === 0 ? (
             <p className="text-center text-gray-400">No messages yet</p>
           ) : (
@@ -159,8 +205,8 @@ const GroupChatSection = () => {
                   className={`relative px-3 py-1 rounded-lg max-w-xs break-words flex flex-col ${message.messageType === 'GROUP'
                       ? 'bg-bg_card2 text-font_main'
                       : message.senderId === me.userId
-                        ? 'bg-chat text-font_main before:content-[""] before:absolute before:right-[-8px] before:top-3 before:w-0 before:h-0 before:border-t-[8px] before:border-t-transparent before:border-b-[8px] before:border-b-transparent before:border-l-[8px] before:border-l-chat'
-                        : 'bg-bg_card2 text-font_main before:content-[""] before:absolute before:left-[-8px] before:top-3 before:w-0 before:h-0 before:border-t-[8px] before:border-t-transparent before:border-b-[8px] before:border-b-transparent before:border-r-[8px] before:border-r-bg_card2'
+                        ? 'bg-chat text-font_main rounded-tr-none before:content-[""] before:absolute before:right-[-6px] before:top-0 before:w-0 before:h-0 before:border-t-[0px] before:border-t-transparent before:border-b-[6px] before:border-b-transparent before:border-l-[8px] before:border-l-chat pr-8'
+                    : 'bg-bg_card2 text-font_main rounded-tl-none before:content-[""] before:absolute before:left-[-6px] before:top-0 before:w-0 before:h-0 before:border-t-[0px] before:border-t-transparent before:border-b-[6px] before:border-b-transparent before:border-r-[8px] before:border-r-bg_card2'
                     }`}
                 >
                   {message.messageType !== 'GROUP' && (

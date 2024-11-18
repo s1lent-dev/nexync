@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import SingleGroupChat from "./singleGroupChat";
 import { useSelector } from "react-redux";
@@ -9,12 +9,15 @@ import { RootState } from "@/context/store";
 
 const GroupChat = () => {
   
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const groups = useSelector((state: RootState) => state.chat.groupChats);
   const { getGroupChats } = useGetGroupChats();
 
   useEffect(() => {
     getGroupChats();
   }, []);
+
+  const filteredGroups = groups.filter((group) => group.name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   return (
     <section className="flex flex-col p-4 w-full gap-6 h-full">
@@ -35,14 +38,16 @@ const GroupChat = () => {
         <input
           type="text"
           placeholder="Search..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           className="w-10/12 bg-transparent placeholder:text-font_light placeholder:font-thin placeholder:font-segoe ml-2 focus:outline-none"
         />
       </div>
 
       {/* Chat List with scrollable div */}
       <div className="flex-grow overflow-y-scroll custom-scrollbar scrollbar-thin pr-2 space-y-2">
-        {groups.length > 0 ? (
-          groups.map((group) => (
+        {filteredGroups.length > 0 ? (
+          filteredGroups.map((group) => (
             <SingleGroupChat key={group.chatId} group={group} />
           ))
         ) : (

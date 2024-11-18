@@ -9,7 +9,6 @@ import {
     TypingEvent,
 } from "../../types/types.js";
 import { socketService } from "../../app.js";
-import { prisma } from "../db/prisma.db.js";
 
 class PubSubRedis extends RedisService {
     private subscriber: Redis | null = null;
@@ -150,9 +149,9 @@ class PubSubRedis extends RedisService {
     }
 
     async subscribeUserStatusCallback() {
-        this.subscribe(`online-status:*`, (message) => {
+        this.subscribe(`online-status`, (message) => {
             console.log("Received message on online-status channel:", message);
-            const msg = JSON.parse(message) as { status: boolean, userId: string };
+            const msg = JSON.parse(message) as { status: string, userId: string };
             const { status, userId } = msg; 
             console.log("User status:", status, userId);
             socketService.emitOnlineStatus(`online-status/${userId}`, { userId, status });

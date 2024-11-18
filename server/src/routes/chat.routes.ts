@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyToken } from "../middlewares/verify.middleware.js";
-import { GetMessages, GetConnectionChats, GetGroupChats, CreateGroupChat, RenameGroupChat, ChangeGroupChatTagline, AddNewMemberToGroupChat, AddNewMembersToGroupChat, RemoveMemberFromGroupChat, LeaveGroupChat, MakeMemberAdmin, DismissAdmin } from "../controllers/chat.controller.js";
+import { GetMessages, GetConnectionChats, GetGroupChats, CreateGroupChat, RenameGroupChat, ChangeGroupChatTagline, AddNewMemberToGroupChat, AddNewMembersToGroupChat, RemoveMemberFromGroupChat, LeaveGroupChat, MakeMemberAdmin, DismissAdmin, GetInfiniteScrollMessages } from "../controllers/chat.controller.js";
 import { multerSingleUpload } from "../middlewares/multer.middleware.js";
 
 const chatRouter = Router();
@@ -17,5 +17,6 @@ chatRouter.route('/leave-group').delete(verifyToken, LeaveGroupChat);
 chatRouter.route("/get-connection-chats").get(verifyToken, GetConnectionChats);
 chatRouter.route("/get-group-chats").get(verifyToken, GetGroupChats);
 chatRouter.route("/get-messages/:chatId").get(verifyToken, GetMessages);
+chatRouter.route('/get-infinite-messages/:chatId/:lastMessageId?').get(verifyToken, GetInfiniteScrollMessages);
 
 export default chatRouter;

@@ -38,11 +38,13 @@ class SocketService {
       console.log(`Client connected: ${socket.id}`);
       console.log("User connected: ", user);
       this.io.emit("online-status", { userId: user.userId, status: 'online' });
+      // pubsub.publish('online-status', JSON.stringify({userId: user.userId, status: 'online'}))
       this.registerEvents(socket);
       socket.on("disconnect", () => {
         console.log(`Client disconnected: ${socket.id}`);
         this.userSocketsIds.delete(user.userId);
         this.io.emit("online-status", { userId: user.userId, status: 'offline' });
+        // pubsub.publish('online-status', JSON.stringify({userId: user.userId, status: 'offline'}))
       });
     });
   }

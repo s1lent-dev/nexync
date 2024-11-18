@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSocket } from "@/context/helper/socket";
 import { RootState, store } from "@/context/store";
 import { useEffect } from "react";
-import { addMessage, addMessages, addTyping, addUnread, removeTyping, setChats, setConnectionChats, setConnectionStatus, setGroupChats, setSelectedGroupChat, setUnread, updateMessageStatus } from "@/context/reducers/chats";
+import { addMessage, addMessages, addTyping, addUnread, removeTyping, setChats, setConnectionChats, setConnectionStatus, setGroupChats, setInfinteChats, setSelectedGroupChat, setUnread, updateMessageStatus } from "@/context/reducers/chats";
 
 
 
@@ -250,6 +250,7 @@ const useGetGroupChats = () => {
             const res = await axios.get('/chat/get-group-chats');
             reduxDispatch(setGroupChats(res.data.data.groups));
             reduxDispatch(setUnread(res.data.data.unread));
+            console.log("group chats", res.data.data.unread);
             dispatch({ type: 'REQUEST_SUCCESS' });
             return res.data.data;
         } catch (err) {
@@ -287,6 +288,31 @@ const useGetMessages = () => {
         }
     }
     return { getMessages, state };
+}
+
+
+const useGetInfiniteScrollMessages = () => {
+    const { axios, state, dispatch } = useAxios();
+    const reduxDispatch = useDispatch();
+    const getInfiniteScrollMessages = async (chatId: string, lastMessageId?: string) => {
+        dispatch({ type: 'REQUEST_START' });
+        try {
+            const res = await axios.get(`/chat/get-infinite-messages/${chatId}/${lastMessageId}`);
+            reduxDispatch(setInfinteChats({ chatId, messages: res.data.data.messages }));
+            console.log("infinite messages", res.data.data.messages);
+            dispatch({ type: 'REQUEST_SUCCESS' });
+            return res.data.data;
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                dispatch({ type: 'REQUEST_ERROR', payload: err.response?.data });
+                return err.response?.data;
+            } else {
+                dispatch({ type: 'REQUEST_ERROR', payload: 'An unknown error occurred' });
+                return 'An unknown error occurred';
+            }
+        }
+    }
+    return { getInfiniteScrollMessages, state };
 }
 
 
@@ -412,10 +438,10 @@ const useSocketMessages = () => {
             socket.off("message-read", handleMessageRead);
             if (typingTimeout) clearTimeout(typingTimeout);
         };
-    }, [socket, me.userId, reduxDispatch ]);
+    }, [socket, me.userId, reduxDispatch]);
 };
 
 
-export { useCreateGroupChat, useRenameGroupChat, useRenameTagline, useAddMemberToGroupChat, useAddMembersToGroupChat, useRemoveMemberFromGroupChat, useMakeMemberAdmin, useDismissAdmin, useLeaveGroupChat, useGetConnectionChats, useGetGroupChats, useGetMessages, useSendMessage, useReadMessage, useTypingMessage, useSocketMessages };
+export { useCreateGroupChat, useRenameGroupChat, useRenameTagline, useAddMemberToGroupChat, useAddMembersToGroupChat, useRemoveMemberFromGroupChat, useMakeMemberAdmin, useDismissAdmin, useLeaveGroupChat, useGetConnectionChats, useGetGroupChats, useGetMessages, useGetInfiniteScrollMessages, useSendMessage, useReadMessage, useTypingMessage, useSocketMessages };
 
 
