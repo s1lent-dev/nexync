@@ -4,7 +4,7 @@ import { CustomRequest } from "../types/types";
 import { prisma } from "../lib/db/prisma.db.js";
 import { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_CREATED, HTTP_STATUS_FORBIDDEN, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_OK } from "../config/config.js";
 import { pubsub, cache,socketService } from "../app.js";
-import { MessageType } from "@prisma/client";
+import { MessageType, chatType } from "@prisma/client";
 
 
 const CreateGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, next: NextFunction) => {
@@ -17,7 +17,7 @@ const CreateGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, n
 
     const chat = await prisma.chat.create({
         data: {
-            chatType: 'GROUP',
+            chatType: chatType.GROUP,
             name,
             tagline: tagline || '', 
         },
@@ -57,7 +57,7 @@ const RenameGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, n
     const { chatId, name } = req.body;
     const user = req.user;
     const chat = await prisma.chat.findFirst({
-        where: { chatId, chatType: 'GROUP' }
+        where: { chatId, chatType: chatType.GROUP }
     });
 
     if (!chat) {
@@ -87,7 +87,7 @@ const ChangeGroupChatTagline = AsyncHandler(async (req: CustomRequest, res: Resp
     const { chatId, tagline } = req.body;
     const user = req.user;
     const chat = await prisma.chat.findFirst({
-        where: { chatId, chatType: 'GROUP' }
+        where: { chatId, chatType: chatType.GROUP }
     });
 
     if (!chat) {
@@ -123,7 +123,7 @@ const AddNewMembersToGroupChat = AsyncHandler(async (req: CustomRequest, res: Re
         where: { chatId },
     });
 
-    if (!chat || chat.chatType !== 'GROUP') {
+    if (!chat || chat.chatType !== chatType.GROUP) {
         return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Group chat not found.", {}));
     }
 
@@ -154,7 +154,7 @@ const AddNewMembersToGroupChat = AsyncHandler(async (req: CustomRequest, res: Re
         chatId,
         senderId: user?.userId!,
         content: `${member.username} joined the group chat.`,
-        messageType: 'GROUP' as MessageType,
+        messageType: MessageType.GROUP,
     }));
 
     await prisma.message.createMany({ data: messages });
@@ -169,7 +169,7 @@ const AddNewMembersToGroupChat = AsyncHandler(async (req: CustomRequest, res: Re
 
     const emitMessages = newAddedMembers.map((member) => ({
         content: `${member.username} joined the group chat.`,
-        messageType: 'GROUP',
+        messageType: MessageType.GROUP,
     }));
 
     pubsub.publish("group-joined", JSON.stringify({ chatId, memberIds, messages: emitMessages }));
@@ -183,7 +183,7 @@ const AddNewMemberToGroupChat = AsyncHandler(async (req: CustomRequest, res: Res
     const { chatId, userId } = req.body;
     const user = req.user;
     const chat = await prisma.chat.findFirst({
-        where: { chatId, chatType: 'GROUP' }
+        where: { chatId, chatType: chatType.GROUP }
     });
 
     if (!chat) {
@@ -226,7 +226,7 @@ const RemoveMemberFromGroupChat = AsyncHandler(async (req: CustomRequest, res: R
         },
     });
 
-    if (!chat || chat.chatType !== 'GROUP') {
+    if (!chat || chat.chatType !== chatType.GROUP) {
         return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Group chat not found.", {}));
     }
 
@@ -265,7 +265,7 @@ const RemoveMemberFromGroupChat = AsyncHandler(async (req: CustomRequest, res: R
             chatId,
             senderId: user?.userId as string,
             content: message,
-            messageType: 'GROUP',
+            messageType: MessageType.GROUP,
         },
     });
 
@@ -280,7 +280,7 @@ const RemoveMemberFromGroupChat = AsyncHandler(async (req: CustomRequest, res: R
 
     const emitMessage = {
         content: message,
-        messageType: 'GROUP',
+        messageType: MessageType.GROUP,
     };
 
     pubsub.publish("group-removed", JSON.stringify({ chatId, memberIds, message: emitMessage }));
@@ -307,7 +307,7 @@ const MakeMemberAdmin = AsyncHandler(async (req: CustomRequest, res: Response, n
         },
     });
 
-    if (!chat || chat.chatType !== 'GROUP') {
+    if (!chat || chat.chatType !== chatType.GROUP) {
         return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Group chat not found.", {}));
     }
 
@@ -349,7 +349,7 @@ const MakeMemberAdmin = AsyncHandler(async (req: CustomRequest, res: Response, n
             chatId,
             senderId: user?.userId as string,
             content: message,
-            messageType: 'GROUP',
+            messageType: MessageType.GROUP,
         },
     });
 
@@ -364,7 +364,7 @@ const MakeMemberAdmin = AsyncHandler(async (req: CustomRequest, res: Response, n
 
     const emitMessage = {
         content: message,
-        messageType: 'GROUP',
+        messageType: MessageType.GROUP,
     };
 
     pubsub.publish("make-admin", JSON.stringify({ chatId, memberIds, message: emitMessage }));
@@ -391,7 +391,7 @@ const DismissAdmin = AsyncHandler(async (req: CustomRequest, res: Response, next
         },
     });
 
-    if (!chat || chat.chatType !== 'GROUP') {
+    if (!chat || chat.chatType !== chatType.GROUP) {
         return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Group chat not found.", {}));
     }
 
@@ -433,7 +433,7 @@ const DismissAdmin = AsyncHandler(async (req: CustomRequest, res: Response, next
             chatId,
             senderId: user?.userId as string,
             content: message,
-            messageType: 'GROUP',
+            messageType: MessageType.GROUP,
         },
     });
 
@@ -448,7 +448,7 @@ const DismissAdmin = AsyncHandler(async (req: CustomRequest, res: Response, next
 
     const emitMessage = {
         content: message,
-        messageType: 'GROUP',
+        messageType: MessageType.GROUP,
     };
 
     pubsub.publish("dismiss-admin", JSON.stringify({ chatId, memberIds, message: emitMessage }));
@@ -475,7 +475,7 @@ const LeaveGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, ne
         },
     });
 
-    if (!chat || chat.chatType !== 'GROUP') {
+    if (!chat || chat.chatType !== chatType.GROUP) {
         return res.status(HTTP_STATUS_NOT_FOUND).json(new ResponseHandler(HTTP_STATUS_NOT_FOUND, "Group chat not found.", {}));
     }
 
@@ -501,7 +501,7 @@ const LeaveGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, ne
             chatId,
             senderId: user?.userId as string,
             content: message,
-            messageType: 'GROUP',
+            messageType: MessageType.GROUP,
         },
     });
 
@@ -515,7 +515,7 @@ const LeaveGroupChat = AsyncHandler(async (req: CustomRequest, res: Response, ne
 
     const emitMessage = {
         content: message,
-        messageType: 'GROUP',
+        messageType: MessageType.GROUP,
     };
 
     pubsub.publish("group-left", JSON.stringify({ chatId, memberIds, message: emitMessage }));
@@ -541,7 +541,7 @@ const GetConnectionChats = AsyncHandler(async (req: CustomRequest, res: Response
         const chats = await prisma.chat.findMany({
             where: {
                 users: { some: { userId: user?.userId } },
-                chatType: 'PRIVATE'
+                chatType: chatType.PRIVATE
             },
             include: {
                 users: {
@@ -609,7 +609,7 @@ const GetGroupChats = AsyncHandler(async (req: CustomRequest, res: Response, nex
         const chats = await prisma.chat.findMany({
             where: {
                 users: { some: { userId: user?.userId } },
-                chatType: 'GROUP'
+                chatType: chatType.GROUP
             },
             include: {
                 users: {

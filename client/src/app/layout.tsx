@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import ReduxProvider from "@/context/rootProvider";
 import { SocketProvider } from "@/context/helper/socket";
@@ -24,7 +25,9 @@ export default function RootLayout({
           <AxiosProvider>
             <SocketProvider>
               <ToastProvider>
-                {children}
+                <Suspense fallback={<div>Loading...</div>}>
+                  {children}
+                </Suspense>
               </ToastProvider>
             </SocketProvider>
           </AxiosProvider>

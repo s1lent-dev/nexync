@@ -1,30 +1,58 @@
 "use client";
 
-import React, { useEffect } from "react";
-import Navigation from "@/components/navigation/navigation";
+import React, { useEffect, Suspense } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/context/store";
-import Profile from "@/components/settings/profile";
-import Settings from "@/components/settings/settings";
-import NewChat from "@/components/add-connections/newChat";
-import { motion } from "framer-motion";
-import Connections from "@/components/connections/connections";
-import ConnectionRequest from "@/components/connections/connectionRequest";
-import ChatSection from "@/components/chat/chatSection";
-import Chat from "@/components/chat/chat";
 import { useGetMe } from "@/hooks/user";
-import GroupChat from "@/components/group/groupChat";
-import GroupChatSection from "@/components/group/groupChatSection";
-import NewGroup from "@/components/add-connections/newGroup";
+import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
+
+const Navigation = dynamic(() => import("@/components/navigation/navigation"), {
+  suspense: true,
+});
+const Profile = dynamic(() => import("@/components/settings/profile"), {
+  suspense: true,
+});
+const Settings = dynamic(() => import("@/components/settings/settings"), {
+  suspense: true,
+});
+const NewChat = dynamic(() => import("@/components/add-connections/newChat"), {
+  suspense: true,
+});
+const Connections = dynamic(() => import("@/components/connections/connections"), {
+  suspense: true,
+});
+const ConnectionRequest = dynamic(() => import("@/components/connections/connectionRequest"), {
+  suspense: true,
+});
+const ChatSection = dynamic(() => import("@/components/chat/chatSection"), {
+  suspense: true,
+});
+const Chat = dynamic(() => import("@/components/chat/chat"), {
+  suspense: true,
+});
+const GroupChat = dynamic(() => import("@/components/group/groupChat"), {
+  suspense: true,
+});
+const GroupChatSection = dynamic(() => import("@/components/group/groupChatSection"), {
+  suspense: true,
+});
+const NewGroup = dynamic(() => import("@/components/add-connections/newGroup"), {
+  suspense: true,
+});
+
+const Loader = dynamic(() => import("@/components/common/loader"), {
+  loading: () => <Loader />,
+});
 
 const Main = () => {
   const navigation = useSelector((state: RootState) => state.navigation.title);
-  const { getMe }  = useGetMe();
+  const { getMe } = useGetMe();
 
   useEffect(() => {
     getMe();
   }, []);
-  
+
   return (
     <motion.main
       variants={{
@@ -41,20 +69,26 @@ const Main = () => {
       <div className="w-[98%] h-[95vh] flex rounded-lg shadow-lg overflow-hidden">
         {/* Sidebar */}
         <div className="w-1/3 h-full bg-bg_dark1 flex flex-row border-r-2 border-r-bg_card2">
-          <Navigation />
-          {navigation === "chats" && <Chat />}
-          {navigation === "groups" && <GroupChat />}
-          {navigation === "profile" && <Profile />}
-          {navigation === "settings" && <Settings />}
-          {navigation === "newchat" && <NewChat />}
-          {navigation === "newgroup" && <NewGroup />}
-          {navigation === "connections" && <Connections />}
-          {navigation === "connection-requests" && <ConnectionRequest />}
+          <Suspense fallback={<Loader />}>
+            <Navigation />
+          </Suspense>
+          <Suspense fallback={<Loader />}>
+            {navigation === "chats" && <Chat />}
+            {navigation === "groups" && <GroupChat />}
+            {navigation === "profile" && <Profile />}
+            {navigation === "settings" && <Settings />}
+            {navigation === "newchat" && <NewChat />}
+            {navigation === "newgroup" && <NewGroup />}
+            {navigation === "connections" && <Connections />}
+            {navigation === "connection-requests" && <ConnectionRequest />}
+          </Suspense>
         </div>
         {/* Chat area */}
         <div className="w-2/3 h-full bg-bg_card1">
-          {navigation === "chats" && <ChatSection />}
-          {navigation === "groups" && <GroupChatSection />}
+          <Suspense fallback={<Loader />}>
+            {navigation === "chats" && <ChatSection />}
+            {navigation === "groups" && <GroupChatSection />}
+          </Suspense>
         </div>
       </div>
     </motion.main>

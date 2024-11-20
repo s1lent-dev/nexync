@@ -19,6 +19,7 @@ const selectedUser: IConnectionChat = {
     email: "",
     avatarUrl: "",
     bio: "",
+    status: "",
 }
 
 const initialState = {
@@ -54,6 +55,7 @@ const UserSlice = createSlice({
                 email: "",
                 avatarUrl: "",
                 bio: "",
+                status: "",
             }
         }
     },
