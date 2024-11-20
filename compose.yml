@@ -1,6 +1,31 @@
 version: '3.8'
 
 services:
+
+  server:
+      image: s1lentdev/nexync-server
+      container_name: nexync-server
+      ports:
+          - "5000:5000"
+      depends_on:
+          - redis-stack
+          - postgres
+          - rabbitmq
+          - zoo1
+          - kafka1
+
+  client:
+      image: s1lentdev/nexync-client
+      container_name: nexync-client
+      ports:
+          - "3000:3000"
+      depends_on:
+          - redis-stack
+          - postgres
+          - rabbitmq
+          - zoo1
+          - kafka1
+          - server
   # nginx:
   #   image: custom-nginx:latest
   #   hostname: nginx

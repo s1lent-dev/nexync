@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import { REDIS_HOST, REDIS_PORT } from "../../config/config.js";
+import { REDIS_URL } from "../../config/config.js";
 
 class RedisService {
   protected client: Redis | null = null;
@@ -9,10 +9,7 @@ class RedisService {
   }
   
   async initClient() {
-    this.client = new Redis({
-      host: REDIS_HOST,
-      port: REDIS_PORT,
-    });
+    this.client = new Redis(REDIS_URL);
     this.client.on('connect', () => {
       console.log('Redis connected');
     });

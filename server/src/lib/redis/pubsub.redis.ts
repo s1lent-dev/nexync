@@ -1,6 +1,6 @@
 import Redis from "ioredis";
 import { RedisService } from "./redis.lib.js";
-import { REDIS_HOST, REDIS_PORT } from "../../config/config.js";
+import { REDIS_URL } from "../../config/config.js";
 import {
     GroupJoinedEvent,
     GroupLeftEvent,
@@ -14,10 +14,7 @@ class PubSubRedis extends RedisService {
     private subscriber: Redis | null = null;
     constructor() {
         super();
-        this.subscriber = new Redis({
-            host: REDIS_HOST,
-            port: REDIS_PORT,
-        });
+        this.subscriber = new Redis(REDIS_URL);
     }
 
     async publish(channel: string, message: string) {

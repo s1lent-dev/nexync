@@ -1,6 +1,8 @@
 import { Kafka, Producer, Consumer } from "kafkajs";
-import { KAFKA_BROKER, KAFKA_CLIENT_ID, KAFKA_PARTITIONS1, KAFKA_PARTITIONS2, KAFKA_TOPIC1, KAFKA_TOPIC2 } from "../../config/config.js";
-import { K } from "handlebars";
+import { KAFKA_BROKER, KAFKA_CLIENT_ID, KAFKA_PARTITIONS1, KAFKA_PARTITIONS2, KAFKA_PASSWORD, KAFKA_TOPIC1, KAFKA_TOPIC2, KAFKA_USERNAME } from "../../config/config.js";
+import fs from 'fs';
+import path from 'path';
+
 
 class KafkaService {
   private kafka: Kafka;
@@ -10,6 +12,14 @@ class KafkaService {
     this.kafka = new Kafka({
       clientId: KAFKA_CLIENT_ID,
       brokers: [KAFKA_BROKER],
+      ssl: {
+        ca: [fs.readFileSync(path.resolve('./ca.pem'), "utf-8")],
+      },
+      sasl: {
+        username: KAFKA_USERNAME,
+        password: KAFKA_PASSWORD,
+        mechanism: "plain",
+      }
     });
     this.initAdmin();
     this.producer = this.kafka.producer();

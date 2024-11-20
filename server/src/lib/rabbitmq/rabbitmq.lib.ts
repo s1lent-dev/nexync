@@ -1,5 +1,5 @@
 import amqp, { Connection, Channel, ConsumeMessage } from "amqplib";
-import { RABBITMQ_HOST, RABBITMQ_PORT } from "../../config/config.js";
+import { RABBITMQ_URL } from "../../config/config.js";
 import { MailContent } from "../../types/types.js";
 
 class RabbitMQService {
@@ -11,10 +11,7 @@ class RabbitMQService {
     }
 
     async connect() {
-        this.connection = await amqp.connect({
-            hostname: RABBITMQ_HOST,
-            port: RABBITMQ_PORT
-        });
+        this.connection = await amqp.connect(RABBITMQ_URL);
         this.channel = await this.connection.createChannel();
         console.log("Connected to RabbitMQ");
     }
