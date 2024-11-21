@@ -6,10 +6,11 @@
   "type": "module",
   "scripts": {
     "start": "node dist/server.js",
-    "build": "npx tsc -p .",
+    "build": "npx tsc -p . & cp -r src/graphql/schema.graphql dist/graphql/schema.graphql",
     "dev": "npx nodemon dist/server.js",
-    "watch": "concurrently \"npx tsc -w\" \"npm run copy-templates\"",
-    "copy-templates": "copyfiles -u 2 src/templates/**/* dist/templates"
+    "watch": "concurrently \"npx tsc -w\" \"npm run copy-templates\" \"npm run copy-schema\"",
+    "copy-templates": "copyfiles -u 2 src/templates/**/* dist/templates",
+    "copy-schema": "cp src/graphql/schema.graphql dist/graphql/schema.graphql"
   },
   "keywords": [],
   "author": "",
