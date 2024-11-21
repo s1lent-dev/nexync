@@ -2,13 +2,16 @@ import { Kafka } from "kafkajs";
 import { KAFKA_BROKER, KAFKA_CLIENT_ID, KAFKA_PARTITIONS1, KAFKA_PARTITIONS2, KAFKA_PASSWORD, KAFKA_TOPIC1, KAFKA_TOPIC2, KAFKA_USERNAME } from "../../config/config.js";
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 class KafkaService {
     constructor() {
+        const __filename = fileURLToPath(import.meta.url); // Get the full path of the current file
+        const __dirname = path.dirname(__filename); // Get the directory name
         this.kafka = new Kafka({
             clientId: KAFKA_CLIENT_ID,
             brokers: [KAFKA_BROKER],
             ssl: {
-                ca: [fs.readFileSync(path.resolve('./ca.pem'), "utf-8")],
+                ca: [fs.readFileSync(path.resolve(__dirname, '../../ca.pem'), 'utf-8')],
             },
             sasl: {
                 username: KAFKA_USERNAME,
