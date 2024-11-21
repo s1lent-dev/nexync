@@ -6,15 +6,12 @@
   "type": "module",
   "scripts": {
     "start": "node dist/server.js",
-    "build": "npx tsc -p . & cp -r src/graphql/schema.graphql dist/graphql/schema.graphql",
+    "build": "npx tsc -p . && cp -r src/graphql/schema.graphql dist/graphql/schema.graphql && npx prisma generate",
     "dev": "npx nodemon dist/server.js",
     "watch": "concurrently \"npx tsc -w\" \"npm run copy-templates\" \"npm run copy-schema\"",
     "copy-templates": "copyfiles -u 2 src/templates/**/* dist/templates",
     "copy-schema": "cp src/graphql/schema.graphql dist/graphql/schema.graphql"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@apollo/server": "^4.11.0",
     "@apollo/subgraph": "^2.9.3",
