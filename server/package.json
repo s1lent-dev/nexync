@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
-    "start": "set NODE_ENV=PRODUCTION & node dist/server.js",
+    "start": "node dist/server.js",
     "build": "npx tsc -p .",
     "dev": "npx nodemon dist/server.js",
     "watch": "concurrently \"npx tsc -w\" \"npm run copy-templates\"",
