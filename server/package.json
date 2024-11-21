@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node dist/server.js",
-    "build": "npx tsc -p . && cp -r src/graphql/schema.graphql dist/graphql/schema.graphql && npx prisma generate",
+    "build": "npx tsc -p . &&  npx prisma generate && cp -r src/graphql/schema.graphql dist/graphql/schema.graphql",
     "dev": "npx nodemon dist/server.js",
     "watch": "concurrently \"npx tsc -w\" \"npm run copy-templates\" \"npm run copy-schema\"",
     "copy-templates": "copyfiles -u 2 src/templates/**/* dist/templates",
@@ -42,6 +42,7 @@
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
+    "prisma": "^5.21.1",
     "redis": "^4.7.0",
     "socket.io": "^4.8.1",
     "zod": "^3.23.8"
