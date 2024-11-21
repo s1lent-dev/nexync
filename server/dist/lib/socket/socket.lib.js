@@ -1,4 +1,5 @@
 import { Server } from "socket.io";
+import { FRONTEND_URL } from "../../config/config";
 class SocketService {
     constructor(server) {
         this.userSocketsIds = new Map();
@@ -11,7 +12,7 @@ class SocketService {
         };
         this.io = new Server({
             cors: {
-                origin: ['http://localhost:3000', 'http://localhost:3001'],
+                origin: [FRONTEND_URL],
                 methods: ["GET", "POST"],
                 credentials: true,
             },

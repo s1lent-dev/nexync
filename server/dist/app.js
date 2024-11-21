@@ -21,6 +21,7 @@ import userRouter from './routes/user.routes.js';
 import chatRouter from './routes/chat.routes.js';
 import { verifySocket } from './middlewares/verifySocket.middleware.js';
 import { ErrorMiddleware } from './middlewares/error.middleware.js';
+import { FRONTEND_URL } from './config/config.js';
 // Server 
 const app = express();
 const server = createServer(app);
@@ -42,7 +43,7 @@ async function initServices() {
 }
 // Middlewares
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3001'],
+    origin: [FRONTEND_URL],
     credentials: true,
 }));
 app.use(express.json());
