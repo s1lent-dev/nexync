@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { FRONTEND_URL } from "../../config/config";
+import { FRONTEND_URL } from "../../config/config.js";
 class SocketService {
     constructor(server) {
         this.userSocketsIds = new Map();

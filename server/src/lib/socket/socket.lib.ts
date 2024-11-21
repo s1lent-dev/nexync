@@ -2,7 +2,7 @@ import { Server, Socket } from "socket.io";
 import http, { IncomingMessage} from "http";
 import { User as IUser } from "../../types/types";
 import { pubsub } from "../../app.js";
-import { FRONTEND_URL } from "../../config/config";
+import { FRONTEND_URL } from "../../config/config.js";
 
 interface CustomSocket extends Socket {
   request: IncomingMessage & { user: IUser };
