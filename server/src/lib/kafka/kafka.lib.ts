@@ -16,7 +16,7 @@ class KafkaService {
       clientId: KAFKA_CLIENT_ID,
       brokers: [KAFKA_BROKER],
       ssl: {
-        ca: [fs.readFileSync(path.resolve(__dirname, '../../ca.pem'), 'utf-8')],
+        ca: [fs.readFileSync(path.resolve(__dirname, '../../../ca.pem'), 'utf-8')],
       },
       sasl: {
         username: KAFKA_USERNAME,
