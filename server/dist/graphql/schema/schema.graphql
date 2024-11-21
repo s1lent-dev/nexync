@@ -1,0 +1,12 @@
+type typeDefs {
+    hello: String
+}
+
+type Query {
+    hello: String
+}
+
+type Mutation {
+    hello: String
+}
+
