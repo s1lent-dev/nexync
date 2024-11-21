@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node dist/server.js",
-    "build": "npx prisma generate && npx prisma deploy && npx tsc -p . && cp server/ca.pem dist/ca.pem  && cp -r src/graphql/schema.graphql dist/graphql/schema.graphql",
+    "build": "npx prisma generate && cp -r ca.pem dist/ca.pem  && cp -r src/graphql/schema/schema.graphql dist/graphql/schema/schema.graphql && npx tsc -p .",
     "dev": "npx nodemon dist/server.js",
     "watch": "concurrently \"npx tsc -w\" \"npm run copy-templates\" \"npm run copy-schema\"",
     "copy-templates": "copyfiles -u 2 src/templates/**/* dist/templates",
