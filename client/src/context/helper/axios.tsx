@@ -11,7 +11,7 @@ import type { StateType, ActionType } from "./axiosReducers";
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: 'https://nexync-server.codezeniths.site',
   withCredentials: true,
 });
 

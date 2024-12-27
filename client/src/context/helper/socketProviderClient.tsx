@@ -9,7 +9,7 @@ const SocketProviderClient = ({ children }: { children: React.ReactNode }) => {
     const [socket, setSocket] = useState<Socket | null>(null);
 
     useEffect(() => {
-        const socketInstance = io(process.env.NEXT_PUBLIC_API_URL, { 
+        const socketInstance = io('https://nexync-server.codezeniths.site', { 
             withCredentials: true, 
             transports: ["websocket"] 
         });
