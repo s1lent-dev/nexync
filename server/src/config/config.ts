@@ -87,6 +87,8 @@ const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: true,
   sameSite: 'none' as const,
+  domain: '.codezeniths.site',
+  maxAge: 1000 * 60 * 60 * 24,
 }
 
 
