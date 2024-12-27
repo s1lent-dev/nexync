@@ -12,11 +12,8 @@ RUN npm install
 # Copy the entire project, including the prisma/schema folder
 COPY . .
 
-# Explicitly set the Prisma schema path
-ENV PRISMA_SCHEMA=./prisma/schema/schema.prisma
-
 # Run Prisma generate with the correct schema path
-RUN npx prisma generate --schema=$PRISMA_SCHEMA
+RUN npx prisma generate
 
 # Build the project
 RUN npm run build
