@@ -69,6 +69,10 @@ const ChatSlice = createSlice({
                 state.chats[chatId] = messages;
             }
         },
+        resetInfinteChats: (state, action: PayloadAction<{chatId: string}>) => {
+            const { chatId } = action.payload;
+            state.chats[chatId] = [];
+        },
         setUnread: (state, action: PayloadAction<{ chatId: string; count: number }[]>) => {
             action.payload.forEach(({ chatId, count }) => {
                 state.unread[chatId] = count;
@@ -114,5 +118,5 @@ const ChatSlice = createSlice({
     },
 });
 
-export const { setSelectedConnectionChat, setSelectedGroupChat, setConnectionChats, setConnectionStatus, setGroupChats, setChats, setInfinteChats, resetChats, addTyping, removeTyping, addMessage, addMessages, updateMessageStatus, setUnread, addUnread } = ChatSlice.actions;
+export const { setSelectedConnectionChat, setSelectedGroupChat, setConnectionChats, setConnectionStatus, setGroupChats, setChats, setInfinteChats, resetInfinteChats, resetChats, addTyping, removeTyping, addMessage, addMessages, updateMessageStatus, setUnread, addUnread } = ChatSlice.actions;
 export { ChatSlice };

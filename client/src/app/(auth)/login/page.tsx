@@ -1,13 +1,12 @@
+"use client";
+
 import dynamic from 'next/dynamic'
-import { Suspense } from 'react'
-const Login = dynamic(() => import('@/components/auth/login'), { suspense: true });
-const Loader = dynamic(() => import('@/components/common/loader'), { suspense: true });
+import Loader from '@/components/common/loader'
+const Login = dynamic(() => import('@/components/auth/login'), { ssr: false, loading: () => <Loader /> });
 
 const LoginRoute = () => {
   return (
-    <Suspense fallback={<Loader />}>
     <Login />
-    </Suspense>
   )
 }
 

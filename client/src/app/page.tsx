@@ -6,44 +6,19 @@ import { RootState } from "@/context/store";
 import { useGetMe } from "@/hooks/user";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
+import Loader from "@/components/common/loader";
+const Navigation = dynamic(() => import("@/components/navigation/navigation"), { ssr: false });
+const Profile = dynamic(() => import("@/components/settings/profile"), { ssr: false });
+const Settings = dynamic(() => import("@/components/settings/settings"), { ssr: false });
+const NewChat = dynamic(() => import("@/components/add-connections/newChat"), { ssr: false });
+const Connections = dynamic(() => import("@/components/connections/connections"), { ssr: false });
+const ConnectionRequest = dynamic(() => import("@/components/connections/connectionRequest"), { ssr: false });
+const ChatSection = dynamic(() => import("@/components/chat/chatSection"), { ssr: false, loading: () => <Loader /> });
+const Chat = dynamic(() => import("@/components/chat/chat"), { ssr: false, loading: () => <Loader /> });
+const GroupChat = dynamic(() => import("@/components/group/groupChat"),{ ssr: false, loading: () => <Loader /> });
+const GroupChatSection = dynamic(() => import("@/components/group/groupChatSection"), { ssr: false, loading: () => <Loader /> });
+const NewGroup = dynamic(() => import("@/components/add-connections/newGroup"), {ssr: false});
 
-const Navigation = dynamic(() => import("@/components/navigation/navigation"), {
-  suspense: true,
-});
-const Profile = dynamic(() => import("@/components/settings/profile"), {
-  suspense: true,
-});
-const Settings = dynamic(() => import("@/components/settings/settings"), {
-  suspense: true,
-});
-const NewChat = dynamic(() => import("@/components/add-connections/newChat"), {
-  suspense: true,
-});
-const Connections = dynamic(() => import("@/components/connections/connections"), {
-  suspense: true,
-});
-const ConnectionRequest = dynamic(() => import("@/components/connections/connectionRequest"), {
-  suspense: true,
-});
-const ChatSection = dynamic(() => import("@/components/chat/chatSection"), {
-  suspense: true,
-});
-const Chat = dynamic(() => import("@/components/chat/chat"), {
-  suspense: true,
-});
-const GroupChat = dynamic(() => import("@/components/group/groupChat"), {
-  suspense: true,
-});
-const GroupChatSection = dynamic(() => import("@/components/group/groupChatSection"), {
-  suspense: true,
-});
-const NewGroup = dynamic(() => import("@/components/add-connections/newGroup"), {
-  suspense: true,
-});
-
-const Loader = dynamic(() => import("@/components/common/loader"), {
-  loading: () => <Loader />,
-});
 
 const Main = () => {
   const navigation = useSelector((state: RootState) => state.navigation.title);
