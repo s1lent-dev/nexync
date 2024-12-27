@@ -319,7 +319,16 @@ const useGetInfiniteScrollMessages = () => {
 const useSendMessage = () => {
     const socket = useSocket();
     const sendMessage = async (message: IMessage) => {
-        socket?.emit('messages', message);
+        if (!socket) {
+            console.log("Socket not available");
+            return;
+        }
+        console.log("message sent ", message);
+        if(socket) {
+            socket.emit('messages', message);
+        } else {
+            console.log("socket not available");
+        }
     }
     return { sendMessage };
 }

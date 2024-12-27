@@ -1,8 +1,8 @@
 import { Server, Socket } from "socket.io";
 import http, { IncomingMessage} from "http";
-import { User as IUser } from "../../types/types";
-import { pubsub } from "../../app.js";
+import { User as IUser, MessageEvent } from "../../types/types";
 import { FRONTEND_URL } from "../../config/config.js";
+import { kafka } from "../../app.js";
 
 interface CustomSocket extends Socket {
   request: IncomingMessage & { user: IUser };
@@ -16,7 +16,7 @@ class SocketService {
     this.io = new Server({
       cors: {
         origin: [FRONTEND_URL],
-        methods: ["GET", "POST"],
+        methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
       },
     });
@@ -35,12 +35,14 @@ class SocketService {
       } else {
         this.userSocketsIds.set(user.userId.toString(), socket.id);
       }
+
+      this.registerEvents(socket);
+      
       console.log("Current user sockets map: ", Array.from(this.userSocketsIds.entries()));
       console.log(`Client connected: ${socket.id}`);
       console.log("User connected: ", user);
       this.io.emit("online-status", { userId: user.userId, status: 'online' });
       // pubsub.publish('online-status', JSON.stringify({userId: user.userId, status: 'online'}))
-      this.registerEvents(socket);
       socket.on("disconnect", () => {
         console.log(`Client disconnected: ${socket.id}`);
         this.userSocketsIds.delete(user.userId);

@@ -1,8 +1,7 @@
 import amqp from "amqplib";
 import { RABBITMQ_URL } from "../../config/config.js";
 class RabbitMQService {
-    constructor() {
-    }
+    constructor() { }
     async connect() {
         this.connection = await amqp.connect(RABBITMQ_URL);
         this.channel = await this.connection.createChannel();

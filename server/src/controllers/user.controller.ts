@@ -289,12 +289,16 @@ const removeFollowers = AsyncHandler(
             },
         });
 
-        await cache.delCache(`getMyConnections:${user?.userId}`);
-        await cache.delCache(`getAllConnections:${user?.userId}`);
-        await cache.delCache(`get-connection-chats:${user?.userId}`);
-        await cache.delCache(`getMyConnections:${userId}`);
-        await cache.delCache(`getAllConnections:${userId}`);
-        await cache.delCache(`get-connection-chats:${userId}`);
+        const invalidateCachePromises = [
+            await cache.delCache(`getMyConnections:${user?.userId}`),
+            await cache.delCache(`getAllConnections:${user?.userId}`),
+            await cache.delCache(`get-connection-chats:${user?.userId}`),
+            await cache.delCache(`getMyConnections:${userId}`),
+            await cache.delCache(`getAllConnections:${userId}`),
+            await cache.delCache(`get-connection-chats:${userId}`),
+        ]
+
+        await Promise.all(invalidateCachePromises);
 
         res
             .status(HTTP_STATUS_OK)
@@ -349,12 +353,16 @@ const removeFollowing = AsyncHandler(
             },
         });
 
-        await cache.delCache(`getMyConnections:${user?.userId}`);
-        await cache.delCache(`getAllConnections:${user?.userId}`);
-        await cache.delCache(`get-connection-chats:${user?.userId}`);
-        await cache.delCache(`getMyConnections:${userId}`);
-        await cache.delCache(`getAllConnections:${userId}`);
-        await cache.delCache(`get-connection-chats:${userId}`);
+        const invalidateCachePromises = [
+            await cache.delCache(`getMyConnections:${user?.userId}`),
+            await cache.delCache(`getAllConnections:${user?.userId}`),
+            await cache.delCache(`get-connection-chats:${user?.userId}`),
+            await cache.delCache(`getMyConnections:${userId}`),
+            await cache.delCache(`getAllConnections:${userId}`),
+            await cache.delCache(`get-connection-chats:${userId}`),
+        ]
+
+        await Promise.all(invalidateCachePromises);
 
         res
             .status(HTTP_STATUS_OK)

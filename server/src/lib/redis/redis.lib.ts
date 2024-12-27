@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import { REDIS_URL } from "../../config/config.js";
+import { REDIS_HOST, REDIS_PORT, REDIS_URL } from "../../config/config.js";
 
 class RedisService {
   protected client: Redis | null = null;

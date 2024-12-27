@@ -3,12 +3,12 @@ import express from 'express';
 import { createServer } from 'http';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import bodyParser from "body-parser";
+// import bodyParser from "body-parser";
 import morgan from 'morgan';
 import session from 'express-session';
 import passport from 'passport';
-import { expressMiddleware } from "@apollo/server/express4";
-import { graphqlServer } from "./graphql/graphql.js";
+// import { expressMiddleware } from "@apollo/server/express4";
+// import { graphqlServer } from "./graphql/graphql.js";
 import { intializeGoogleOAuth } from './middlewares/verify.google.js';
 import { intializeGithubOAuth } from './middlewares/verify.github.js';
 import { ChatSocket } from './lib/socket/chat.socket.js';
@@ -51,8 +51,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan('dev'));
 // GraphQL
-await graphqlServer.start();
-app.use('/graphql', bodyParser.json(), expressMiddleware(graphqlServer));
+// await graphqlServer.start();
+// app.use('/graphql', bodyParser.json(), expressMiddleware(graphqlServer));
 // OAuth Middlewares
 intializeGoogleOAuth();
 intializeGithubOAuth();

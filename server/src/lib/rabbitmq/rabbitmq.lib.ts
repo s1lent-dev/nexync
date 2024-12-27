@@ -1,14 +1,12 @@
 import amqp, { Connection, Channel, ConsumeMessage } from "amqplib";
-import { RABBITMQ_URL } from "../../config/config.js";
+import { RABBITMQ_HOST, RABBITMQ_PASS, RABBITMQ_PORT, RABBITMQ_URL, RABBITMQ_USER } from "../../config/config.js";
 import { MailContent } from "../../types/types.js";
 
 class RabbitMQService {
     private connection!: Connection;
     protected channel!: Channel;
 
-    constructor() {
-        
-    }
+    constructor() {}
 
     async connect() {
         this.connection = await amqp.connect(RABBITMQ_URL);

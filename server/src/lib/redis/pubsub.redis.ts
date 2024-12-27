@@ -1,6 +1,6 @@
 import Redis from "ioredis";
 import { RedisService } from "./redis.lib.js";
-import { REDIS_URL } from "../../config/config.js";
+import { REDIS_HOST, REDIS_PORT, REDIS_URL } from "../../config/config.js";
 import {
     GroupJoinedEvent,
     GroupLeftEvent,

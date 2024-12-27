@@ -33,7 +33,7 @@ const VerifyCode = AsyncHandler(async (req: Request, res: Response, next: NextFu
     }
     await prisma.verificationCode.delete({ where: { email } });
     next();
-});
+}); 
 
 const CheckUsername = AsyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     const { username } = req.query;
