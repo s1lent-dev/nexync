@@ -66,7 +66,7 @@ const GroupChatSection = () => {
   }, [groupMessages, group.chatId]);
 
   useEffect(() => {
-    if (group.chatId && groupMessages?.length === 0) {
+    if (group.chatId) {
       const fetchInitialMessages = async () => {
         await getInfiniteScrollMessages(group.chatId);
       };
