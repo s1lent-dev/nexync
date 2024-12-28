@@ -186,7 +186,7 @@ const Register = () => {
               title="Sign in with Google"
               type="button"
               className="text-font_dark mb-6 flex w-full items-center justify-center rounded-sm border border-slate-500 bg-bg_card1 px-6 py-3 text-base outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary"
-              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`}
+              onClick={() => window.location.href = `https://nexync-server.codezeniths.site/auth/google`}
             >
               <Image
                 src="/google.webp"
@@ -201,7 +201,7 @@ const Register = () => {
               title="Sign in with Github"
               type="button"
               className="text-font_dark mb-6 flex w-full items-center justify-center rounded-sm border border-slate-500 bg-bg_card1 px-6 py-3 text-base outline-none transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:text-primary"
-              onClick={() => window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/github`}
+              onClick={() => window.location.href = `https://nexync-server.codezeniths.site/auth/github`}
             >
               <Image
                 src="/github.webp"
