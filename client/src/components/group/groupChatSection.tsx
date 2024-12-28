@@ -7,7 +7,7 @@ import { RootState } from '@/context/store';
 import { useGetInfiniteScrollMessages, useReadMessage, useSendMessage, useSocketMessages, useTypingMessage } from '@/hooks/chat';
 import { ChatType, IMessage, ITyping, MessageType } from '@/types/types';
 import ChatBubble from '../common/chat-bubble';
-import { resetInfinteChats, setUnread } from '@/context/reducers/chats';
+import { setUnread } from '@/context/reducers/chats';
 
 const GroupChatSection = () => {
 
@@ -71,9 +71,6 @@ const GroupChatSection = () => {
         await getInfiniteScrollMessages(group.chatId);
       };
       fetchInitialMessages();
-    }
-    return () => {
-      dispatch(resetInfinteChats({chatId: group.chatId}));
     }
   }, [group.chatId]);
 
@@ -245,6 +242,7 @@ const GroupChatSection = () => {
               setInputValue(e.target.value);
               handleTyping();
             }}
+            onKeyUp={(e) => e.key === 'Enter' && handleSendMessage()}
           />
           <button
             type='button'

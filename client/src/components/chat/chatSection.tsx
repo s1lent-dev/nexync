@@ -223,6 +223,7 @@ const ChatSection = () => {
               setInputValue(e.target.value);
               handleTyping();
             }}
+            onKeyUp={(e) => e.key === 'Enter' && handleSendMessage()}
           />
           <button
             type='button'
