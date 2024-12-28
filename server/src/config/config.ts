@@ -88,9 +88,7 @@ const COOKIE_OPTIONS = {
   secure: true,
   sameSite: 'none' as const,
   domain: '.codezeniths.site',
-  maxAge: 1000 * 60 * 60 * 24,
 }
-
 
 export {
   PORT,
