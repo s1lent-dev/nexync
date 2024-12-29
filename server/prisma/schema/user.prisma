@@ -8,6 +8,7 @@ model User {
     avatarUrl        String?
     bio              String?             @default("Hey there! I'm using Nexync.")
     lastUsernameEdit DateTime?
+    deviceToken      String?
     chats            UserChat[]
     messages         Message[]           @relation("UserSentMessages")
     messagesRead     MessageRead[]       @relation("UserReadMessages")

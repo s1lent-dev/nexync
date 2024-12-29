@@ -4,6 +4,7 @@ import { prisma } from "../lib/db/prisma.db.js";
 import { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_OK, } from "../config/config.js";
 import { cache } from "../app.js";
 import { canUpdateUsername } from "../utils/helper.util.js";
+import notifyService from "../services/notify.service.js";
 const getMe = AsyncHandler(async (req, res, next) => {
     const user = req.user;
     res
@@ -81,6 +82,15 @@ const sendConnectionRequest = AsyncHandler(async (req, res, next) => {
         },
     });
     await cache.delCache(`getSuggestions:${user?.userId}`);
+    const userExists = await prisma.user.findFirst({ where: { userId } });
+    if (userExists?.deviceToken) {
+        const options = {
+            title: "Connection Request",
+            body: `${user?.username} sent you a connection request`,
+            token: userExists.deviceToken
+        };
+        await notifyService.sendNotification(options);
+    }
     res
         .status(HTTP_STATUS_OK)
         .json(new ResponseHandler(HTTP_STATUS_OK, "Request sent successfully", {}));
@@ -162,6 +172,15 @@ const acceptConnectionRequest = AsyncHandler(async (req, res, next) => {
             { userId: userId, chatId: chat.chatId },
         ],
     });
+    const userExists = await prisma.user.findFirst({ where: { userId } });
+    if (userExists?.deviceToken) {
+        const options = {
+            title: "Connection Request",
+            body: `${user?.username} accepted your connection request`,
+            token: userExists.deviceToken
+        };
+        await notifyService.sendNotification(options);
+    }
     res
         .status(HTTP_STATUS_OK)
         .json(new ResponseHandler(HTTP_STATUS_OK, "Request accepted successfully", {}));

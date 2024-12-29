@@ -85,10 +85,10 @@ const useVerifyEmail = () => {
 // useRegister hook
 const useRegister = () => {
     const { axios, state, dispatch } = useAxios();
-    const registerUser = async (data: IRegsitrationForm, query: string) => {
+    const registerUser = async (data: IRegsitrationForm, query: string, deviceToken: string) => {
         dispatch({ type: 'REQUEST_START' });
         try {
-            const res = await axios.post(`/auth/register?code=${encodeURIComponent(query)}`, data);
+            const res = await axios.post(`/auth/register?code=${encodeURIComponent(query)}`, { ...data, deviceToken });
             dispatch({ type: 'REQUEST_SUCCESS' });
             return res.data;
         } catch (err) {

@@ -9,6 +9,8 @@ import {
     TypingEvent,
 } from "../../types/types.js";
 import { socketService } from "../../app.js";
+import notifyService from "../../services/notify.service.js";
+import { prisma } from "../db/prisma.db.js";
 
 class PubSubRedis extends RedisService {
     private subscriber: Redis | null = null;
@@ -73,6 +75,37 @@ class PubSubRedis extends RedisService {
                 status,
                 createdAt,
             });
+
+            // Notify users of new messages
+            const offlineUsers = memberIds.filter((id) => !socketService.isUserOnline(id));
+
+            if (offlineUsers.length > 0) {
+                const [sender, members] = await Promise.all([
+                    prisma.user.findUnique({ where: { userId: senderId } }),
+                    prisma.user.findMany({
+                        where: {
+                            userId: {
+                                in: offlineUsers,
+                            },
+                        },
+                        select: {
+                            deviceToken: true,
+                        },
+                    }),
+                ]);
+            
+                const notificationPromises = members
+                    .filter((member) => member.deviceToken)
+                    .map((member) =>
+                        notifyService.sendNotification({
+                            title: "New Message",
+                            body: `${sender?.username} sent you a message`,
+                            token: member.deviceToken!,
+                        })
+                    );
+            
+                await Promise.all(notificationPromises);
+            }
         });
     }
 

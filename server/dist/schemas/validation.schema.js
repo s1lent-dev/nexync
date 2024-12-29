@@ -13,6 +13,7 @@ const UserSchema = z.object({
     avatarUrl: z.string().url().optional(),
     bio: z.string().max(200).optional(),
     refreshToken: z.string().uuid().optional(),
+    deviceToken: z.string().uuid().optional(),
     createdAt: z.date().optional(),
     updatedAt: z.date().optional()
 });

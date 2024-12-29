@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/context/toast/toast";
+import useFcmToken from "@/hooks/useFcm"
 import { debounce } from "lodash";
 
 const schema = z
@@ -43,6 +44,7 @@ const Register = () => {
   const { checkUsername } = useCheckUsername();
   const { checkEmail } = useCheckEmail();
   const router = useRouter();
+  const { token } = useFcmToken();
 
   const {
     register,
@@ -148,7 +150,7 @@ const Register = () => {
     try {
       if (FormData) {
         console.log(FormData);
-        const res = await registerUser(FormData, code);
+        const res = await registerUser(FormData, code, token || '');
         if (res?.statusCode === 201) {
           showSuccessToast("Account created successfully. Please login to continue");
           router.push('/login');

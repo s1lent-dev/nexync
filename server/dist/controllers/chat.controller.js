@@ -3,6 +3,7 @@ import { prisma } from "../lib/db/prisma.db.js";
 import { HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_CREATED, HTTP_STATUS_FORBIDDEN, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_OK } from "../config/config.js";
 import { pubsub, cache, socketService } from "../app.js";
 import { MessageType, chatType } from "@prisma/client";
+import notifyService from "../services/notify.service.js";
 const CreateGroupChat = AsyncHandler(async (req, res, next) => {
     const { name, memberIds, tagline } = req.body;
     const user = req.user;
@@ -112,7 +113,7 @@ const AddNewMembersToGroupChat = AsyncHandler(async (req, res, next) => {
         where: {
             userId: { in: newMemberIds },
         },
-        select: { username: true, userId: true },
+        select: { username: true, userId: true, deviceToken: true },
     });
     const messages = newAddedMembers.map((member) => ({
         chatId,
@@ -133,6 +134,14 @@ const AddNewMembersToGroupChat = AsyncHandler(async (req, res, next) => {
     }));
     pubsub.publish("group-joined", JSON.stringify({ chatId, memberIds, messages: emitMessages }));
     pubsub.publish("refetch-chats", JSON.stringify({ chatId, memberIds: [...memberIds, ...newMemberIds], adminId: user?.userId }));
+    const notificationPromise = newAddedMembers
+        .filter((member) => member.deviceToken)
+        .map((member) => notifyService.sendNotification({
+        title: "Group Chat",
+        body: `${user?.username} added you to a group chat.`,
+        token: member.deviceToken,
+    }));
+    await Promise.all(notificationPromise);
     return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, "Users added to group chat.", {}));
 });
 const AddNewMemberToGroupChat = AsyncHandler(async (req, res, next) => {

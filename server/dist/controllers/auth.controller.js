@@ -47,13 +47,16 @@ const CheckEmail = AsyncHandler(async (req, res, next) => {
     return res.status(HTTP_STATUS_OK).json(new ResponseHandler(HTTP_STATUS_OK, 'Email is available', {}));
 });
 const RegisterUser = AsyncHandler(async (req, res, next) => {
-    const { username, email, password } = req.body;
+    const { username, email, password, deviceToken } = req.body;
     const UserExists = await prisma.user.findFirst({ where: { OR: [{ username }, { email }] } });
     if (UserExists) {
         return next(new ErrorHandler('User already exists', HTTP_STATUS_BAD_REQUEST));
     }
     const hashedPassword = await hashPassword(password);
     const user = await prisma.user.create({ data: { username, email, password: hashedPassword } });
+    if (deviceToken) {
+        await prisma.user.update({ where: { userId: user.userId }, data: { deviceToken } });
+    }
     res.status(HTTP_STATUS_CREATED).json(new ResponseHandler(HTTP_STATUS_CREATED, 'User created successfully', user));
 });
 const LoginUser = AsyncHandler(async (req, res, next) => {
