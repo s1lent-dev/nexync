@@ -149,13 +149,14 @@ const Register = () => {
   const onVerifyEmail = async (code: string) => {
     try {
       if (FormData) {
-        console.log(FormData);
+        console.log(FormData, code, token);
         const res = await registerUser(FormData, code, token || '');
         if (res?.statusCode === 201) {
           showSuccessToast("Account created successfully. Please login to continue");
           router.push('/login');
         } else {
           showErrorToast(res.message);
+          console.error(res);
         }
       } else {
         showErrorToast("Form data is missing.");

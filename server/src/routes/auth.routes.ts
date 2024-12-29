@@ -14,7 +14,7 @@ authRouter.route('/github/callback').get(passport.authenticate("github", { sessi
 authRouter.route('/check-username').post(CheckUsername);
 authRouter.route('/check-email').post(CheckEmail);
 authRouter.route('/verify-email').post(VerifyEmail);
-authRouter.route('/register').post(validateUser, VerifyCode, RegisterUser);
+authRouter.route('/register').post(VerifyCode, RegisterUser);
 authRouter.route('/login').post(LoginUser);
 authRouter.route('/logout').get(verifyToken, LogoutUser);
 authRouter.route('/refresh-token').post(verifyRefreshToken, RefreshToken);
