@@ -3,13 +3,13 @@ import { getMessaging, getToken, isSupported } from "firebase/messaging";
 
 // Replace the following with your app's Firebase project configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyCnL_f0nmkdSlrz7djsW1MCEqdsSXRdXQQ",
-    authDomain: "nexync-zenith.firebaseapp.com",
-    projectId: "nexync-zenith",
-    storageBucket: "nexync-zenith.firebasestorage.app",
-    messagingSenderId: "72936729458",
-    appId: "1:72936729458:web:0b75126e954f8b84e14beb",
-    measurementId: "G-00LSZ722JM"
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
@@ -24,7 +24,7 @@ export const fetchToken = async () => {
         const fcmMessaging = await messaging();
         if (fcmMessaging) {
             const token = await getToken(fcmMessaging, {
-                vapidKey: 'BAjRfWSJzNdxB9rT3SVqzK1UxmNCa6VY06I6rlnQwfMezaLXGQ3PNkA_dxVWH9PQ5WiRrGaRUTqkRNTYs__23FI',
+                vapidKey: process.env.NEXT_PUBLIC_FIREBASE_FCM_VAPID_KEY,
             });
             console.log('Token:', token);
             return token;
