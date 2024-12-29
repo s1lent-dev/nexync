@@ -1,7 +1,13 @@
 import admin from 'firebase-admin';
 import { Message, getMessaging } from "firebase-admin/messaging";
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { FRONTEND_URL } from '../config/config';
-import { FIREBASE_SERVICE_ACCOUNT } from '../config/config';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const serviceAccount = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../../certs/service_key.json"), 'utf8'));
 
 class NotifyService {
 
@@ -14,7 +20,7 @@ class NotifyService {
     private initFirebase(): admin.messaging.Messaging {
         if (!admin.apps.length) {
             admin.initializeApp({
-                credential: admin.credential.cert(FIREBASE_SERVICE_ACCOUNT as admin.ServiceAccount),
+                credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
             });
         }
         return admin.messaging();
