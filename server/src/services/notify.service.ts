@@ -3,7 +3,7 @@ import { Message, getMessaging } from "firebase-admin/messaging";
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { FRONTEND_URL } from '../config/config';
+import { FRONTEND_URL } from '../config/config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
