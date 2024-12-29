@@ -3,66 +3,71 @@ importScripts(
   "https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"
 );
 
-// Replace these with your own Firebase config keys...
-const firebaseConfig = {
-  apiKey: "AIzaSyCnL_f0nmkdSlrz7djsW1MCEqdsSXRdXQQ",
-  authDomain: "nexync-zenith.firebaseapp.com",
-  projectId: "nexync-zenith",
-  storageBucket: "nexync-zenith.firebasestorage.app",
-  messagingSenderId: "72936729458",
-  appId: "1:72936729458:web:0b75126e954f8b84e14beb",
-  measurementId: "G-00LSZ722JM"
-};
+let messaging;
 
-firebase.initializeApp(firebaseConfig);
+// Fetch the Firebase config dynamically from the API
+async function initializeFirebase() {
+  try {
+    const response = await fetch("/api/firebase-config");
+    const firebaseConfig = await response.json();
 
-const messaging = firebase.messaging();
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    console.log("[firebase-messaging-sw.js] Firebase initialized");
 
-messaging.onBackgroundMessage((payload) => {
-  console.log(
-    "[firebase-messaging-sw.js] Received background message ",
-    payload
-  );
+    messaging = firebase.messaging();
 
-  // payload.fcmOptions?.link comes from our backend API route handle
-  // payload.data.link comes from the Firebase Console where link is the 'key'
-  const link = payload.fcmOptions?.link || payload.data?.link;
+    messaging.onBackgroundMessage((payload) => {
+      console.log(
+        "[firebase-messaging-sw.js] Received background message",
+        payload
+      );
 
-  const notificationTitle = payload.notification.title;
-  const notificationOptions = {
-    body: payload.notification.body,
-    icon: "./logo.png",
-    data: { url: link },
-  };
-  self.registration.showNotification(notificationTitle, notificationOptions);
+      const link = payload.fcmOptions?.link || payload.data?.link;
+
+      const notificationTitle = payload.notification.title;
+      const notificationOptions = {
+        body: payload.notification.body,
+        icon: "./next.svg",
+        data: { url: link },
+      };
+
+      self.registration.showNotification(
+        notificationTitle,
+        notificationOptions
+      );
+    });
+  } catch (error) {
+    console.error("[firebase-messaging-sw.js] Failed to fetch Firebase config:", error);
+  }
+}
+
+self.addEventListener("install", (event) => {
+  console.log("[firebase-messaging-sw.js] Installing...");
+  event.waitUntil(initializeFirebase());
 });
 
-self.addEventListener("notificationclick", function (event) {
+self.addEventListener("notificationclick", (event) => {
   console.log("[firebase-messaging-sw.js] Notification click received.");
 
   event.notification.close();
 
-  // This checks if the client is already open and if it is, it focuses on the tab. If it is not open, it opens a new tab with the URL passed in the notification payload
   event.waitUntil(
-    clients
-      // https://developer.mozilla.org/en-US/docs/Web/API/Clients/matchAll
-      .matchAll({ type: "window", includeUncontrolled: true })
-      .then(function (clientList) {
-        const url = event.notification.data.url;
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      const url = event.notification.data.url;
 
-        if (!url) return;
+      if (!url) return;
 
-        // If relative URL is passed in firebase console or API route handler, it may open a new window as the client.url is the full URL i.e. https://example.com/ and the url is /about whereas if we passed in the full URL, it will focus on the existing tab i.e. https://example.com/about
-        for (const client of clientList) {
-          if (client.url === url && "focus" in client) {
-            return client.focus();
-          }
+      for (const client of clientList) {
+        if (client.url === url && "focus" in client) {
+          return client.focus();
         }
+      }
 
-        if (clients.openWindow) {
-          console.log("OPENWINDOW ON CLIENT");
-          return clients.openWindow(url);
-        }
-      })
+      if (clients.openWindow) {
+        console.log("OPENWINDOW ON CLIENT");
+        return clients.openWindow(url);
+      }
+    })
   );
 });
