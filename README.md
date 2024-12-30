@@ -23,115 +23,115 @@ Nexync combines cutting-edge technologies to provide a robust and reliable commu
 
 ## 🛠️ Key Features
 
-<div style="display: flex; align-items: center; margin-bottom: 20px;">
-  <img src="public/next.svg" alt="Next.js Logo" style="width: 50px; height: 50px; margin-right: 10px;">
-  <div style="display: flex; flex-direction: column;">
-    <strong>Frontend: <span style="color: #0070f3;">Next.js</span></strong>
+<div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; flex-direction: row; gap: 10px;">
+        <img src="public/next.svg" alt="Next.js Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
+        <strong>Frontend: <span style="color: #0070f3;">Next.js</span></strong>
+    </div>
     <ul style="list-style-type: none; padding-left: 0;">
-      <li>Delivers a highly responsive and dynamic interface with features like lazy loading and infinite scroll.</li>
+        <li>Delivers a highly responsive and dynamic interface with features like lazy loading and infinite scroll.</li>
     </ul>
-  </div>
 </div>
 
-<div style="display: flex; align-items: center; margin-bottom: 20px;">
-  <img src="public/node.svg" alt="Node.js Logo" style="width: 50px; height: 50px; margin-right: 10px;">
-  <div style="display: flex; flex-direction: column;">
-    <strong>Backend: <span style="color: #8CC84B;">Node.js</span></strong>
+<div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; flex-direction: row; gap: 10px;">
+        <img src="public/node.svg" alt="Node.js Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
+        <strong>Backend: <span style="color: #8CC84B;">Node.js</span></strong>
+    </div>
     <ul style="list-style-type: none; padding-left: 0;">
-      <li>Utilizes a microservices architecture to ensure modularity and high scalability.</li>
+        <li>Utilizes a microservices architecture to ensure modularity and high scalability.</li>
     </ul>
-  </div>
 </div>
 
-<div style="display: flex; align-items: center; margin-bottom: 20px;">
-  <img src="public/socket.svg" alt="WebSocket Logo" style="width: 50px; height: 50px; margin-right: 10px;">
-  <div style="display: flex; flex-direction: column;">
-    <strong>Real-Time Messaging: <span style="color: #8e44ad;">WebSockets & Redis</span></strong>
+<div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; flex-direction: row; gap: 10px;">
+        <img src="public/socket.svg" alt="WebSocket Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
+        <strong>Real-Time Messaging: <span style="color: #8e44ad;">WebSockets & Redis</span></strong>
+    </div>
     <ul style="list-style-type: none; padding-left: 0;">
-      <li>Ensures low-latency communication with <strong>Socket.IO</strong> and scalable message delivery using <strong>Redis Pub/Sub</strong>.</li>
+        <li>Ensures low-latency communication with <strong>Socket.IO</strong> and scalable message delivery using <strong>Redis Pub/Sub</strong>.</li>
     </ul>
-  </div>
 </div>
 
-<div style="display: flex; align-items: center; margin-bottom: 20px;">
-  <img src="public/kafka.svg" alt="Kafka Logo" style="width: 50px; height: 50px; margin-right: 10px;">
-  <div style="display: flex; flex-direction: column;">
-    <strong>Message Queuing: <span style="color: #E18D00;">Kafka</span></strong>
+<div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; flex-direction: row; gap: 10px;">
+        <img src="public/kafka.svg" alt="Kafka Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
+        <strong>Message Queuing: <span style="color: #E18D00;">Kafka</span></strong>
+    </div>
     <ul style="list-style-type: none; padding-left: 0;">
-      <li>Processes messages in <strong>Kafka chat-topic</strong> (8 partitions) and efficiently stores them in <strong>PostgreSQL</strong> using bulk insertion every 5 seconds.</li>
+        <li>Processes messages in <strong>Kafka chat-topic</strong> (8 partitions) and efficiently stores them in <strong>PostgreSQL</strong> using bulk insertion every 5 seconds.</li>
     </ul>
-  </div>
 </div>
 
-<div style="display: flex; align-items: center; margin-bottom: 20px;">
-  <img src="public/redis.svg" alt="Redis Logo" style="width: 50px; height: 50px; margin-right: 10px;">
-  <div style="display: flex; flex-direction: column;">
-    <strong>Caching & Scalability: <span style="color: #DC382D;">Redis</span></strong>
+<div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; flex-direction: row; gap: 10px;">
+        <img src="public/redis.svg" alt="Redis Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
+        <strong>Caching & Scalability: <span style="color: #DC382D;">Redis</span></strong>
+    </div>
     <ul style="list-style-type: none; padding-left: 0;">
-      <li>Implements API response caching to minimize latency and supports horizontal scaling for real-time features.</li>
+        <li>Implements API response caching to minimize latency and supports horizontal scaling for real-time features.</li>
     </ul>
-  </div>
 </div>
 
-<div style="display: flex; align-items: center; margin-bottom: 20px;">
-  <img src="public/rabbitmq.svg" alt="RabbitMQ Logo" style="width: 50px; height: 50px; margin-right: 10px;">
-  <div style="display: flex; flex-direction: column;">
-    <strong>Task Management: <span style="color: #FF6600;">RabbitMQ</span></strong>
+<div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; flex-direction: row; gap: 10px;">
+        <img src="public/rabbitmq.svg" alt="RabbitMQ Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
+        <strong>Task Management: <span style="color: #FF6600;">RabbitMQ</span></strong>
+    </div>
     <ul style="list-style-type: none; padding-left: 0;">
-      <li>Handles secondary tasks like email notifications and OTP verification via task-specific queues.</li>
+        <li>Handles secondary tasks like email notifications and OTP verification via task-specific queues.</li>
     </ul>
-  </div>
 </div>
 
-<div style="display: flex; align-items: center; margin-bottom: 20px;">
-  <img src="public/jwt.svg" alt="Authentication Icon" style="width: 50px; height: 50px; margin-right: 10px;">
-  <div style="display: flex; flex-direction: column;">
-    <strong>Authentication</strong>
+<div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; flex-direction: row; gap: 10px;">
+        <img src="public/jwt.svg" alt="Authentication Icon" style="width: 50px; height: 50px; margin-right: 10px;">  
+        <strong>Authentication</strong>
+    </div>
     <ul style="list-style-type: none; padding-left: 0;">
-      <li>Cookie-based <strong>JWT authentication</strong> ensures secure session management.</li>
-      <li><strong>Google</strong> and <strong>GitHub</strong> login via <strong>Passport.js</strong> provide seamless OAuth integration.</li>
+        <li>Cookie-based <strong>JWT authentication</strong> ensures secure session management.</li>
+        <li><strong>Google</strong> and <strong>GitHub</strong> login via <strong>Passport.js</strong> provide seamless OAuth integration.</li>
     </ul>
-  </div>
 </div>
 
-<div style="display: flex; align-items: center; margin-bottom: 20px;">
-  <img src="public/firebase.svg" alt="Firebase Logo" style="width: 50px; height: 50px; margin-right: 10px;">
-  <div style="display: flex; flex-direction: column;">
-    <strong>Push Notifications: <span style="color: #FF5C8D;">Firebase FCM</span></strong>
+<div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; flex-direction: row; gap: 10px;">
+        <img src="public/firebase.svg" alt="Firebase Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
+        <strong>Push Notifications: <span style="color: #FF5C8D;">Firebase FCM</span></strong>
+    </div>
     <ul style="list-style-type: none; padding-left: 0;">
-      <li>Real-time push notifications for instant user updates across devices.</li>
+        <li>Real-time push notifications for instant user updates across devices.</li>
     </ul>
-  </div>
 </div>
 
-<div style="display: flex; align-items: center; margin-bottom: 20px;">
-  <img src="public/postgres.svg" alt="PostgreSQL Logo" style="width: 50px; height: 50px; margin-right: 10px;">
-  <div style="display: flex; flex-direction: column;">
-    <strong>Database: <span style="color: #336791;">PostgreSQL & Prisma</span></strong>
+<div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; flex-direction: row; gap: 10px;">
+        <img src="public/postgres.svg" alt="PostgreSQL Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
+        <strong>Database: <span style="color: #336791;">PostgreSQL & Prisma</span></strong>
+    </div>
     <ul style="list-style-type: none; padding-left: 0;">
-      <li>Relational database with efficient data handling using <strong>Prisma ORM</strong>.</li>
+        <li>Relational database with efficient data handling using <strong>Prisma ORM</strong>.</li>
     </ul>
-  </div>
 </div>
 
-<div style="display: flex; align-items: center; margin-bottom: 20px;">
-  <img src="public/typescript.svg" alt="TypeScript Logo" style="width: 50px; height: 50px; margin-right: 10px;">
-  <div style="display: flex; flex-direction: column;">
-    <strong>Robust Typing: <span style="color: #3178C6;">TypeScript & Zod</span></strong>
+<div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; flex-direction: row; gap: 10px;">
+        <img src="public/typescript.svg" alt="TypeScript Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
+        <strong>Robust Typing: <span style="color: #3178C6;">TypeScript & Zod</span></strong>
+    </div>
     <ul style="list-style-type: none; padding-left: 0;">
-      <li>Ensures type safety and secure data handling via strict runtime validations.</li>
+        <li>Ensures type safety and secure data handling via strict runtime validations.</li>
     </ul>
-  </div>
 </div>
 
-<div style="display: flex; align-items: center; margin-bottom: 20px;">
-  <img src="public/fire.svg" alt="Performance Icon" style="width: 50px; height: 50px; margin-right: 10px;">
-  <div style="display: flex; flex-direction: column;">
-    <strong>Performance Optimizations</strong>
+<div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; flex-direction: row; gap: 10px;">
+        <img src="public/fire.svg" alt="Performance Icon" style="width: 50px; height: 50px; margin-right: 10px;">  
+        <strong>Performance Optimizations</strong>
+    </div>
     <ul style="list-style-type: none; padding-left: 0;">
-      <li>Features include debouncing, throttling, pagination, and suspense boundaries for enhanced performance.</li>
+        <li>Features include debouncing, throttling, pagination, and suspense boundaries for enhanced performance.</li>
     </ul>
-  </div>
 </div>
 
 
