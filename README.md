@@ -24,7 +24,7 @@ Nexync combines cutting-edge technologies to provide a robust and reliable commu
 ## 🛠️ Key Features
 
 <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-    <div style="display: flex; flex-direction: row; gap: 10px;">
+    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
         <img src="public/next.svg" alt="Next.js Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
         <strong>Frontend: <span style="color: #0070f3;">Next.js</span></strong>
     </div>
@@ -34,7 +34,7 @@ Nexync combines cutting-edge technologies to provide a robust and reliable commu
 </div>
 
 <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-    <div style="display: flex; flex-direction: row; gap: 10px;">
+    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
         <img src="public/node.svg" alt="Node.js Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
         <strong>Backend: <span style="color: #8CC84B;">Node.js</span></strong>
     </div>
@@ -44,7 +44,7 @@ Nexync combines cutting-edge technologies to provide a robust and reliable commu
 </div>
 
 <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-    <div style="display: flex; flex-direction: row; gap: 10px;">
+    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
         <img src="public/socket.svg" alt="WebSocket Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
         <strong>Real-Time Messaging: <span style="color: #8e44ad;">WebSockets & Redis</span></strong>
     </div>
@@ -54,7 +54,7 @@ Nexync combines cutting-edge technologies to provide a robust and reliable commu
 </div>
 
 <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-    <div style="display: flex; flex-direction: row; gap: 10px;">
+    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
         <img src="public/kafka.svg" alt="Kafka Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
         <strong>Message Queuing: <span style="color: #E18D00;">Kafka</span></strong>
     </div>
@@ -64,7 +64,7 @@ Nexync combines cutting-edge technologies to provide a robust and reliable commu
 </div>
 
 <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-    <div style="display: flex; flex-direction: row; gap: 10px;">
+    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
         <img src="public/redis.svg" alt="Redis Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
         <strong>Caching & Scalability: <span style="color: #DC382D;">Redis</span></strong>
     </div>
@@ -74,7 +74,7 @@ Nexync combines cutting-edge technologies to provide a robust and reliable commu
 </div>
 
 <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-    <div style="display: flex; flex-direction: row; gap: 10px;">
+    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
         <img src="public/rabbitmq.svg" alt="RabbitMQ Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
         <strong>Task Management: <span style="color: #FF6600;">RabbitMQ</span></strong>
     </div>
@@ -84,7 +84,7 @@ Nexync combines cutting-edge technologies to provide a robust and reliable commu
 </div>
 
 <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-    <div style="display: flex; flex-direction: row; gap: 10px;">
+    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
         <img src="public/jwt.svg" alt="Authentication Icon" style="width: 50px; height: 50px; margin-right: 10px;">  
         <strong>Authentication</strong>
     </div>
@@ -95,7 +95,7 @@ Nexync combines cutting-edge technologies to provide a robust and reliable commu
 </div>
 
 <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-    <div style="display: flex; flex-direction: row; gap: 10px;">
+    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
         <img src="public/firebase.svg" alt="Firebase Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
         <strong>Push Notifications: <span style="color: #FF5C8D;">Firebase FCM</span></strong>
     </div>
@@ -105,7 +105,7 @@ Nexync combines cutting-edge technologies to provide a robust and reliable commu
 </div>
 
 <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-    <div style="display: flex; flex-direction: row; gap: 10px;">
+    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
         <img src="public/postgres.svg" alt="PostgreSQL Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
         <strong>Database: <span style="color: #336791;">PostgreSQL & Prisma</span></strong>
     </div>
@@ -115,7 +115,7 @@ Nexync combines cutting-edge technologies to provide a robust and reliable commu
 </div>
 
 <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-    <div style="display: flex; flex-direction: row; gap: 10px;">
+    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
         <img src="public/typescript.svg" alt="TypeScript Logo" style="width: 50px; height: 50px; margin-right: 10px;">  
         <strong>Robust Typing: <span style="color: #3178C6;">TypeScript & Zod</span></strong>
     </div>
@@ -125,7 +125,7 @@ Nexync combines cutting-edge technologies to provide a robust and reliable commu
 </div>
 
 <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-    <div style="display: flex; flex-direction: row; gap: 10px;">
+    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
         <img src="public/fire.svg" alt="Performance Icon" style="width: 50px; height: 50px; margin-right: 10px;">  
         <strong>Performance Optimizations</strong>
     </div>
