@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSocket } from "@/context/helper/socket";
 import { RootState, store } from "@/context/store";
 import { useEffect } from "react";
-import { addMessage, addMessages, addTyping, addUnread, removeTyping, resetInfinteChats, setChats, setConnectionChats, setConnectionStatus, setGroupChats, setInfinteChats, setSelectedGroupChat, setUnread, updateMessageStatus } from "@/context/reducers/chats";
+import { addMessage, addMessages, addTyping, addUnread, removeTyping, setChats, setConnectionChats, setConnectionStatus, setGroupChats, setInfinteChats, setSelectedGroupChat, setUnread, updateMessageStatus } from "@/context/reducers/chats";
 
 
 
@@ -298,7 +298,6 @@ const useGetInfiniteScrollMessages = () => {
         dispatch({ type: 'REQUEST_START' });
         try {
             const res = await axios.get(`/chat/get-infinite-messages/${chatId}/${lastMessageId}`);
-            reduxDispatch(resetInfinteChats({ chatId }));
             reduxDispatch(setInfinteChats({ chatId, messages: res.data.data.messages }));
             console.log("infinite messages", res.data.data.messages);
             dispatch({ type: 'REQUEST_SUCCESS' });

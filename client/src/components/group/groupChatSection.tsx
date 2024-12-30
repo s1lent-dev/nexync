@@ -7,7 +7,7 @@ import { RootState } from '@/context/store';
 import { useGetInfiniteScrollMessages, useReadMessage, useSendMessage, useSocketMessages, useTypingMessage } from '@/hooks/chat';
 import { ChatType, IMessage, ITyping, MessageType } from '@/types/types';
 import ChatBubble from '../common/chat-bubble';
-import { setUnread } from '@/context/reducers/chats';
+import { resetInfinteChats, setUnread } from '@/context/reducers/chats';
 
 const GroupChatSection = () => {
 
@@ -68,6 +68,7 @@ const GroupChatSection = () => {
   useEffect(() => {
     if (group.chatId) {
       const fetchInitialMessages = async () => {
+        dispatch(resetInfinteChats({ chatId: group.chatId }));
         await getInfiniteScrollMessages(group.chatId);
       };
       fetchInitialMessages();

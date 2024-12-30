@@ -60,9 +60,6 @@ app.use(morgan('dev'));
 // await graphqlServer.start();
 // app.use('/graphql', bodyParser.json(), expressMiddleware(graphqlServer));
 
-setInterval(() => {
-    console.log('Server time (UTC):', new Date().toISOString());
-}, 10000)
 
 // OAuth Middlewares
 intializeGoogleOAuth();

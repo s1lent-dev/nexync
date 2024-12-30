@@ -120,7 +120,7 @@ const sendConnectionRequest = AsyncHandler(
         });
 
         await cache.delCache(`getSuggestions:${user?.userId}`);
-        const userExists = await prisma.user.findFirst({ where : { userId }});
+        const userExists = await prisma.user.findUnique({ where : { userId }});
         if (userExists?.deviceToken) {
             const options = {
                 title: "Connection Request",
@@ -246,7 +246,7 @@ const acceptConnectionRequest = AsyncHandler(
             ],
         });
 
-        const userExists = await prisma.user.findFirst({ where : { userId }});
+        const userExists = await prisma.user.findUnique({ where : { userId }});
         if (userExists?.deviceToken) {
             const options = {
                 title: "Connection Request",

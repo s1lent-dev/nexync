@@ -3,7 +3,9 @@ version: '3.8'
 services:
 
   server:
-      image: s1lentdev/nexync-server
+      build: 
+          context: ./server
+          dockerfile: Dockerfile
       container_name: nexync-server
       ports:
           - "5000:5000"
@@ -15,7 +17,9 @@ services:
           - kafka1
 
   client:
-      image: s1lentdev/nexync-client
+      build: 
+          context: ./client
+          dockerfile: Dockerfile
       container_name: nexync-client
       ports:
           - "3000:3000"
