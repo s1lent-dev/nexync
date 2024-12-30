@@ -23,39 +23,117 @@ Nexync combines cutting-edge technologies to provide a robust and reliable commu
 
 ## 🛠️ Key Features
 
-### ![Next.js Logo](public/next.svg){:style="width: 50px; height: 50px;"} Frontend: **Next.js**
-- Delivers a highly responsive and dynamic interface with features like lazy loading and infinite scroll.
+<div style="display: flex; align-items: center; margin-bottom: 20px;">
+  <img src="public/next.svg" alt="Next.js Logo" style="width: 50px; height: 50px; margin-right: 10px;">
+  <div style="display: flex; flex-direction: column;">
+    <strong>Frontend: <span style="color: #0070f3;">Next.js</span></strong>
+    <ul style="list-style-type: none; padding-left: 0;">
+      <li>Delivers a highly responsive and dynamic interface with features like lazy loading and infinite scroll.</li>
+    </ul>
+  </div>
+</div>
 
-### ![Node.js Logo](public/node.svg){:style="width: 50px; height: 50px;"} Backend: **Node.js**
-- Utilizes a microservices architecture to ensure modularity and high scalability.
+<div style="display: flex; align-items: center; margin-bottom: 20px;">
+  <img src="public/node.svg" alt="Node.js Logo" style="width: 50px; height: 50px; margin-right: 10px;">
+  <div style="display: flex; flex-direction: column;">
+    <strong>Backend: <span style="color: #8CC84B;">Node.js</span></strong>
+    <ul style="list-style-type: none; padding-left: 0;">
+      <li>Utilizes a microservices architecture to ensure modularity and high scalability.</li>
+    </ul>
+  </div>
+</div>
 
-### ![WebSocket Logo](public/socket.svg){:style="width: 50px; height: 50px;"} Real-Time Messaging: **WebSockets & Redis**
-- Ensures low-latency communication with **Socket.IO** and scalable message delivery using **Redis Pub/Sub**.
+<div style="display: flex; align-items: center; margin-bottom: 20px;">
+  <img src="public/socket.svg" alt="WebSocket Logo" style="width: 50px; height: 50px; margin-right: 10px;">
+  <div style="display: flex; flex-direction: column;">
+    <strong>Real-Time Messaging: <span style="color: #8e44ad;">WebSockets & Redis</span></strong>
+    <ul style="list-style-type: none; padding-left: 0;">
+      <li>Ensures low-latency communication with <strong>Socket.IO</strong> and scalable message delivery using <strong>Redis Pub/Sub</strong>.</li>
+    </ul>
+  </div>
+</div>
 
-### ![Kafka Logo](public/kafka.svg){:style="width: 50px; height: 50px;"} Message Queuing: **Kafka**
-- Processes messages in **Kafka chat-topic** (8 partitions) and efficiently stores them in **PostgreSQL** using bulk insertion every 5 seconds.
+<div style="display: flex; align-items: center; margin-bottom: 20px;">
+  <img src="public/kafka.svg" alt="Kafka Logo" style="width: 50px; height: 50px; margin-right: 10px;">
+  <div style="display: flex; flex-direction: column;">
+    <strong>Message Queuing: <span style="color: #E18D00;">Kafka</span></strong>
+    <ul style="list-style-type: none; padding-left: 0;">
+      <li>Processes messages in <strong>Kafka chat-topic</strong> (8 partitions) and efficiently stores them in <strong>PostgreSQL</strong> using bulk insertion every 5 seconds.</li>
+    </ul>
+  </div>
+</div>
 
-### ![Redis Logo](public/redis.svg){:style="width: 50px; height: 50px;"} Caching & Scalability: **Redis**
-- Implements API response caching to minimize latency and supports horizontal scaling for real-time features.
+<div style="display: flex; align-items: center; margin-bottom: 20px;">
+  <img src="public/redis.svg" alt="Redis Logo" style="width: 50px; height: 50px; margin-right: 10px;">
+  <div style="display: flex; flex-direction: column;">
+    <strong>Caching & Scalability: <span style="color: #DC382D;">Redis</span></strong>
+    <ul style="list-style-type: none; padding-left: 0;">
+      <li>Implements API response caching to minimize latency and supports horizontal scaling for real-time features.</li>
+    </ul>
+  </div>
+</div>
 
-### ![RabbitMQ Logo](public/rabbitmq.svg){:style="width: 50px; height: 50px;"} Task Management: **RabbitMQ**
-- Handles secondary tasks like email notifications and OTP verification via task-specific queues.
+<div style="display: flex; align-items: center; margin-bottom: 20px;">
+  <img src="public/rabbitmq.svg" alt="RabbitMQ Logo" style="width: 50px; height: 50px; margin-right: 10px;">
+  <div style="display: flex; flex-direction: column;">
+    <strong>Task Management: <span style="color: #FF6600;">RabbitMQ</span></strong>
+    <ul style="list-style-type: none; padding-left: 0;">
+      <li>Handles secondary tasks like email notifications and OTP verification via task-specific queues.</li>
+    </ul>
+  </div>
+</div>
 
-### ![Authentication Icon](public/jwt.svg){:style="width: 50px; height: 50px;"} Authentication
-- Cookie-based **JWT authentication** ensures secure session management.
-- **Google** and **GitHub** login via **Passport.js** provide seamless OAuth integration.
+<div style="display: flex; align-items: center; margin-bottom: 20px;">
+  <img src="public/jwt.svg" alt="Authentication Icon" style="width: 50px; height: 50px; margin-right: 10px;">
+  <div style="display: flex; flex-direction: column;">
+    <strong>Authentication</strong>
+    <ul style="list-style-type: none; padding-left: 0;">
+      <li>Cookie-based <strong>JWT authentication</strong> ensures secure session management.</li>
+      <li><strong>Google</strong> and <strong>GitHub</strong> login via <strong>Passport.js</strong> provide seamless OAuth integration.</li>
+    </ul>
+  </div>
+</div>
 
-### ![Firebase Logo](public/firebase.svg){:style="width: 50px; height: 50px;"} Push Notifications: **Firebase FCM**
-- Real-time push notifications for instant user updates across devices.
+<div style="display: flex; align-items: center; margin-bottom: 20px;">
+  <img src="public/firebase.svg" alt="Firebase Logo" style="width: 50px; height: 50px; margin-right: 10px;">
+  <div style="display: flex; flex-direction: column;">
+    <strong>Push Notifications: <span style="color: #FF5C8D;">Firebase FCM</span></strong>
+    <ul style="list-style-type: none; padding-left: 0;">
+      <li>Real-time push notifications for instant user updates across devices.</li>
+    </ul>
+  </div>
+</div>
 
-### ![PostgreSQL Logo](public/postgres.svg){:style="width: 50px; height: 50px;"} Database: **PostgreSQL & Prisma**
-- Relational database with efficient data handling using **Prisma ORM**.
+<div style="display: flex; align-items: center; margin-bottom: 20px;">
+  <img src="public/postgres.svg" alt="PostgreSQL Logo" style="width: 50px; height: 50px; margin-right: 10px;">
+  <div style="display: flex; flex-direction: column;">
+    <strong>Database: <span style="color: #336791;">PostgreSQL & Prisma</span></strong>
+    <ul style="list-style-type: none; padding-left: 0;">
+      <li>Relational database with efficient data handling using <strong>Prisma ORM</strong>.</li>
+    </ul>
+  </div>
+</div>
 
-### ![TypeScript Logo](public/typescript.svg){:style="width: 50px; height: 50px;"} Robust Typing: **TypeScript & Zod**
-- Ensures type safety and secure data handling via strict runtime validations.
+<div style="display: flex; align-items: center; margin-bottom: 20px;">
+  <img src="public/typescript.svg" alt="TypeScript Logo" style="width: 50px; height: 50px; margin-right: 10px;">
+  <div style="display: flex; flex-direction: column;">
+    <strong>Robust Typing: <span style="color: #3178C6;">TypeScript & Zod</span></strong>
+    <ul style="list-style-type: none; padding-left: 0;">
+      <li>Ensures type safety and secure data handling via strict runtime validations.</li>
+    </ul>
+  </div>
+</div>
 
-### ![Performance Icon](public/fire.svg){:style="width: 50px; height: 50px;"} Performance Optimizations
-- Features include debouncing, throttling, pagination, and suspense boundaries for enhanced performance.
+<div style="display: flex; align-items: center; margin-bottom: 20px;">
+  <img src="public/fire.svg" alt="Performance Icon" style="width: 50px; height: 50px; margin-right: 10px;">
+  <div style="display: flex; flex-direction: column;">
+    <strong>Performance Optimizations</strong>
+    <ul style="list-style-type: none; padding-left: 0;">
+      <li>Features include debouncing, throttling, pagination, and suspense boundaries for enhanced performance.</li>
+    </ul>
+  </div>
+</div>
+
 
 ---
 
