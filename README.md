@@ -1,175 +1,159 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nexync README</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #121212;
-      color: #ffffff;
-      margin: 0;
-      padding: 0;
-    }
-    h1, h2, h3 {
-      color: #00e6e6;
-      text-align: center;
-    }
-    a {
-      color: #1db954;
-      text-decoration: none;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-    .center {
-      text-align: center;
-    }
-    .image-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 20px 0;
-    }
-    .image-container img {
-      max-width: 80%;
-      height: auto;
-      border: 2px solid #00e6e6;
-      border-radius: 10px;
-    }
-    .architecture {
-      background-color: #000000;
-      padding: 20px;
-      border-radius: 15px;
-    }
-    .logos {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 20px;
-      margin: 20px 0;
-    }
-    .logos img {
-      width: 50px;
-      height: 50px;
-    }
-    .code-block {
-      background-color: #1e1e1e;
-      color: #d4d4d4;
-      padding: 15px;
-      border-radius: 10px;
-      overflow-x: auto;
-      margin: 20px 0;
-    }
-  </style>
-</head>
-<body>
+# Nexync 🌐  
+**"Where connections spark, and conversations flow. Scalable, seamless, and always in sync!"**
 
-<h1>Nexync</h1>
-<p class="center"><strong>"Where connections spark, and conversations flow. Scalable, seamless, and always in sync!"</strong></p>
+Nexync is a scalable and feature-rich chat application designed to serve millions of users concurrently with high performance and reliability. Built with a modern tech stack, it delivers seamless communication and real-time features that empower users to connect effectively.
 
-<div class="image-container">
-  <img src="public/main.png" alt="Home Page">
+---
+
+<div style="background-color: black; padding: 10px; text-align: center;">
+  <img src="public/main.png" alt="Image" style="background-color: black;">
 </div>
 
-<h2>Table of Contents</h2>
-<ol>
-  <li><a href="#introduction">Introduction</a></li>
-  <li><a href="#key-features">Key Features</a></li>
-  <li><a href="#architecture">Architecture</a>
-    <ul>
-      <li><a href="#chat-system-architecture">Chat System Architecture</a></li>
-      <li><a href="#queuing-system-architecture">Queuing System Architecture</a></li>
-    </ul>
-  </li>
-  <li><a href="#setup-and-installation">Setup and Installation</a></li>
-  <li><a href="#usage">Usage</a>
-    <ul>
-      <li><a href="#registration-process">Registration Process</a></li>
-      <li><a href="#login-process">Login Process</a></li>
-      <li><a href="#chatting-and-connecting-process">Chatting and Connecting Process</a></li>
-    </ul>
-  </li>
-  <li><a href="#license">License</a></li>
-</ol>
+## 🚀 Introduction
 
-<h2 id="introduction">Introduction</h2>
-<p>Nexync is a modern chat platform with a focus on scalability and seamless communication. Developed using:</p>
+Nexync combines cutting-edge technologies to provide a robust and reliable communication platform.  
+### Key Highlights:
+- **Frontend:** Developed with **Next.js** for responsive, interactive user experiences.
+- **Backend:** Powered by **Node.js** with a **microservices architecture** for modularity and scalability.
+- **Real-Time Communication:** Utilizes **WebSockets** and **Redis Pub/Sub** for instant message delivery.
+- **Messaging Queue:** Implements **Kafka** and **RabbitMQ** for efficient and high-throughput task handling.
+- **Type Safety:** Fully written in **TypeScript** with **Zod** for runtime validation.
 
-<div class="logos">
-  <img src="public/logos/nextjs.svg" alt="Next.js Logo">
-  <img src="public/logos/nodejs.svg" alt="Node.js Logo">
-  <img src="public/logos/socketio.svg" alt="Socket.IO Logo">
-  <img src="public/logos/kafka.svg" alt="Kafka Logo">
-  <img src="public/logos/redis.svg" alt="Redis Logo">
-  <img src="public/logos/rabbitmq.svg" alt="RabbitMQ Logo">
+---
+
+## 🛠️ Key Features
+
+### ![Next.js Logo](public/next.svg) Frontend: **Next.js**
+- Delivers a highly responsive and dynamic interface with features like lazy loading and infinite scroll.
+
+### ![Node.js Logo](public/node.svg) Backend: **Node.js**
+- Utilizes a microservices architecture to ensure modularity and high scalability.
+
+### ![WebSocket Logo](public/socket.svg) Real-Time Messaging: **WebSockets & Redis**
+- Ensures low-latency communication with **Socket.IO** and scalable message delivery using **Redis Pub/Sub**.
+
+### ![Kafka Logo](public/kafka.svg) Message Queuing: **Kafka**
+- Processes messages in **Kafka chat-topic** (8 partitions) and efficiently stores them in **PostgreSQL** using bulk insertion every 5 seconds.
+
+### ![Redis Logo](public/redis.svg) Caching & Scalability: **Redis**
+- Implements API response caching to minimize latency and supports horizontal scaling for real-time features.
+
+### ![RabbitMQ Logo](public/rabbitmq.svg) Task Management: **RabbitMQ**
+- Handles secondary tasks like email notifications and OTP verification via task-specific queues.
+
+### ![Authentication Icon](public/jwt.svg) Authentication
+- Cookie-based **JWT authentication** ensures secure session management.
+- **Google** and **GitHub** login via **Passport.js** provide seamless OAuth integration.
+
+### ![Firebase Logo](public/firebase.svg) Push Notifications: **Firebase FCM**
+- Real-time push notifications for instant user updates across devices.
+
+### ![PostgreSQL Logo](public/postgres.svg) Database: **PostgreSQL & Prisma**
+- Relational database with efficient data handling using **Prisma ORM**.
+
+### ![TypeScript Logo](public/typescript.svg) Robust Typing: **TypeScript & Zod**
+- Ensures type safety and secure data handling via strict runtime validations.
+
+### ![Performance Icon](public/fire.svg) Performance Optimizations
+- Features include debouncing, throttling, pagination, and suspense boundaries for enhanced performance.
+
+
+---
+
+## 🏗️ Architecture
+
+### 1️⃣ Chat System Architecture  
+Efficiently handles millions of concurrent users with real-time communication powered by **WebSockets**, **Kafka**, and **Redis Pub/Sub**.  
+
+<div style="background-color: black; padding: 10px; text-align: center;">
+  <img src="public/chat-architecture.svg" alt="Image" style="background-color: black;">
 </div>
 
-<ul>
-  <li><strong>Frontend:</strong> Built with Next.js for a responsive and interactive user experience.</li>
-  <li><strong>Backend:</strong> Node.js with a microservices architecture to ensure scalability and modularity.</li>
-  <li><strong>Technologies:</strong> WebSockets, Kafka, Redis, RabbitMQ, Prisma ORM, PostgreSQL, Firebase FCM, and Redux.</li>
-  <li><strong>Type Safety:</strong> Fully written in TypeScript with runtime validation using Zod.</li>
-</ul>
+#### Workflow:
+1. **Message Flow:**
+   - WebSocket servers receive messages from users.
+   - Messages are simultaneously:
+     - Published to **Kafka chat-topic** for processing and queuing in **Redis**.
+     - Published to **Redis Pub/Sub** for instant delivery to recipients.
+   - Bulk-inserted into **PostgreSQL** every 5 seconds for optimal performance.
 
-<h2 id="key-features">Key Features</h2>
-<p>Highlights include:</p>
-<ul>
-  <li>Real-time communication powered by WebSockets and Socket.IO.</li>
-  <li>High-throughput messaging using Kafka with an 8-partition chat-topic.</li>
-  <li>Strategic caching and Pub/Sub messaging using Redis.</li>
-  <li>Efficient task handling with RabbitMQ queues.</li>
-  <li>Secure authentication with cookie-based JWT and OAuth via Passport.js.</li>
-  <li>Type-safe database operations with Prisma and PostgreSQL.</li>
-</ul>
+2. **Load Balancing:**  
+   - **Nginx reverse proxy** balances WebSocket connections across multiple servers.
 
-<h2 id="architecture">Architecture</h2>
+---
 
-<h3 id="chat-system-architecture">Chat System Architecture</h3>
-<div class="architecture">
-  <div class="image-container">
-    <img src="public/chat-architecture.svg" alt="Chat System Architecture">
-  </div>
+### 2️⃣ Queuing System Architecture  
+Handles secondary tasks such as email notifications and OTP verification using **RabbitMQ**.  
+
+<div style="background-color: black; padding: 10px; text-align: center;">
+  <img src="public/queue-architecture.svg" alt="Image" style="background-color: black;">
 </div>
-<p>Message flow in the system includes WebSocket connections, Kafka message processing, Redis Pub/Sub, and bulk insertion into PostgreSQL.</p>
 
-<h3 id="queuing-system-architecture">Queuing System Architecture</h3>
-<div class="architecture">
-  <div class="image-container">
-    <img src="public/queuing-architecture.svg" alt="Queuing System Architecture">
-  </div>
-</div>
-<p>Handles secondary tasks like sending emails and notifications efficiently using RabbitMQ queues.</p>
+#### Workflow:
+- Dedicated queues for specific tasks:
+  - Reset Password Emails
+  - Verification Code Emails
+  - Welcome Notifications
+- Messages are processed in a **FIFO** manner, ensuring task reliability and API performance.
 
-<h2 id="setup-and-installation">Setup and Installation</h2>
-<div class="code-block">
-  <pre>
+---
+
+## 📦 Setup & Installation
+
+### Prerequisites
+- **Node.js**
+- **Docker**
+
+### Installation Steps
 1. Clone the repository:
-   git clone &lt;repository-url&gt;
+   ```bash
+   git clone <repository-url>
    cd nexync
+Start the application:
+bash
+Copy code
+docker-compose up
+Access the frontend at http://localhost:3000 and backend at http://localhost:5000.
+Note:
+For Google and GitHub authentication, generate credentials via Google Cloud Console and GitHub Developer Settings.
 
-2. Start the services:
-   docker compose up
+📖 Usage
+1️⃣ Registration
 
-3. Access the application:
-   Frontend: http://localhost:3000
-   Backend: http://localhost:5000
-  </pre>
+<div style="background-color: black; padding: 10px; text-align: center;">
+  <img src="public/register.png" alt="Image" style="background-color: black;">
 </div>
 
-<p><strong>Note:</strong> Google and GitHub authentication require credentials from their respective developer consoles.</p>
+A. Manual Registration:
+Create an account using your email and password.
+Verify your email using a unique verification code. (Note: If the verification code is not visible in your inbox, check your spam/junk folder. Emails will be sent from deshpande.pxresh@gmail.com.)
+B. OAuth Registration:
+Register via Google or GitHub.
+Credentials are autogenerated and emailed for convenience. (Note: If the email containing your autogenerated password is not visible, check your spam/junk folder. Emails will be sent from deshpande.pxresh@gmail.com.)
 
-<h2 id="usage">Usage</h2>
-<p>Detailed workflows for:</p>
-<ul>
-  <li><strong>Registration:</strong> Manual or OAuth-based account creation.</li>
-  <li><strong>Login:</strong> Manual or OAuth-based authentication.</li>
-  <li><strong>Chatting and Connecting:</strong> Private and group chats, friend requests, and connection management.</li>
-</ul>
+<div style="background-color: black; padding: 10px; text-align: center;">
+  <img src="public/login.png" alt="Image" style="background-color: black;">
+</div>
 
-<h2 id="license">License</h2>
-<p>Nexync is released under the <a href="LICENSE">MIT License</a>.</p>
+2️⃣ Login
+A. Manual Login:
+Use your email and password.
+B. OAuth Login:
+Authenticate via Google or GitHub.
+3️⃣ Features
+Private Chats: Chat directly with your connections.
+Group Chats: Create or join groups; manage members if you're an admin.
+Connections: Follow users, accept/reject connection requests, and explore profiles.
+Settings: Update profile picture, username, and bio.
 
-</body>
-</html>
+🤝 Contributions
+Contributions are welcome! Feel free to fork the repository and submit pull requests for improvements.
+
+📝 License
+This project is licensed under the MIT License.
+
+📧 Contact
+For queries or feedback, reach out via email: deshpande.pxresh@gmail.com
+
+
+
