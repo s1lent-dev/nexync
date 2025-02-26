@@ -1,4 +1,4 @@
-import { RabbitMQService } from "./rabbitmq.lib.js";
+import { RabbitMQService } from "./rabbitmq.js";
 import { MailContent } from "../../types/types.js";
 import { sendMail } from "../../services/mail.service.js";
 

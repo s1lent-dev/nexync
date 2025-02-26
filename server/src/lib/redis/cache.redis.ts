@@ -1,4 +1,4 @@
-import { RedisService } from "./redis.lib.js";
+import { RedisService } from "./redis.js";
 
 class RedisCache extends RedisService {
 

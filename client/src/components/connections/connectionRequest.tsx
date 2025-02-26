@@ -2,7 +2,7 @@ import React from 'react'
 import { ArrowLeft } from 'lucide-react'
 import SingleRequest from './singleRequest'
 import { useDispatch, useSelector } from "react-redux";
-import { setNavigation } from '@/context/reducers/navigation';
+import { setNavigation } from '@/context/reducers/navigation.reducer';
 import { useGetConnectionRequests } from '@/hooks/user';
 import { RootState } from '@/context/store';
 

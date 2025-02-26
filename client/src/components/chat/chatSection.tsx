@@ -7,7 +7,7 @@ import { RootState } from '@/context/store';
 import { useGetInfiniteScrollMessages, useReadMessage, useSendMessage, useSocketMessages, useTypingMessage } from '@/hooks/chat';
 import { ChatType, IMessage, ITyping, MessageType } from '@/types/types';
 import ChatBubble from '../common/chat-bubble';
-import { resetInfinteChats, setUnread } from '@/context/reducers/chats';
+import { resetInfinteChats, setUnread } from '@/context/reducers/chats.reducer';
 
 const ChatSection = () => {
 

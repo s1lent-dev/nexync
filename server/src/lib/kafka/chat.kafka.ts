@@ -1,4 +1,4 @@
-import { KafkaService } from "./kafka.lib.js";
+import { KafkaService } from "./kafka.js";
 import { Chat, ChatType, MessageEvent } from "../../types/types.js";
 import { prisma } from "../db/prisma.db.js";
 import { pubsub } from "../../app.js";

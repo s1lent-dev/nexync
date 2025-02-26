@@ -6,8 +6,8 @@ import { debounce } from "lodash";
 import SingleSuggestion from "./singleSuggestion";
 import { RootState } from "@/context/store";
 import { useGetSuggestions, useSearchUsers } from "@/hooks/user";
-import { resetSearchedUsers } from "@/context/reducers/newConnection";
-import { setNavigation } from "@/context/reducers/navigation";
+import { resetSearchedUsers } from "@/context/reducers/newConnection.reducer";
+import { setNavigation } from "@/context/reducers/navigation.reducer";
 
 const NewChat = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");

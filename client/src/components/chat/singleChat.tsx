@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
 import { IConnectionChat } from '@/types/types';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSelectedConnectionChat } from '@/context/reducers/chats';
+import { setSelectedConnectionChat } from '@/context/reducers/chats.reducer';
 import { RootState } from '@/context/store';
 
 interface SingleChatProps {

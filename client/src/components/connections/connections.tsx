@@ -5,7 +5,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
-import { setNavigation } from "@/context/reducers/navigation";
+import { setNavigation } from "@/context/reducers/navigation.reducer";
 import SingleConnection from "./singleConnection";
 import { useGetConnectionRequests, useGetConnections } from "@/hooks/user";
 import { RootState } from "@/context/store";

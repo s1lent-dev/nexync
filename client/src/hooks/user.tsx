@@ -2,9 +2,9 @@
 
 // Imports
 import { useAxios } from "@/context/helper/axios";
-import { setMe } from "@/context/reducers/user";
-import { setFollowers, setFollowing, setConnectionRequests, setConnections } from "@/context/reducers/connections";
-import { setSearchedUsers, setSuggestedUsers } from "@/context/reducers/newConnection";
+import { setMe } from "@/context/reducers/user.reducer";
+import { setFollowers, setFollowing, setConnectionRequests, setConnections } from "@/context/reducers/connections.reducer";
+import { setSearchedUsers, setSuggestedUsers } from "@/context/reducers/newConnection.reducer";
 import { AxiosError } from "axios";
 import { useDispatch } from "react-redux";
 

@@ -1,4 +1,4 @@
-import { SocketService } from "./socket.lib.js";
+import { SocketService } from "./socket.js";
 import { Socket } from "socket.io";
 import { Server } from "http";
 import { ChatType, GroupJoinedEvent, GroupLeftEvent, GroupRemoveEvent, MessageEvent, TypingEvent } from "../../types/types.js";

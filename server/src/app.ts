@@ -15,7 +15,7 @@ import { ChatSocket } from './lib/socket/chat.socket.js';
 import { PubSubRedis } from './lib/redis/pubsub.redis.js';
 import { RedisCache } from './lib/redis/cache.redis.js';
 import { ChatKafkaService } from './lib/kafka/chat.kafka.js';
-import { EmailQueue } from './lib/rabbitmq/email.queue.js';
+import { EmailQueue } from './lib/rabbitmq/email.rabbitmq.js';
 import authRouter from './routes/auth.routes.js';
 import userRouter from './routes/user.routes.js';
 import chatRouter from './routes/chat.routes.js';

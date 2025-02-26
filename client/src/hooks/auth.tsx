@@ -2,12 +2,12 @@
 
 // Imports
 import { useAxios } from "@/context/helper/axios";
-import { resetMe, resetSelectedUser } from "@/context/reducers/user";
+import { resetMe, resetSelectedUser } from "@/context/reducers/user.reducer";
 import { IRegsitrationForm, ILoginForm } from "@/types/types";
 import { AxiosError } from "axios";
 import { useDispatch } from "react-redux";
-import { resetChats, setConnectionChats, setGroupChats } from "@/context/reducers/chats";
-import { setNavigation } from "@/context/reducers/navigation";
+import { resetChats, setConnectionChats, setGroupChats } from "@/context/reducers/chats.reducer";
+import { setNavigation } from "@/context/reducers/navigation.reducer";
 
 
 //!Hooks
