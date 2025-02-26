@@ -2,6 +2,9 @@ import admin from 'firebase-admin';
 import { Message, getMessaging } from "firebase-admin/messaging";
 import { FRONTEND_URL, FIREBASE_SERVICE_ACCOUNT } from '../config/config.js';
 
+const ServiceAccount = JSON.parse(FIREBASE_SERVICE_ACCOUNT);
+console.log(ServiceAccount);
+
 class NotifyService {
 
     private messaging: admin.messaging.Messaging;
@@ -13,7 +16,7 @@ class NotifyService {
     private initFirebase(): admin.messaging.Messaging {
         if (!admin.apps.length) {
             admin.initializeApp({
-                credential: admin.credential.cert(FIREBASE_SERVICE_ACCOUNT as admin.ServiceAccount),
+                credential: admin.credential.cert(ServiceAccount as admin.ServiceAccount),
             });
         }
         return admin.messaging();
